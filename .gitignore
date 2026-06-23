@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+
+# Firebase local state and logs
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+
+# Local secrets and environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Credentials and private keys
+*service-account*.json
+*serviceAccount*.json
+*.pem
+*.key
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local tools
+.tools/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
