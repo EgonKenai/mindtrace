@@ -7,7 +7,7 @@ MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记�
 ## Windows 环境要求
 
 - Node.js 24
-- pnpm 11.5.3
+- pnpm 11.8.0
 - Java 21
 - Google Chrome，用于本地 E2E 测试
 
@@ -22,7 +22,7 @@ java -version
 预期主版本分别为 Node.js `24`、pnpm `11` 和 Java `21`。如果尚未安装项目声明的 pnpm：
 
 ```powershell
-npm install --global pnpm@11.5.3
+npm install --global pnpm@11.8.0
 ```
 
 ## 安装

@@ -1,5 +1,7 @@
+verifyDepsBeforeRun: warn
 allowBuilds:
   "@firebase/util": true
   protobufjs: true
+  re2: false
   sharp: true
   unrs-resolver: true
