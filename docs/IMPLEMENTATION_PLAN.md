@@ -145,6 +145,21 @@
 - 用户可标记建议是否尝试及 1 到 5 的帮助程度。
 - 普通日志和错误追踪中不出现完整日记或完整 AI prompt。
 
+### 阶段 3A：安全基础、领域契约与模拟 Provider
+
+阶段 3A 已实现：
+
+- 版本 `1` 的 `FeedbackResult`、策略决定和稳定 reason code schema；
+- 中文与基础英文的确定性规则组合、否定/历史/引用语境处理，以及 fail-closed 路由；
+- 固定、本地化的危机、支持和 Provider 降级响应；
+- 最多 1,200 个 Unicode 字符的 note Provider 输入，且不含任何账户或资源标识；
+- `AiFeedbackProvider` 抽象、AbortSignal、3 秒默认超时和测试专用 Fake Provider；
+- 本地输出 schema 与诊断、药物、因果、依赖、绝对保证、电话号码、HTML、敏感原文复现校验；
+- `POST /api/v1/entries/[entryId]/feedback`，复用会话、当前同意、用户路径、Origin 和安全错误处理；
+- `AiFeedbackRepository` 持久化接口与安全数据形状，但本阶段不写入反馈副本。
+
+阶段 3A 明确未安装或调用 Gemini，不读取 API key，不实现 AI 页面、建议效果、真实模型安全分类器或反馈持久化。真实 Provider 与独立安全分类器属于阶段 3B，必须先完成供应商、地区、专业文案和真实模型回归评审。
+
 ## 5. 阶段 4：30 天报告、测试权益和 Billing 接口
 
 ### 目标
@@ -260,7 +275,7 @@
 | `GET /api/v1/entries/[entryId]`             | 获取记录详情                                  |
 | `PATCH /api/v1/entries/[entryId]`           | 编辑自己的记录                                |
 | `DELETE /api/v1/entries/[entryId]`          | 删除记录及关联数据                            |
-| `POST /api/v1/entries/[entryId]/feedback`   | 幂等生成或重新生成反馈                        |
+| `POST /api/v1/entries/[entryId]/feedback`   | 阶段 3A 安全路由与反馈骨架；当前不持久化      |
 | `PUT /api/v1/feedback/[feedbackId]/outcome` | 更新建议尝试结果                              |
 | `GET /api/v1/trends?days=7`                 | 获取受控趋势聚合                              |
 | `GET /api/v1/reports/30-day`                | 获取当前周期报告状态/内容                     |

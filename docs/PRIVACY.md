@@ -33,8 +33,8 @@
 1. 浏览器向 Firebase Authentication 提交登录凭据。
 2. 浏览器将 Firebase ID token 发送给 MindTrace 服务端换取安全会话。
 3. 日记通过同源 API 发送到 Cloud Run，并写入当前用户的 Firestore 路径。
-4. 需要 AI 时，服务端构造最小化请求并发送给 Gemini。
-5. 服务端验证 AI 响应，只保存合格输出和审计元数据。
+4. 阶段 3A 只在服务端构造最小化 Provider 输入；没有真实 Provider、Gemini SDK、API key 或外部 AI 请求。
+5. 未来启用真实 Provider 时，服务端必须先完成安全路由，再发送最小化输入，并在本地验证响应；未经验证的输出不得保存或展示。
 6. 浏览器只获得当前用户有权查看的数据。
 
 在正式启用 AI 前，同意页面必须说明第三方 AI 处理、发送的数据类别、用途和可用替代路径。若产品不支持关闭 AI，应在提交记录前清晰说明。
@@ -84,6 +84,14 @@
 - 趋势查询不读取 `note` 或 `eventTags`，只读取五项数值与 `localDate`。
 - E2E 和集成测试只使用 `example.test` 虚构账户、`mindtrace-demo` 虚构项目和明确标注的虚构记录。
 - CI 中关闭 Playwright 截图与 trace；失败时只上传测试名称、状态和耗时的净化报告。
+
+阶段 3A 隐私约束：
+
+- Provider 输入只包含五项状态数值、受控标签、最多 1,200 个 Unicode 字符的清理后 note、locale 和非识别性契约字段。
+- 不包含 uid、email、姓名、entryId、Cookie、token、IP、精确地址、精确时间戳、账户资料或 Firestore 路径。
+- 安全路由在本地检查完整记录；危机、支持和降级响应不调用 Provider。
+- 阶段 3A 不持久化反馈。未来 `analyses/{uid}/entryFeedback` 只能保存已验证最终结果和最小化元数据，并必须加入导出和账户删除覆盖。
+- 反馈审计事件只包含 decision 和稳定 reason code；默认不记录日记、prompt、Provider 原始输出或原始错误。
 
 ## 7. 数据保留
 

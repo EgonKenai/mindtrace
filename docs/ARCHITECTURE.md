@@ -18,7 +18,7 @@
 | UI       | React + 项目内设计令牌                   | 首版不引入重型组件框架，优先无障碍原生控件    |
 | 身份     | Firebase Authentication                  | 浏览器登录后换取服务端会话 Cookie             |
 | 数据     | Cloud Firestore                          | 仅服务端 Admin SDK 访问业务数据               |
-| AI       | Gemini API                               | 仅服务端调用，结构化输出                      |
+| AI       | Provider 抽象；未来 Gemini adapter       | 阶段 3A 仅本地规则与测试 Fake，不调用真实模型 |
 | 运行环境 | Google Cloud Run                         | 部署整个 Next.js 模块化单体                   |
 | 异步任务 | Cloud Tasks + Cloud Run 内部任务端点     | 用于可靠删除、可重试报告等长任务              |
 | 验证     | 统一 schema 库                           | API 输入、环境变量和 AI 输出共用 schema       |
@@ -240,6 +240,8 @@ AI 结果和建议，不修改原始日记。
 | `generatedAt`         | timestamp   | 生成时间                                                |
 | `validationCodes`     | string[]    | 不含原文的校验结果代码                                  |
 
+阶段 3A 只定义 `AiFeedbackRepository` 接口，不创建上述文档。未来实现持久化时，数据结构以已通过本地校验的 `FeedbackResult` 为主体，并保存 `schemaVersion`、provider 类型、model 标识、`policyDecision`、稳定 reason codes、服务端 `createdAt`、输入 `entryRevision` 和非敏感运行状态。不得保存完整 prompt、日记副本、session/token、API key、Provider 原始错误或未验证输出。该集合必须继续纳入未来导出和账户删除。
+
 子集合或同域集合 `analyses/{uid}/suggestionOutcomes/{outcomeId}`：
 
 | 字段            | 类型        | 说明                            |
@@ -373,6 +375,19 @@ interface BillingProvider {
 - 普通输出经过诊断、药物、因果、依赖语言和建议数量校验。
 - 模型不可用时返回安全、非个性化的降级反馈。
 - 模型调用不得记录 prompt、日记原文或完整响应。
+
+阶段 3A 的实际数据流为：
+
+1. `POST /api/v1/entries/[entryId]/feedback` 校验 Origin，并从服务端会话取得 uid。
+2. `requireProductDataAccess` 验证成年确认和当前版本同意。
+3. repository 只从 `journals/{uid}/entries/{entryId}` 读取当前用户记录；他人和不存在记录统一 `NOT_FOUND`。
+4. 本地确定性路由检查完整 note。`crisis_redirect`、`supportive_redirect` 和无法分类的 `safe_fallback` 不调用 Provider。
+5. `allow_generation` 才构造最小输入；note 清理并截断为 1,200 个 Unicode 字符，系统契约与用户内容分字段传递。
+6. Provider 使用 AbortSignal 和服务端超时。阶段 3A 默认 Provider 明确未配置，只返回固定降级。
+7. 原始输出经过 strict schema、长度、建议数量和内容政策校验；失败时整个丢弃。
+8. API 显式返回 `schemaVersion`、`status`、`reflection`、`suggestions`、`disclaimer`、`policyDecision` 和 `reasonCodes`。
+
+具体规则、拒绝项和阶段 3B 门槛见 `docs/AI_SAFETY.md`。
 
 ## 12. 日志、监控和审计
 

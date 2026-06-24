@@ -2,7 +2,9 @@
 
 MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记录 Web 应用。它不是心理治疗、疾病诊断、药物建议或紧急援助工具。
 
-当前仓库已完成阶段 2：包含服务端日记 schema 与 API、今日记录、历史稳定分页、详情编辑删除，以及按用户本地日期聚合的最近 7 天趋势。阶段 2D 已补齐安全审查、完整回归和 CI E2E 配置。当前仍不包含 Gemini、AI 反馈、风险检测、支付、30 天报告、导出或账户删除实现。
+当前仓库已完成阶段 2，并实现阶段 3A 的 AI 反馈安全基础：版本化反馈契约、确定性安全路由、最小化 Provider 输入、严格输出校验、Provider 抽象、测试 Fake Provider，以及 `POST /api/v1/entries/[entryId]/feedback` 服务端骨架。
+
+阶段 3A 不安装 Gemini SDK、不读取 API Key、不调用真实模型、不持久化反馈，也不提供最终反馈页面。生产普通分支会返回明确的 `PROVIDER_NOT_CONFIGURED` 固定降级。真实 Provider、独立模型安全分类器、建议效果闭环、支付、30 天报告、导出和账户删除仍未实现。
 
 ## Windows 环境要求
 
@@ -109,7 +111,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-完整的阶段 2 本地验证顺序：
+阶段 3A 不要求 AI 页面 E2E。完整本地验证顺序：
 
 ```powershell
 pnpm format:check
@@ -147,6 +149,11 @@ GitHub Actions 不执行 Firebase 登录，也不需要真实 Firebase 项目、
 - Firebase Admin SDK 只在 `src/server` 和服务端 Route Handlers 中使用。
 - 浏览器不能直接读写 Firestore 业务集合；`firestore.rules` 默认拒绝。
 - API 从已验证的会话取得 UID，不接受客户端传入 UID 作为数据所有者。
+- AI 反馈只有普通记录可进入 Provider；明确危险和高度痛苦分支使用本地化固定模板。
+- Provider 输入不含 UID、邮箱、entryId、token、Cookie、精确时间或 Firestore 路径。
+- 阶段 3A 没有真实 AI Provider；Fake Provider 只用于单元和 Emulator 集成测试。
 - `accounts/{uid}` 不保存邮箱；邮箱由 Firebase Authentication 管理。
 - 测试账户使用 `example.test` 和完全虚构的数据。
-- 当前阶段没有 Gemini、AI 反馈、风险检测、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
+- 当前阶段没有 Gemini SDK/API Key、真实模型调用、最终 AI 页面、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
+
+AI 安全设计、已知限制和阶段 3B 门槛见 `docs/AI_SAFETY.md`。

@@ -225,6 +225,30 @@ export const zhCN = {
       entryCount: "记录数",
     },
   },
+  aiFeedback: {
+    disclaimer:
+      "这是一条记录辅助信息，不是诊断、治疗或用药建议，也不能替代专业人员或紧急服务。",
+    generated: {
+      fallbackReflection:
+        "你的记录已经保存。AI 反馈目前不可用，你仍可以稍后回看自己的记录。",
+    },
+    supportive: {
+      reflection:
+        "听起来你现在可能承受着很强的痛苦。MindTrace 无法判断紧急程度，也不能提供紧急援助。",
+      suggestions: [
+        "请现在联系一位你信任的人或专业支持，并直接说明你需要陪伴或帮助。",
+      ],
+    },
+    crisis: {
+      reflection:
+        "你描述的情况可能涉及当前的紧急危险。MindTrace 不能提供紧急援助。",
+      suggestions: [
+        "如果危险正在发生，请立即联系当地紧急服务或前往最近的急诊机构。",
+        "请现在联系一位可信任的人，清楚告诉对方你需要立即陪伴或帮助，并尽量不要独处。",
+        "你也可以打开 MindTrace 的安全资源页面查找进一步支持。",
+      ],
+    },
+  },
   settings: {
     title: "设置",
     accountSection: "账户状态",
