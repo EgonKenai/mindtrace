@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase-admin/firestore";
 
+import type { JournalEntry, JournalEntryList } from "@/features/journal/model";
 import { getAccessState } from "@/server/auth/access";
 import {
   createJournalEntryInputSchema,
@@ -24,28 +25,6 @@ import {
   type JournalEntryRecord,
   type UpdateJournalEntryRecordInput,
 } from "@/server/repositories/journal-repository";
-
-export interface JournalEntryResponse {
-  createdAt: string;
-  energy: number;
-  eventTags: string[];
-  id: string;
-  localDate: string;
-  mood: number;
-  note: string;
-  occurredAt: string;
-  revision: number;
-  sleepHours: number;
-  sleepQuality: number;
-  stress: number;
-  timeZone: string;
-  updatedAt: string;
-}
-
-export interface JournalEntryListResponse {
-  entries: JournalEntryResponse[];
-  nextCursor: string | null;
-}
 
 interface JournalAccessContext {
   timeZone: string;
@@ -75,9 +54,7 @@ async function requireJournalAccess(
   };
 }
 
-function serializeJournalEntry(
-  entry: JournalEntryRecord,
-): JournalEntryResponse {
+function serializeJournalEntry(entry: JournalEntryRecord): JournalEntry {
   return {
     id: entry.id,
     mood: entry.mood,
@@ -99,7 +76,7 @@ function serializeJournalEntry(
 export async function createJournalEntry(
   userId: string | null | undefined,
   input: unknown,
-): Promise<JournalEntryResponse> {
+): Promise<JournalEntry> {
   const context = await requireJournalAccess(userId);
   const parsed = createJournalEntryInputSchema.parse(input);
   const occurredAt = parseOccurredAt(parsed.occurredAt);
@@ -117,7 +94,7 @@ export async function createJournalEntry(
 export async function listJournalEntries(
   userId: string | null | undefined,
   query: unknown,
-): Promise<JournalEntryListResponse> {
+): Promise<JournalEntryList> {
   const context = await requireJournalAccess(userId);
   const parsed = listJournalEntriesQuerySchema.parse(query);
   const result = await listJournalEntryRecords(context.userId, parsed);
@@ -131,7 +108,7 @@ export async function listJournalEntries(
 export async function getJournalEntry(
   userId: string | null | undefined,
   entryId: string,
-): Promise<JournalEntryResponse> {
+): Promise<JournalEntry> {
   const context = await requireJournalAccess(userId);
   const entry = await getJournalEntryRecord(context.userId, entryId);
 
@@ -146,7 +123,7 @@ export async function updateJournalEntry(
   userId: string | null | undefined,
   entryId: string,
   input: unknown,
-): Promise<JournalEntryResponse> {
+): Promise<JournalEntry> {
   const context = await requireJournalAccess(userId);
   const parsed = updateJournalEntryInputSchema.parse(input);
   const { occurredAt: occurredAtInput, ...mutableFields } = parsed;

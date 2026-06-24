@@ -193,6 +193,15 @@ match /{document=**} {
 - 单条删除会同时删除同用户下已存在的 `analyses/{uid}/entryFeedback`、`analyses/{uid}/suggestionOutcomes` 和 `safetyEvents/{uid}/events` 中与该记录关联的占位数据；阶段 2A 不创建 AI 反馈。
 - 未来导出和账户删除必须覆盖 `journals/{uid}/entries/{entryId}`，并继续保持日记正文不进入普通日志或错误上下文。
 
+阶段 2B 前端采用以下结构：
+
+- `/[locale]/today`、`/[locale]/history` 和 `/[locale]/entries/[entryId]` 均位于 `requireProductAccessPage` 保护的产品路由组。
+- 浏览器只调用阶段 2A 的 `/api/v1/entries` 接口，不导入 Firebase Firestore 客户端，也不复制服务端业务规则。
+- 受控标签、字段限制、Zod 输入 schema 和 API 响应类型位于共享日记模块，服务端与表单转换共同复用。
+- `JournalEntryForm` 复用于创建和编辑；评分、睡眠、标签、正文和删除确认拆分为独立可访问组件。
+- 历史列表每页读取 10 条，使用服务端稳定游标追加；正文只展示 Unicode 安全截断的预览。
+- 浏览器错误处理不记录请求体或正文；API schema 错误只返回安全字段名和通用错误代码。
+
 ### 7.3 `analyses/{uid}/entryFeedback/{feedbackId}`
 
 AI 结果和建议，不修改原始日记。

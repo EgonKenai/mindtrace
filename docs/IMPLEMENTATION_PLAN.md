@@ -78,6 +78,19 @@
 - 不存在和不属于当前用户的 `entryId` 都返回同一 `NOT_FOUND` 错误，不泄露其他用户资源是否存在。
 - 当前阶段新增集合 `journals/{uid}/entries` 已加入未来导出和账户删除覆盖要求；本阶段不实现导出和账户删除。
 
+### 阶段 2B：记录、历史、详情编辑和删除页面
+
+阶段 2B 实现 `/[locale]/today`、`/[locale]/history` 和 `/[locale]/entries/[entryId]`，复用阶段 2A 的 schema、字段定义和 API。
+
+已采用的实现细节：
+
+- 创建和编辑共用 `JournalEntryForm` 及字段组件；客户端校验使用共享 Zod schema，服务端仍是最终权威。
+- 历史页面按 `occurredAt` 倒序加载，每页 10 条并使用 `nextCursor` 追加，不做全量读取。
+- 详情页面使用统一的安全错误处理；不存在和无权访问均展示相同的不可用状态。
+- 删除使用键盘可取消的原生确认对话框，确认后调用现有 DELETE API 并返回历史页面。
+- 所有中文界面文本和标签名称来自 `zh-CN` locale 消息结构；浏览器不直接访问 Firestore。
+- E2E 使用 Firebase Emulator 和完全虚构的数据，覆盖桌面 CRUD、未登录拦截和 360px 手机创建流程，Playwright 不启用失败重试。
+
 ## 4. 阶段 3：AI 反馈、安全检测和建议闭环
 
 ### 目标

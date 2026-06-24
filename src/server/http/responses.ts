@@ -3,6 +3,35 @@ import { ZodError } from "zod";
 
 import { InvalidOriginError } from "@/server/http/origin";
 
+const safeRequestFieldNames = new Set([
+  "mood",
+  "stress",
+  "energy",
+  "sleepHours",
+  "sleepQuality",
+  "eventTags",
+  "note",
+  "occurredAt",
+  "cursor",
+  "limit",
+]);
+
+function getSafeValidationFields(
+  error: ZodError,
+): Record<string, "INVALID_VALUE"> | undefined {
+  const fields = Object.fromEntries(
+    error.issues
+      .map((issue) => issue.path[0])
+      .filter(
+        (field): field is string =>
+          typeof field === "string" && safeRequestFieldNames.has(field),
+      )
+      .map((field) => [field, "INVALID_VALUE"] as const),
+  );
+
+  return Object.keys(fields).length > 0 ? fields : undefined;
+}
+
 export class UnauthenticatedError extends Error {
   constructor() {
     super("UNAUTHENTICATED");
@@ -57,11 +86,21 @@ export function apiErrorResponse(error: unknown): NextResponse {
     );
   }
 
-  if (
-    error instanceof InvalidRequestError ||
-    error instanceof ZodError ||
-    error instanceof SyntaxError
-  ) {
+  if (error instanceof ZodError) {
+    const fields = getSafeValidationFields(error);
+
+    return NextResponse.json(
+      {
+        error: {
+          code: "INVALID_REQUEST",
+          ...(fields ? { fields } : {}),
+        },
+      },
+      { status: 400 },
+    );
+  }
+
+  if (error instanceof InvalidRequestError || error instanceof SyntaxError) {
     return NextResponse.json(
       { error: { code: "INVALID_REQUEST" } },
       { status: 400 },
