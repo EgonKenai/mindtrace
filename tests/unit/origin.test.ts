@@ -20,10 +20,12 @@ describe("assertSameOrigin", () => {
 
   it("rejects a missing or foreign origin", () => {
     process.env.APP_ORIGIN = "http://localhost:3000";
-    const request = new Request("http://localhost:3000/api/example", {
+    const foreignRequest = new Request("http://localhost:3000/api/example", {
       headers: { origin: "https://untrusted.example" },
     });
+    const missingRequest = new Request("http://localhost:3000/api/example");
 
-    expect(() => assertSameOrigin(request)).toThrow(InvalidOriginError);
+    expect(() => assertSameOrigin(foreignRequest)).toThrow(InvalidOriginError);
+    expect(() => assertSameOrigin(missingRequest)).toThrow(InvalidOriginError);
   });
 });

@@ -78,3 +78,49 @@ jobs:
 
       - name: Run Firebase Emulator integration tests
         run: pnpm test:integration
+
+  e2e:
+    name: Firebase Emulator browser E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      FIREBASE_CLI_DISABLE_USAGE: "true"
+      PLAYWRIGHT_USE_BUNDLED_CHROMIUM: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Firebase Emulator E2E
+        run: pnpm test:e2e
+
+      - name: Upload sanitized Playwright report on failure
+        if: failure() && hashFiles('playwright-report/**') != ''
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          path: playwright-report/summary.json
+          if-no-files-found: ignore
+          retention-days: 7

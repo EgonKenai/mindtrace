@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import {
   FieldPath,
   FieldValue,
@@ -75,17 +77,22 @@ interface DecodedJournalEntriesCursor {
   occurredAt: Timestamp;
 }
 
-const timestampCursorSchema = z.object({
-  nanoseconds: z.number().int().min(0).max(999_999_999),
-  seconds: z.number().int(),
-});
+const timestampCursorSchema = z
+  .object({
+    nanoseconds: z.number().int().min(0).max(999_999_999),
+    seconds: z.number().int(),
+  })
+  .strict();
 
-const journalEntriesCursorSchema = z.object({
-  createdAt: timestampCursorSchema,
-  entryId: z.string().min(1),
-  occurredAt: timestampCursorSchema,
-  version: z.literal(1),
-});
+const journalEntriesCursorSchema = z
+  .object({
+    createdAt: timestampCursorSchema,
+    entryId: z.string().min(1).max(128),
+    occurredAt: timestampCursorSchema,
+    ownerScope: z.string().length(32),
+    version: z.literal(2),
+  })
+  .strict();
 
 function entriesCollection(userId: string) {
   return getAdminFirestore()
@@ -123,21 +130,31 @@ function encodeTimestamp(timestamp: Timestamp): {
   };
 }
 
-function encodeCursor(entry: JournalEntryRecord): string {
+function getCursorOwnerScope(userId: string): string {
+  return createHash("sha256").update(userId).digest("hex").slice(0, 32);
+}
+
+function encodeCursor(userId: string, entry: JournalEntryRecord): string {
   return Buffer.from(
     JSON.stringify({
-      version: 1,
+      version: 2,
       entryId: entry.id,
       occurredAt: encodeTimestamp(entry.occurredAt),
       createdAt: encodeTimestamp(entry.createdAt),
+      ownerScope: getCursorOwnerScope(userId),
     }),
   ).toString("base64url");
 }
 
-function decodeCursor(cursor: string): DecodedJournalEntriesCursor {
+function decodeCursor(
+  userId: string,
+  cursor: string,
+): DecodedJournalEntriesCursor {
   const decoded = journalEntriesCursorSchema.parse(
     JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")),
   );
+
+  z.literal(getCursorOwnerScope(userId)).parse(decoded.ownerScope);
 
   return {
     entryId: decoded.entryId,
@@ -179,7 +196,7 @@ export async function listJournalEntryRecords(
   userId: string,
   input: ListJournalEntriesInput,
 ): Promise<ListJournalEntriesResult> {
-  const cursor = input.cursor ? decodeCursor(input.cursor) : null;
+  const cursor = input.cursor ? decodeCursor(userId, input.cursor) : null;
   let query = entriesCollection(userId)
     .orderBy("occurredAt", "desc")
     .orderBy("createdAt", "desc")
@@ -203,7 +220,9 @@ export async function listJournalEntryRecords(
 
   return {
     entries: records,
-    nextCursor: hasNextPage ? encodeCursor(records[records.length - 1]) : null,
+    nextCursor: hasNextPage
+      ? encodeCursor(userId, records[records.length - 1])
+      : null,
   };
 }
 

@@ -2,7 +2,11 @@ import { randomUUID } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
-import { ResourceNotFoundError } from "@/server/http/responses";
+import {
+  ProductAccessRequiredError,
+  ResourceNotFoundError,
+  UnauthenticatedError,
+} from "@/server/http/responses";
 import { getAdminFirestore } from "@/server/firebase/admin";
 import {
   createJournalEntry,
@@ -47,6 +51,25 @@ async function expectNotFound(promise: Promise<unknown>): Promise<void> {
 }
 
 describe("journal service with Firebase emulators", () => {
+  it("rejects unauthenticated and unconsented journal and trend access", async () => {
+    await expect(listJournalEntries(null, {})).rejects.toBeInstanceOf(
+      UnauthenticatedError,
+    );
+    await expect(getRecentTrends(undefined, {})).rejects.toBeInstanceOf(
+      UnauthenticatedError,
+    );
+
+    const userId = uniqueUserId("unconsented");
+    await ensureAccount(userId);
+
+    await expect(createJournalEntry(userId, baseEntry)).rejects.toBeInstanceOf(
+      ProductAccessRequiredError,
+    );
+    await expect(getRecentTrends(userId, {})).rejects.toBeInstanceOf(
+      ProductAccessRequiredError,
+    );
+  });
+
   it("allows a user to create, read, edit, and delete their own entry", async () => {
     const userId = uniqueUserId("journal-owner");
     await grantProductAccess(userId);
@@ -140,6 +163,40 @@ describe("journal service with Firebase emulators", () => {
 
     expect(secondPage.entries.map((entry) => entry.id)).toEqual([oldest.id]);
     expect(secondPage.nextCursor).toBeNull();
+  });
+
+  it("rejects malformed and cross-user pagination cursors", async () => {
+    const userA = uniqueUserId("cursor-user-a");
+    const userB = uniqueUserId("cursor-user-b");
+    await grantProductAccess(userA);
+    await grantProductAccess(userB);
+
+    for (const userId of [userA, userB]) {
+      await createJournalEntry(userId, {
+        ...baseEntry,
+        occurredAt: "2026-06-21T12:00:00.000Z",
+      });
+      await createJournalEntry(userId, {
+        ...baseEntry,
+        occurredAt: "2026-06-22T12:00:00.000Z",
+      });
+    }
+
+    const userBPage = await listJournalEntries(userB, { limit: 1 });
+    expect(userBPage.nextCursor).toEqual(expect.any(String));
+
+    await expect(
+      listJournalEntries(userA, {
+        limit: 10,
+        cursor: userBPage.nextCursor ?? undefined,
+      }),
+    ).rejects.toThrow();
+    await expect(
+      listJournalEntries(userA, {
+        limit: 10,
+        cursor: "not-a-valid-cursor",
+      }),
+    ).rejects.toThrow();
   });
 
   it("does not reveal whether an entry ID belongs to another user", async () => {
@@ -272,6 +329,29 @@ describe("journal service with Firebase emulators", () => {
       localDate: "2026-06-24",
       entryCount: 1,
       mood: 9,
+    });
+  });
+
+  it("keeps trend results scoped to the verified user", async () => {
+    const userA = uniqueUserId("trend-user-a");
+    const userB = uniqueUserId("trend-user-b");
+    await grantProductAccess(userA);
+    await grantProductAccess(userB);
+    await createJournalEntry(userA, { ...baseEntry, mood: 3 });
+    await createJournalEntry(userB, { ...baseEntry, mood: 10 });
+
+    const trends = await getRecentTrends(
+      userA,
+      {},
+      new Date("2026-06-24T12:00:00.000Z"),
+    );
+
+    expect(trends.totalEntries).toBe(1);
+    expect(
+      trends.points.find((point) => point.localDate === "2026-06-24"),
+    ).toMatchObject({
+      entryCount: 1,
+      mood: 3,
     });
   });
 });

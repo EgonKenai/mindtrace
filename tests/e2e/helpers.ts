@@ -1,5 +1,22 @@
 import { expect, type Page } from "@playwright/test";
 
+export interface FictionalEntryInput {
+  energy: number;
+  eventTags: string[];
+  mood: number;
+  note: string;
+  occurredAt: string;
+  sleepHours: number;
+  sleepQuality: number;
+  stress: number;
+}
+
+export interface CreatedEntrySummary {
+  id: string;
+  localDate: string;
+  revision: number;
+}
+
 async function expectSessionCreated(page: Page) {
   const response = await page.waitForResponse(
     (candidate) =>
@@ -17,7 +34,7 @@ async function expectSessionCreated(page: Page) {
     .toBe(true);
 }
 
-export async function registerAndConsent(
+export async function registerWithoutConsent(
   page: Page,
   testLabel: string,
 ): Promise<void> {
@@ -32,6 +49,9 @@ export async function registerAndConsent(
   await sessionCreated;
 
   await expect(page).toHaveURL(/\/zh-CN\/onboarding\/consent$/);
+}
+
+export async function completeConsent(page: Page): Promise<void> {
   await page.getByLabel("我确认自己已达到所在地区的法定成年年龄。").check();
   await page.getByLabel("我已阅读并理解产品边界。").check();
   await page.getByLabel("我已阅读并接受当前隐私说明。").check();
@@ -49,4 +69,34 @@ export async function registerAndConsent(
   await expect(
     page.getByRole("heading", { name: "记录此刻的状态" }),
   ).toBeVisible();
+}
+
+export async function registerAndConsent(
+  page: Page,
+  testLabel: string,
+): Promise<void> {
+  await registerWithoutConsent(page, testLabel);
+  await completeConsent(page);
+}
+
+export async function createEntryViaApi(
+  page: Page,
+  input: FictionalEntryInput,
+): Promise<CreatedEntrySummary> {
+  return page.evaluate(async (entryInput) => {
+    const response = await fetch("/api/v1/entries", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(entryInput),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Entry creation failed with ${response.status}`);
+    }
+
+    const payload = (await response.json()) as {
+      data: { entry: CreatedEntrySummary };
+    };
+    return payload.data.entry;
+  }, input);
 }

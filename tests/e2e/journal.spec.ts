@@ -75,6 +75,12 @@ test("user creates, views, edits, and deletes a fictional journal entry", async 
   await expect(
     page.getByRole("heading", { name: "确认删除这条记录" }),
   ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("heading", { name: "确认删除这条记录" }),
+  ).not.toBeVisible();
+
+  await page.getByRole("button", { name: "删除记录" }).click();
   await page.getByRole("button", { name: "取消" }).click();
   await expect(
     page.getByRole("heading", { name: "确认删除这条记录" }),
@@ -142,4 +148,37 @@ test("mobile user completes a fictional journal entry flow at 360px", async ({
 
   await page.getByRole("link", { name: "查看历史" }).click();
   await expect(page.getByText("完全虚构的手机端日记测试内容。")).toBeVisible();
+
+  await page.getByRole("link", { name: /查看这条记录/ }).click();
+  await page.getByRole("button", { name: "编辑记录" }).click();
+  await page.getByRole("spinbutton", { name: /^情绪/ }).fill("9");
+  await page
+    .getByRole("textbox", { name: /^文字记录/ })
+    .fill("完全虚构且已在手机端修改的日记测试内容。");
+  await page.getByRole("button", { name: "保存修改" }).click();
+  await expect(
+    page.getByText("完全虚构且已在手机端修改的日记测试内容。"),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "记录详情" })
+      .getByText("版本", { exact: true })
+      .locator(".."),
+  ).toContainText("2");
+
+  await page.getByRole("button", { name: "删除记录" }).click();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("heading", { name: "确认删除这条记录" }),
+  ).not.toBeVisible();
+  await page.getByRole("button", { name: "删除记录" }).click();
+  await page.getByRole("button", { name: "确认删除" }).click();
+  await expect(page).toHaveURL(/\/zh-CN\/history$/);
+  await expect(page.getByRole("heading", { name: "还没有记录" })).toBeVisible();
+
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
 });

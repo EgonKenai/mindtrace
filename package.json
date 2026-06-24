@@ -19,7 +19,7 @@
     "emulators:start": "firebase emulators:start --project mindtrace-demo --only auth,firestore",
     "test:integration": "firebase emulators:exec --project mindtrace-demo --only auth,firestore \"vitest run --config vitest.integration.config.ts\"",
     "test:integration:run": "vitest run --config vitest.integration.config.ts",
-    "test:e2e": "firebase emulators:exec --project mindtrace-demo --only auth,firestore \"powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-e2e.ps1\""
+    "test:e2e": "firebase emulators:exec --project mindtrace-demo --only auth,firestore \"playwright test\""
   },
   "dependencies": {
     "firebase": "12.15.0",

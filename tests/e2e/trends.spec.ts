@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-import { registerAndConsent } from "./helpers";
-
-interface CreatedEntry {
-  localDate: string;
-}
+import {
+  createEntryViaApi,
+  registerAndConsent,
+  type CreatedEntrySummary,
+} from "./helpers";
 
 test("user sees multi-day journal records aggregated in recent trends", async ({
   page,
@@ -45,28 +45,10 @@ test("user sees multi-day journal records aggregated in recent trends", async ({
     },
   ];
 
-  const created = await page.evaluate(async (inputs) => {
-    const results: CreatedEntry[] = [];
-
-    for (const input of inputs) {
-      const response = await fetch("/api/v1/entries", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(input),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Entry creation failed with ${response.status}`);
-      }
-
-      const payload = (await response.json()) as {
-        data: { entry: CreatedEntry };
-      };
-      results.push(payload.data.entry);
-    }
-
-    return results;
-  }, entries);
+  const created: CreatedEntrySummary[] = [];
+  for (const entry of entries) {
+    created.push(await createEntryViaApi(page, entry));
+  }
 
   expect(created[0].localDate).toBe(created[1].localDate);
   expect(created[2].localDate).not.toBe(created[0].localDate);
@@ -98,6 +80,26 @@ test("user sees multi-day journal records aggregated in recent trends", async ({
       ),
     ).toBe(true);
   }
+
+  await page.goto(`/zh-CN/entries/${created[0].id}`);
+  await page.getByRole("button", { name: "删除记录" }).click();
+  const deleteResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "DELETE" &&
+      response.url().endsWith(`/api/v1/entries/${created[0].id}`),
+  );
+  await page.getByRole("button", { name: "确认删除" }).click();
+  expect((await deleteResponse).status()).toBe(200);
+  await expect(page).toHaveURL(/\/zh-CN\/history$/);
+  await expect(page.getByText(entries[0].note)).not.toBeVisible();
+
+  await page.goto("/zh-CN/trends");
+  const updatedSameDayRow = page.locator(
+    `tr[data-local-date="${created[1].localDate}"]`,
+  );
+  await expect(updatedSameDayRow.locator("td").nth(0)).toHaveText("8");
+  await expect(updatedSameDayRow.locator("td").nth(5)).toHaveText("1");
+  await expect(page.getByText(/共汇总 2 条记录/)).toBeVisible();
 });
 
 test("trend empty and failure states remain recoverable", async ({ page }) => {

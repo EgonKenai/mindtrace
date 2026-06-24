@@ -73,7 +73,7 @@
 
 - 日记正文和结构化字段保存在 `journals/{uid}/entries/{entryId}`，`uid` 始终来自服务端会话验证，不接受客户端 owner 字段。
 - 生活事件标签首版为受控 ID，最多 5 个且不允许重复；中文展示名位于 `src/i18n/messages/zh-CN.ts`。
-- `GET /api/v1/entries` 使用稳定游标分页，默认按 `occurredAt desc` 排序，游标包含 `occurredAt`、`createdAt` 和 `entryId`。
+- `GET /api/v1/entries` 使用稳定游标分页，默认按 `occurredAt desc` 排序，版本 2 游标包含 `occurredAt`、`createdAt`、`entryId` 和当前用户作用域指纹；跨用户和畸形游标被拒绝。
 - `POST`、`PATCH`、`DELETE` 执行同源 Origin/CSRF 防护；所有响应使用字段白名单。
 - 不存在和不属于当前用户的 `entryId` 都返回同一 `NOT_FOUND` 错误，不泄露其他用户资源是否存在。
 - 当前阶段新增集合 `journals/{uid}/entries` 已加入未来导出和账户删除覆盖要求；本阶段不实现导出和账户删除。
@@ -104,6 +104,19 @@
 - 趋势 repository 查询限定在当前用户和 7 日本地日期范围，只读取聚合所需字段，不读取日记正文。
 - 页面包含加载、空、失败与重试状态；五项可视化同时显示文字数值，并提供完整可访问数据表。
 - 单元、Firebase Emulator 集成和 E2E 覆盖跨午夜、DST、时区变化、同日多条、缺失日及 360px、768px、1280px 视口。
+
+### 阶段 2D：安全审查、完整回归、CI 和验收收尾
+
+阶段 2D 不增加产品功能，只审查和收紧阶段 2A、2B、2C 的授权、验证、分页、聚合、页面回归与 CI。
+
+已采用的实现细节：
+
+- 日记和趋势 API 的会话、当前版本同意、跨用户隔离、Origin、schema、字段白名单和安全错误格式由单元、Emulator 集成及 E2E 共同验证。
+- 分页游标升级为严格版本化、用户作用域绑定格式；游标仍只承载排序键，不包含正文、标签或账户资料。
+- E2E 覆盖同日第二条记录、12 条历史分页、编辑 revision、删除后历史与趋势同步、缺失日、跨用户 ID、未登录/未同意和 360px 手机 CRUD。
+- GitHub Actions 保留 `quality`、`integration`，新增独立 `e2e` job；三个 job 均不登录 Firebase、不使用真实项目、Gemini、服务账号或密钥。
+- CI E2E 使用 Java 21、Firebase Emulator、Playwright Chromium 和虚构数据；失败报告不包含截图、trace、正文或请求体。
+- 阶段 2 详细验收依据记录在 `docs/PHASE_2_REVIEW.md`。
 
 ## 4. 阶段 3：AI 反馈、安全检测和建议闭环
 

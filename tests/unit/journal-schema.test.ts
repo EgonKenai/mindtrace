@@ -119,6 +119,12 @@ describe("journal entry schema", () => {
         eventTags: JOURNAL_EVENT_TAG_IDS.slice(0, JOURNAL_MAX_EVENT_TAGS + 1),
       }),
     ).toThrow();
+    expect(() =>
+      createJournalEntryInputSchema.parse({
+        ...validEntry,
+        eventTags: { work: true },
+      }),
+    ).toThrow();
   });
 
   it("accepts the event tag count limit", () => {
@@ -184,18 +190,28 @@ describe("journal entry schema", () => {
   });
 
   it("rejects unknown create and update fields", () => {
-    expect(() =>
-      createJournalEntryInputSchema.parse({
-        ...validEntry,
-        ownerId: "fictional-user",
-      }),
-    ).toThrow();
-    expect(() =>
-      updateJournalEntryInputSchema.parse({
-        note: "新的虚构测试记录。",
-        createdAt: "2026-06-23T15:30:00.000Z",
-      }),
-    ).toThrow();
+    for (const field of [
+      "uid",
+      "ownerId",
+      "createdAt",
+      "updatedAt",
+      "revision",
+      "localDate",
+      "timeZone",
+    ]) {
+      expect(() =>
+        createJournalEntryInputSchema.parse({
+          ...validEntry,
+          [field]: "server-controlled",
+        }),
+      ).toThrow();
+      expect(() =>
+        updateJournalEntryInputSchema.parse({
+          note: "完全虚构的更新测试记录。",
+          [field]: "server-controlled",
+        }),
+      ).toThrow();
+    }
   });
 
   it("rejects empty updates", () => {

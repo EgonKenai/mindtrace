@@ -137,6 +137,24 @@ describe("recent trend aggregation", () => {
     ]);
   });
 
+  it("uses consecutive calendar dates when daylight saving time ends", () => {
+    expect(
+      buildRecentLocalDates(
+        new Date("2026-11-03T12:00:00.000Z"),
+        "America/New_York",
+        7,
+      ),
+    ).toEqual([
+      "2026-10-28",
+      "2026-10-29",
+      "2026-10-30",
+      "2026-10-31",
+      "2026-11-01",
+      "2026-11-02",
+      "2026-11-03",
+    ]);
+  });
+
   it("keeps the saved localDate authoritative after a time-zone change", () => {
     const currentWindow = buildRecentLocalDates(
       new Date("2026-06-25T06:00:00.000Z"),
