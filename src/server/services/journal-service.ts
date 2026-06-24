@@ -1,21 +1,14 @@
 import { Timestamp } from "firebase-admin/firestore";
 
 import type { JournalEntry, JournalEntryList } from "@/features/journal/model";
-import { getAccessState } from "@/server/auth/access";
 import {
   createJournalEntryInputSchema,
   getLocalDateForTimeZone,
-  isValidTimeZone,
   listJournalEntriesQuerySchema,
   parseOccurredAt,
   updateJournalEntryInputSchema,
 } from "@/server/journal/schema";
-import {
-  InvalidRequestError,
-  ProductAccessRequiredError,
-  ResourceNotFoundError,
-  UnauthenticatedError,
-} from "@/server/http/responses";
+import { ResourceNotFoundError } from "@/server/http/responses";
 import {
   createJournalEntryRecord,
   deleteJournalEntryRecord,
@@ -25,34 +18,7 @@ import {
   type JournalEntryRecord,
   type UpdateJournalEntryRecordInput,
 } from "@/server/repositories/journal-repository";
-
-interface JournalAccessContext {
-  timeZone: string;
-  userId: string;
-}
-
-async function requireJournalAccess(
-  userId: string | null | undefined,
-): Promise<JournalAccessContext> {
-  if (!userId) {
-    throw new UnauthenticatedError();
-  }
-
-  const access = await getAccessState(userId);
-
-  if (!access.hasProductAccess || !access.account) {
-    throw new ProductAccessRequiredError();
-  }
-
-  if (!isValidTimeZone(access.account.timeZone)) {
-    throw new InvalidRequestError();
-  }
-
-  return {
-    timeZone: access.account.timeZone,
-    userId,
-  };
-}
+import { requireProductDataAccess } from "@/server/services/product-access-service";
 
 function serializeJournalEntry(entry: JournalEntryRecord): JournalEntry {
   return {
@@ -77,7 +43,7 @@ export async function createJournalEntry(
   userId: string | null | undefined,
   input: unknown,
 ): Promise<JournalEntry> {
-  const context = await requireJournalAccess(userId);
+  const context = await requireProductDataAccess(userId);
   const parsed = createJournalEntryInputSchema.parse(input);
   const occurredAt = parseOccurredAt(parsed.occurredAt);
   const localDate = getLocalDateForTimeZone(occurredAt, context.timeZone);
@@ -95,7 +61,7 @@ export async function listJournalEntries(
   userId: string | null | undefined,
   query: unknown,
 ): Promise<JournalEntryList> {
-  const context = await requireJournalAccess(userId);
+  const context = await requireProductDataAccess(userId);
   const parsed = listJournalEntriesQuerySchema.parse(query);
   const result = await listJournalEntryRecords(context.userId, parsed);
 
@@ -109,7 +75,7 @@ export async function getJournalEntry(
   userId: string | null | undefined,
   entryId: string,
 ): Promise<JournalEntry> {
-  const context = await requireJournalAccess(userId);
+  const context = await requireProductDataAccess(userId);
   const entry = await getJournalEntryRecord(context.userId, entryId);
 
   if (!entry) {
@@ -124,7 +90,7 @@ export async function updateJournalEntry(
   entryId: string,
   input: unknown,
 ): Promise<JournalEntry> {
-  const context = await requireJournalAccess(userId);
+  const context = await requireProductDataAccess(userId);
   const parsed = updateJournalEntryInputSchema.parse(input);
   const { occurredAt: occurredAtInput, ...mutableFields } = parsed;
   const update: UpdateJournalEntryRecordInput = {
@@ -151,7 +117,7 @@ export async function deleteJournalEntry(
   userId: string | null | undefined,
   entryId: string,
 ): Promise<void> {
-  const context = await requireJournalAccess(userId);
+  const context = await requireProductDataAccess(userId);
   const deleted = await deleteJournalEntryRecord(context.userId, entryId);
 
   if (!deleted) {

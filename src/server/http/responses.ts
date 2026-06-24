@@ -14,6 +14,7 @@ const safeRequestFieldNames = new Set([
   "occurredAt",
   "cursor",
   "limit",
+  "days",
 ]);
 
 function getSafeValidationFields(

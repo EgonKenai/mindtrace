@@ -102,6 +102,7 @@ test("unauthenticated users are redirected from journal pages", async ({
   for (const path of [
     "/zh-CN/today",
     "/zh-CN/history",
+    "/zh-CN/trends",
     "/zh-CN/entries/fictional-missing-entry",
   ]) {
     await page.goto(path);

@@ -202,6 +202,16 @@ match /{document=**} {
 - 历史列表每页读取 10 条，使用服务端稳定游标追加；正文只展示 Unicode 安全截断的预览。
 - 浏览器错误处理不记录请求体或正文；API schema 错误只返回安全字段名和通用错误代码。
 
+阶段 2C 趋势采用以下数据流和聚合规则：
+
+- `GET /api/v1/trends?days=7` 复用产品准入检查，从服务端会话取得 `uid`，浏览器不直接查询 Firestore。
+- 服务端先按账户当前 IANA 时区计算“今天”，再使用日期字符串的日历运算生成包含今天在内的最近 7 个本地日期；不以 24 小时毫秒差推导日期，因此跨午夜和夏令时切换不会缩短或重复日期窗口。
+- repository 只在 `journals/{uid}/entries` 中查询 `localDate >= startDate` 且 `localDate <= endDate` 的记录，并只选择五项趋势指标与 `localDate`，不读取 `note`。
+- 每条记录按保存时已经确定的 `localDate` 分组。账户时区后来发生变化时，窗口边界使用当前账户时区，已有记录不根据 `occurredAt` 或新时区重新归日。
+- 同一本地日期的 `mood`、`stress`、`energy`、`sleepHours` 和 `sleepQuality` 分别对当天全部记录取算术平均值，最多保留两位小数，同时返回 `entryCount`。
+- 没有记录的日期仍返回一个趋势点，五项指标均为 `null` 且 `entryCount` 为 0；客户端不得把缺失值显示为 0。
+- `/[locale]/trends` 提供带数值文字的五项可视化和完整 7 日数据表；颜色不是唯一的信息载体。
+
 ### 7.3 `analyses/{uid}/entryFeedback/{feedbackId}`
 
 AI 结果和建议，不修改原始日记。

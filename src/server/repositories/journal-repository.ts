@@ -28,6 +28,11 @@ export interface JournalEntryRecord {
   updatedAt: Timestamp;
 }
 
+export type JournalTrendRecord = Pick<
+  JournalEntryRecord,
+  "energy" | "localDate" | "mood" | "sleepHours" | "sleepQuality" | "stress"
+>;
+
 export interface CreateJournalEntryRecordInput {
   energy: number;
   eventTags: JournalEventTagId[];
@@ -200,6 +205,30 @@ export async function listJournalEntryRecords(
     entries: records,
     nextCursor: hasNextPage ? encodeCursor(records[records.length - 1]) : null,
   };
+}
+
+export async function listJournalTrendRecords(
+  userId: string,
+  startDate: string,
+  endDate: string,
+): Promise<JournalTrendRecord[]> {
+  const snapshot = await entriesCollection(userId)
+    .where("localDate", ">=", startDate)
+    .where("localDate", "<=", endDate)
+    .orderBy("localDate", "asc")
+    .select(
+      "localDate",
+      "mood",
+      "stress",
+      "energy",
+      "sleepHours",
+      "sleepQuality",
+    )
+    .get();
+
+  return snapshot.docs.map(
+    (documentSnapshot) => documentSnapshot.data() as JournalTrendRecord,
+  );
 }
 
 export async function getJournalEntryRecord(

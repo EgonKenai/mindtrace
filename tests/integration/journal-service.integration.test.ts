@@ -13,6 +13,7 @@ import {
 } from "@/server/services/journal-service";
 import { ensureAccount } from "@/server/repositories/account-repository";
 import { recordConsent } from "@/server/services/consent-service";
+import { getRecentTrends } from "@/server/services/trends-service";
 
 const baseEntry = {
   mood: 5,
@@ -192,6 +193,85 @@ describe("journal service with Firebase emulators", () => {
     await expect(outcomeRef.get()).resolves.toMatchObject({ exists: false });
     await expect(safetyEventRef.get()).resolves.toMatchObject({
       exists: false,
+    });
+  });
+
+  it("queries and aggregates all entries in the seven-day local-date window", async () => {
+    const userId = uniqueUserId("trends");
+    await grantProductAccess(userId);
+
+    await createJournalEntry(userId, {
+      ...baseEntry,
+      mood: 4,
+      sleepHours: 6.25,
+      occurredAt: "2026-06-23T15:30:00.000Z",
+    });
+    await createJournalEntry(userId, {
+      ...baseEntry,
+      mood: 8,
+      sleepHours: 8,
+      occurredAt: "2026-06-23T20:30:00.000Z",
+    });
+    await createJournalEntry(userId, {
+      ...baseEntry,
+      mood: 9,
+      occurredAt: "2026-06-21T15:30:00.000Z",
+    });
+
+    const trends = await getRecentTrends(
+      userId,
+      { days: "7" },
+      new Date("2026-06-24T12:00:00.000Z"),
+    );
+
+    expect(trends).toMatchObject({
+      days: 7,
+      startDate: "2026-06-18",
+      endDate: "2026-06-24",
+      timeZone: "Asia/Tokyo",
+      totalEntries: 3,
+    });
+    expect(trends.points).toHaveLength(7);
+    expect(
+      trends.points.find((point) => point.localDate === "2026-06-24"),
+    ).toMatchObject({
+      entryCount: 2,
+      mood: 6,
+      sleepHours: 7.13,
+    });
+    expect(
+      trends.points.find((point) => point.localDate === "2026-06-23"),
+    ).toMatchObject({
+      entryCount: 0,
+      mood: null,
+      sleepHours: null,
+    });
+  });
+
+  it("continues to group an existing entry by its saved localDate after a time-zone change", async () => {
+    const userId = uniqueUserId("trend-time-zone-change");
+    await grantProductAccess(userId);
+    await createJournalEntry(userId, {
+      ...baseEntry,
+      mood: 9,
+      occurredAt: "2026-06-23T15:30:00.000Z",
+    });
+    await getAdminFirestore().collection("accounts").doc(userId).update({
+      timeZone: "America/Los_Angeles",
+    });
+
+    const trends = await getRecentTrends(
+      userId,
+      {},
+      new Date("2026-06-25T06:00:00.000Z"),
+    );
+
+    expect(trends.timeZone).toBe("America/Los_Angeles");
+    expect(trends.endDate).toBe("2026-06-24");
+    expect(trends.points.at(-1)).toMatchObject({
+      localDate: "2026-06-24",
+      entryCount: 1,
+      mood: 9,
     });
   });
 });

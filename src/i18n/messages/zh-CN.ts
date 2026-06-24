@@ -14,6 +14,7 @@ export const zhCN = {
     safety: "安全资源",
     settings: "设置",
     today: "今日",
+    trends: "趋势",
   },
   common: {
     cancel: "取消",
@@ -182,6 +183,46 @@ export const zhCN = {
       health_routine: "健康习惯",
       travel: "出行",
       other: "其他",
+    },
+  },
+  trends: {
+    eyebrow: "最近状态",
+    title: "最近 7 天趋势",
+    intro:
+      "按账户当前时区查看最近 7 个本地日期。每天的数值汇总该日期下的全部记录。",
+    loading: "正在加载最近 7 天趋势…",
+    errorTitle: "无法加载趋势",
+    errorBody: "趋势数据暂时不可用，请稍后重试。",
+    emptyTitle: "最近 7 天还没有记录",
+    emptyBody: "没有记录的日期会保留为空，不会显示为 0。",
+    noData: "无记录",
+    summaryTitle: (recordedDays: number, totalDays: number) =>
+      `${totalDays} 天中有 ${recordedDays} 天留下记录`,
+    summaryBody: (totalEntries: number, timeZone: string) =>
+      `共汇总 ${totalEntries} 条记录，日期边界采用 ${timeZone}。`,
+    aggregationNote:
+      "同一本地日期有多条记录时，每项指标取当天全部记录的算术平均值，结果最多保留两位小数。",
+    chartAriaLabel: (metric: string) => `${metric}最近 7 天图表`,
+    pointAriaLabel: (date: string, value: string) => `${date}：${value}`,
+    scaleLabel: (min: number, max: number, unit: string) =>
+      `范围 ${min}–${max}${unit}`,
+    tableTitle: "可访问数据表",
+    tableIntro: "表格列出全部 7 个本地日期；无记录日期明确标记为空。",
+    tableRegionLabel: "最近 7 天趋势数据表，可横向滚动",
+    metrics: {
+      mood: "情绪",
+      stress: "压力",
+      energy: "精力",
+      sleepHours: "睡眠时长",
+      sleepQuality: "睡眠质量",
+    },
+    units: {
+      score: " 分",
+      hours: " 小时",
+    },
+    table: {
+      date: "本地日期",
+      entryCount: "记录数",
     },
   },
   settings: {

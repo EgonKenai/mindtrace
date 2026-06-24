@@ -2,7 +2,7 @@
 
 MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记录 Web 应用。它不是心理治疗、疾病诊断、药物建议或紧急援助工具。
 
-当前仓库实现到阶段 2B：在阶段 2A 的日记数据模型和 `/api/v1/entries` 后端 API 基础上，增加今日记录、历史分页、详情、编辑和删除页面。当前仍不包含趋势图、Gemini、AI 反馈、支付、报告、导出或账户删除实现。
+当前仓库实现到阶段 2C：在阶段 2A/2B 的日记 API 和记录页面基础上，增加按用户本地日期聚合的最近 7 天趋势页面与 `/api/v1/trends?days=7`。当前仍不包含 Gemini、AI 反馈、风险检测、支付、30 天报告、导出或账户删除实现。
 
 ## Windows 环境要求
 
@@ -109,7 +109,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-完整的阶段 2B 本地验证顺序：
+完整的阶段 2C 本地验证顺序：
 
 ```powershell
 pnpm format:check
@@ -147,4 +147,4 @@ pnpm build
 - API 从已验证的会话取得 UID，不接受客户端传入 UID 作为数据所有者。
 - `accounts/{uid}` 不保存邮箱；邮箱由 Firebase Authentication 管理。
 - 测试账户使用 `example.test` 和完全虚构的数据。
-- 当前阶段没有 Gemini、AI 反馈、趋势图、报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
+- 当前阶段没有 Gemini、AI 反馈、风险检测、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
