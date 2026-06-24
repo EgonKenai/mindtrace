@@ -77,6 +77,21 @@ export const zhCN = {
     readyTitle: "账户已准备好",
     pendingFeature: "今日记录尚未开放。",
   },
+  journal: {
+    eventTags: {
+      work: "工作",
+      job_search: "求职",
+      study: "学习",
+      sleep: "睡眠",
+      family: "家庭",
+      relationship: "亲密关系",
+      social: "社交",
+      finance: "财务",
+      health_routine: "健康习惯",
+      travel: "出行",
+      other: "其他",
+    },
+  },
   settings: {
     title: "设置",
     accountSection: "账户状态",

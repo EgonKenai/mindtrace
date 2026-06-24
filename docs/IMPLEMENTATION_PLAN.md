@@ -65,6 +65,19 @@
 - 桌面和移动视口下表单、历史和趋势无文本溢出或控件重叠。
 - 单元、Emulator 集成和关键 E2E 测试通过。
 
+### 阶段 2A：日记数据模型、服务端验证和 API
+
+阶段 2A 只实现后端数据模型、服务端 schema、Firestore repository、service 和 `/api/v1/entries` API；不实现页面、趋势图、Gemini、AI 反馈、支付、报告、导出或账户删除。
+
+已采用的实现细节：
+
+- 日记正文和结构化字段保存在 `journals/{uid}/entries/{entryId}`，`uid` 始终来自服务端会话验证，不接受客户端 owner 字段。
+- 生活事件标签首版为受控 ID，最多 5 个且不允许重复；中文展示名位于 `src/i18n/messages/zh-CN.ts`。
+- `GET /api/v1/entries` 使用稳定游标分页，默认按 `occurredAt desc` 排序，游标包含 `occurredAt`、`createdAt` 和 `entryId`。
+- `POST`、`PATCH`、`DELETE` 执行同源 Origin/CSRF 防护；所有响应使用字段白名单。
+- 不存在和不属于当前用户的 `entryId` 都返回同一 `NOT_FOUND` 错误，不泄露其他用户资源是否存在。
+- 当前阶段新增集合 `journals/{uid}/entries` 已加入未来导出和账户删除覆盖要求；本阶段不实现导出和账户删除。
+
 ## 4. 阶段 3：AI 反馈、安全检测和建议闭环
 
 ### 目标
@@ -203,7 +216,7 @@
 | `PATCH /api/v1/account`                     | 修改允许的偏好                                |
 | `POST /api/v1/account/consents`             | 接受当前版本文案                              |
 | `GET /api/v1/entries`                       | 分页读取历史                                  |
-| `POST /api/v1/entries`                      | 创建记录和分析占位                            |
+| `POST /api/v1/entries`                      | 创建记录（阶段 2A 不创建 AI 分析占位）        |
 | `GET /api/v1/entries/[entryId]`             | 获取记录详情                                  |
 | `PATCH /api/v1/entries/[entryId]`           | 编辑自己的记录                                |
 | `DELETE /api/v1/entries/[entryId]`          | 删除记录及关联数据                            |

@@ -2,7 +2,7 @@
 
 MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记录 Web 应用。它不是心理治疗、疾病诊断、药物建议或紧急援助工具。
 
-当前仓库只实现开发阶段 1：工程基础、邮箱认证、安全会话、成年确认、版本化同意、访问保护，以及公开产品边界和安全资源页面。
+当前仓库实现到阶段 2A：工程基础、邮箱认证、安全会话、成年确认、版本化同意、访问保护、公开产品边界和安全资源页面，以及日记数据模型、服务端验证、Firestore repository 和 `/api/v1/entries` 后端 API。阶段 2A 不包含前端日记页面、趋势图、Gemini、AI 反馈、支付、报告、导出或账户删除实现。
 
 ## Windows 环境要求
 
@@ -103,13 +103,15 @@ java -version
 pnpm test:e2e
 ```
 
+阶段 2A 只实现服务端数据模型和 API，没有新增页面，因此本阶段验证不运行 E2E。
+
 生产构建：
 
 ```powershell
 pnpm build
 ```
 
-完整的阶段 1 本地验证顺序：
+完整的阶段 2A 本地验证顺序：
 
 ```powershell
 pnpm format:check
@@ -117,7 +119,6 @@ pnpm lint
 pnpm typecheck
 pnpm test:unit
 pnpm test:integration
-pnpm test:e2e
 pnpm build
 ```
 
@@ -147,4 +148,4 @@ pnpm build
 - API 从已验证的会话取得 UID，不接受客户端传入 UID 作为数据所有者。
 - `accounts/{uid}` 不保存邮箱；邮箱由 Firebase Authentication 管理。
 - 测试账户使用 `example.test` 和完全虚构的数据。
-- 当前阶段没有 Gemini、日记、趋势、报告、支付、Cloud Tasks 或 Cloud Run 正式部署代码。
+- 当前阶段没有 Gemini、AI 反馈、趋势图、报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码；日记仅实现服务端数据模型和 API。

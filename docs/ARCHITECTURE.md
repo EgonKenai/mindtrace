@@ -184,6 +184,15 @@ match /{document=**} {
 
 由于查询限定在 `journals/{uid}/entries` 路径，索引不用于跨用户读取。
 
+阶段 2A 已实现以下服务端约束：
+
+- `eventTags` 仅接受受控 ID：`work`、`job_search`、`study`、`sleep`、`family`、`relationship`、`social`、`finance`、`health_routine`、`travel`、`other`；首版每条记录最多 5 个且不允许重复。中文名称仅保存在 `src/i18n/messages/zh-CN.ts`。
+- API 输入使用严格 schema，拒绝未知字段；客户端不能写入 `createdAt`、`updatedAt`、`revision`、`localDate`、`timeZone` 或任何所有者字段。
+- 创建时 `revision` 为 1；编辑时在事务内递增。仅当编辑提交新的 `occurredAt` 时，按当前账户 IANA 时区重新计算 `localDate` 并更新 `timeZone` 快照。
+- 列表只查询 `journals/{uid}/entries`，默认按 `occurredAt desc`、`createdAt desc`、`documentId desc` 排序。分页游标编码这三个排序键，不做无限制全量读取。
+- 单条删除会同时删除同用户下已存在的 `analyses/{uid}/entryFeedback`、`analyses/{uid}/suggestionOutcomes` 和 `safetyEvents/{uid}/events` 中与该记录关联的占位数据；阶段 2A 不创建 AI 反馈。
+- 未来导出和账户删除必须覆盖 `journals/{uid}/entries/{entryId}`，并继续保持日记正文不进入普通日志或错误上下文。
+
 ### 7.3 `analyses/{uid}/entryFeedback/{feedbackId}`
 
 AI 结果和建议，不修改原始日记。

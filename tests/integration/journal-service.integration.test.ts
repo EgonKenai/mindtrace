@@ -1,0 +1,197 @@
+import { randomUUID } from "node:crypto";
+
+import { describe, expect, it } from "vitest";
+
+import { ResourceNotFoundError } from "@/server/http/responses";
+import { getAdminFirestore } from "@/server/firebase/admin";
+import {
+  createJournalEntry,
+  deleteJournalEntry,
+  getJournalEntry,
+  listJournalEntries,
+  updateJournalEntry,
+} from "@/server/services/journal-service";
+import { ensureAccount } from "@/server/repositories/account-repository";
+import { recordConsent } from "@/server/services/consent-service";
+
+const baseEntry = {
+  mood: 5,
+  stress: 4,
+  energy: 6,
+  sleepHours: 7.5,
+  sleepQuality: 8,
+  eventTags: ["work", "sleep"],
+  note: "完全虚构的集成测试记录。",
+  occurredAt: "2026-06-23T15:30:00.000Z",
+};
+
+async function grantProductAccess(userId: string): Promise<void> {
+  await ensureAccount(userId);
+  await recordConsent(userId, {
+    adultConfirmed: true,
+    aiProcessingAccepted: true,
+    locale: "zh-CN",
+    privacyAccepted: true,
+    productBoundaryAccepted: true,
+    timeZone: "Asia/Tokyo",
+  });
+}
+
+function uniqueUserId(label: string): string {
+  return `fictional-${label}-${Date.now()}-${randomUUID()}`;
+}
+
+async function expectNotFound(promise: Promise<unknown>): Promise<void> {
+  await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError);
+}
+
+describe("journal service with Firebase emulators", () => {
+  it("allows a user to create, read, edit, and delete their own entry", async () => {
+    const userId = uniqueUserId("journal-owner");
+    await grantProductAccess(userId);
+
+    const created = await createJournalEntry(userId, baseEntry);
+
+    expect(created).toMatchObject({
+      mood: 5,
+      stress: 4,
+      localDate: "2026-06-24",
+      timeZone: "Asia/Tokyo",
+      revision: 1,
+    });
+
+    const read = await getJournalEntry(userId, created.id);
+    expect(read).toEqual(created);
+
+    const updated = await updateJournalEntry(userId, created.id, {
+      note: "更新后的虚构集成测试记录。",
+      mood: 6,
+    });
+
+    expect(updated).toMatchObject({
+      id: created.id,
+      mood: 6,
+      note: "更新后的虚构集成测试记录。",
+      revision: 2,
+      localDate: "2026-06-24",
+    });
+
+    await deleteJournalEntry(userId, created.id);
+    await expectNotFound(getJournalEntry(userId, created.id));
+  });
+
+  it("allows multiple entries on the same local date and lists newest first", async () => {
+    const userId = uniqueUserId("same-day");
+    await grantProductAccess(userId);
+
+    const first = await createJournalEntry(userId, {
+      ...baseEntry,
+      occurredAt: "2026-06-23T02:00:00.000Z",
+      note: "同一天第一条虚构记录。",
+    });
+    const second = await createJournalEntry(userId, {
+      ...baseEntry,
+      occurredAt: "2026-06-23T12:00:00.000Z",
+      note: "同一天第二条虚构记录。",
+    });
+
+    expect(first.localDate).toBe("2026-06-23");
+    expect(second.localDate).toBe("2026-06-23");
+
+    const listed = await listJournalEntries(userId, { limit: 10 });
+
+    expect(listed.entries.map((entry) => entry.id)).toEqual([
+      second.id,
+      first.id,
+    ]);
+    expect(listed.nextCursor).toBeNull();
+  });
+
+  it("uses a stable pagination cursor", async () => {
+    const userId = uniqueUserId("pagination");
+    await grantProductAccess(userId);
+
+    const oldest = await createJournalEntry(userId, {
+      ...baseEntry,
+      occurredAt: "2026-06-21T12:00:00.000Z",
+    });
+    const middle = await createJournalEntry(userId, {
+      ...baseEntry,
+      occurredAt: "2026-06-22T12:00:00.000Z",
+    });
+    const newest = await createJournalEntry(userId, {
+      ...baseEntry,
+      occurredAt: "2026-06-23T12:00:00.000Z",
+    });
+
+    const firstPage = await listJournalEntries(userId, { limit: 2 });
+
+    expect(firstPage.entries.map((entry) => entry.id)).toEqual([
+      newest.id,
+      middle.id,
+    ]);
+    expect(firstPage.nextCursor).toEqual(expect.any(String));
+
+    const secondPage = await listJournalEntries(userId, {
+      limit: 2,
+      cursor: firstPage.nextCursor ?? undefined,
+    });
+
+    expect(secondPage.entries.map((entry) => entry.id)).toEqual([oldest.id]);
+    expect(secondPage.nextCursor).toBeNull();
+  });
+
+  it("does not reveal whether an entry ID belongs to another user", async () => {
+    const userA = uniqueUserId("user-a");
+    const userB = uniqueUserId("user-b");
+    await grantProductAccess(userA);
+    await grantProductAccess(userB);
+    const userBEntry = await createJournalEntry(userB, baseEntry);
+
+    await expectNotFound(getJournalEntry(userA, userBEntry.id));
+    await expectNotFound(getJournalEntry(userA, "missing-entry-id"));
+    await expectNotFound(
+      updateJournalEntry(userA, userBEntry.id, { note: "越权虚构记录。" }),
+    );
+    await expectNotFound(deleteJournalEntry(userA, userBEntry.id));
+
+    await expect(getJournalEntry(userB, userBEntry.id)).resolves.toMatchObject({
+      id: userBEntry.id,
+      revision: 1,
+    });
+  });
+
+  it("cleans associated placeholder data when deleting an entry", async () => {
+    const userId = uniqueUserId("delete-cleanup");
+    await grantProductAccess(userId);
+    const entry = await createJournalEntry(userId, baseEntry);
+    const db = getAdminFirestore();
+    const feedbackRef = db
+      .collection("analyses")
+      .doc(userId)
+      .collection("entryFeedback")
+      .doc("placeholder-feedback");
+    const outcomeRef = db
+      .collection("analyses")
+      .doc(userId)
+      .collection("suggestionOutcomes")
+      .doc("placeholder-outcome");
+    const safetyEventRef = db
+      .collection("safetyEvents")
+      .doc(userId)
+      .collection("events")
+      .doc("placeholder-safety-event");
+
+    await feedbackRef.set({ entryId: entry.id, status: "pending" });
+    await outcomeRef.set({ feedbackId: feedbackRef.id, status: "undecided" });
+    await safetyEventRef.set({ entryId: entry.id, riskLevel: "low" });
+
+    await deleteJournalEntry(userId, entry.id);
+
+    await expect(feedbackRef.get()).resolves.toMatchObject({ exists: false });
+    await expect(outcomeRef.get()).resolves.toMatchObject({ exists: false });
+    await expect(safetyEventRef.get()).resolves.toMatchObject({
+      exists: false,
+    });
+  });
+});

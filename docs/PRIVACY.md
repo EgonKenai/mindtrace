@@ -97,6 +97,7 @@
 - 文件通过认证响应直接传输，设置 `Cache-Control: no-store`。
 - 不把导出文件存入公开对象存储或发送到邮箱。
 - 自动化测试验证导出只包含当前用户数据。
+- 阶段 2A 新增的 `journals/{uid}/entries/{entryId}` 必须纳入未来 JSON 导出；本阶段不实现导出 API。
 
 ## 9. 单条删除与账户删除
 
@@ -123,6 +124,8 @@
 - `entitlements/{uid}`
 - Firebase Authentication 用户
 - 未来新增集合必须加入删除清单和自动化测试
+
+阶段 2A 新增的 `journals/{uid}/entries/{entryId}` 已列入上述 `journals/{uid}` 删除范围；本阶段只实现单条日记删除，不实现账户删除 worker。
 
 ## 10. 开发与测试数据
 
