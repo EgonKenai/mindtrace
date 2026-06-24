@@ -100,7 +100,7 @@ tests/
 6. 后续 API 只信任服务端验证后的会话，不信任请求体中的 `uid`。
 7. 登出时清除 Cookie；敏感操作需要近期登录或重新认证。
 8. 账户删除、邮箱变更等高风险操作要求近期认证。
-9. 所有状态变更请求校验同源 `Origin`，并采用 CSRF token 或等效的双重提交保护。
+9. 当前同源 Web 架构的所有状态变更请求严格校验 `Origin`，缺失或不匹配均拒绝，以此作为当前阶段的 CSRF 防护。未来如引入跨站客户端，再增加独立 CSRF token 或双重提交机制。
 
 权限守卫分为两层：
 
@@ -183,6 +183,42 @@ match /{document=**} {
 - collection group `entries`: `occurredAt desc`
 
 由于查询限定在 `journals/{uid}/entries` 路径，索引不用于跨用户读取。
+
+阶段 2A 已实现以下服务端约束：
+
+- `eventTags` 仅接受受控 ID：`work`、`job_search`、`study`、`sleep`、`family`、`relationship`、`social`、`finance`、`health_routine`、`travel`、`other`；首版每条记录最多 5 个且不允许重复。中文名称仅保存在 `src/i18n/messages/zh-CN.ts`。
+- API 输入使用严格 schema，拒绝未知字段；客户端不能写入 `createdAt`、`updatedAt`、`revision`、`localDate`、`timeZone` 或任何所有者字段。
+- 创建时 `revision` 为 1；编辑时在事务内递增。仅当编辑提交新的 `occurredAt` 时，按当前账户 IANA 时区重新计算 `localDate` 并更新 `timeZone` 快照。
+- 列表只查询 `journals/{uid}/entries`，默认按 `occurredAt desc`、`createdAt desc`、`documentId desc` 排序。分页游标编码这三个排序键和当前用户不可逆作用域指纹，使用严格版本化 schema；跨用户、畸形或包含未知字段的游标被拒绝，不做无限制全量读取。
+- 单条删除会同时删除同用户下已存在的 `analyses/{uid}/entryFeedback`、`analyses/{uid}/suggestionOutcomes` 和 `safetyEvents/{uid}/events` 中与该记录关联的占位数据；阶段 2A 不创建 AI 反馈。
+- 未来导出和账户删除必须覆盖 `journals/{uid}/entries/{entryId}`，并继续保持日记正文不进入普通日志或错误上下文。
+
+阶段 2B 前端采用以下结构：
+
+- `/[locale]/today`、`/[locale]/history` 和 `/[locale]/entries/[entryId]` 均位于 `requireProductAccessPage` 保护的产品路由组。
+- 浏览器只调用阶段 2A 的 `/api/v1/entries` 接口，不导入 Firebase Firestore 客户端，也不复制服务端业务规则。
+- 受控标签、字段限制、Zod 输入 schema 和 API 响应类型位于共享日记模块，服务端与表单转换共同复用。
+- `JournalEntryForm` 复用于创建和编辑；评分、睡眠、标签、正文和删除确认拆分为独立可访问组件。
+- 历史列表每页读取 10 条，使用服务端稳定游标追加；正文只展示 Unicode 安全截断的预览。
+- 浏览器错误处理不记录请求体或正文；API schema 错误只返回安全字段名和通用错误代码。
+
+阶段 2C 趋势采用以下数据流和聚合规则：
+
+- `GET /api/v1/trends?days=7` 复用产品准入检查，从服务端会话取得 `uid`，浏览器不直接查询 Firestore。
+- 服务端先按账户当前 IANA 时区计算“今天”，再使用日期字符串的日历运算生成包含今天在内的最近 7 个本地日期；不以 24 小时毫秒差推导日期，因此跨午夜和夏令时切换不会缩短或重复日期窗口。
+- repository 只在 `journals/{uid}/entries` 中查询 `localDate >= startDate` 且 `localDate <= endDate` 的记录，并只选择五项趋势指标与 `localDate`，不读取 `note`。
+- 每条记录按保存时已经确定的 `localDate` 分组。账户时区后来发生变化时，窗口边界使用当前账户时区，已有记录不根据 `occurredAt` 或新时区重新归日。
+- 同一本地日期的 `mood`、`stress`、`energy`、`sleepHours` 和 `sleepQuality` 分别对当天全部记录取算术平均值，最多保留两位小数，同时返回 `entryCount`。
+- 没有记录的日期仍返回一个趋势点，五项指标均为 `null` 且 `entryCount` 为 0；客户端不得把缺失值显示为 0。
+- `/[locale]/trends` 提供带数值文字的五项可视化和完整 7 日数据表；颜色不是唯一的信息载体。
+
+阶段 2D 完成以下安全和回归收尾：
+
+- 日记与趋势 API 的未登录、未同意、跨用户、跨 Origin、未知字段、服务端字段覆盖、非法游标和安全错误格式均有自动化回归。
+- 他人 `entryId` 与不存在 `entryId` 对当前用户统一返回 `NOT_FOUND`；趋势 repository 和游标均绑定服务端会话用户路径。
+- API 只通过显式序列化返回日记字段；趋势查询只选择聚合所需数值和 `localDate`，不读取正文或标签。
+- 普通错误响应只包含安全错误代码和允许的字段名，不包含异常消息、正文、token、Cookie 或完整请求体。
+- Playwright 在本地使用已安装 Chrome，在 CI 使用 Playwright Chromium；失败产物只写测试名称、状态和耗时，不生成或上传截图、trace、正文或请求数据。
 
 ### 7.3 `analyses/{uid}/entryFeedback/{feedbackId}`
 
@@ -363,7 +399,7 @@ interface BillingProvider {
 - 单元测试：schema、日期聚合、授权 service、输出校验、风险决策矩阵、报告统计。
 - 集成测试：Firebase Auth/Firestore Emulator、repository、事务、级联删除、安全规则。
 - 契约测试：Gemini adapter 使用固定虚构响应，不在常规 CI 调用真实模型。
-- E2E：注册、同意、创建记录、历史、趋势、AI 降级、建议反馈、导出、删除、付费门控。
+- E2E：阶段 2 覆盖注册、同意、同日多条、历史稳定分页、详情编辑、删除、趋势、跨用户拒绝和移动端；后续阶段再增加 AI、导出、报告和付费门控。
 - 安全测试：跨用户 ID、越权修改、prompt injection、诊断/药物输出、危机语料、多语言变体。
 - 所有 fixtures 使用明显虚构、匿名数据。
 

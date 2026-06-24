@@ -1,15 +1,15 @@
+import { TodayJournal } from "@/features/journal/components/today-journal";
 import { zhCN } from "@/i18n/messages/zh-CN";
 
 export default function TodayPage() {
   return (
-    <main className="page-shell narrow-shell">
+    <main className="page-shell journal-shell">
       <div className="content-heading">
-        <h1>{zhCN.home.todayTitle}</h1>
+        <p className="eyebrow">{zhCN.journal.today.eyebrow}</p>
+        <h1>{zhCN.journal.today.title}</h1>
+        <p>{zhCN.journal.today.intro}</p>
       </div>
-      <section className="info-card">
-        <h2>{zhCN.home.readyTitle}</h2>
-        <p>{zhCN.home.pendingFeature}</p>
-      </section>
+      <TodayJournal />
     </main>
   );
 }

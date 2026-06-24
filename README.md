@@ -2,7 +2,7 @@
 
 MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记录 Web 应用。它不是心理治疗、疾病诊断、药物建议或紧急援助工具。
 
-当前仓库只实现开发阶段 1：工程基础、邮箱认证、安全会话、成年确认、版本化同意、访问保护，以及公开产品边界和安全资源页面。
+当前仓库已完成阶段 2：包含服务端日记 schema 与 API、今日记录、历史稳定分页、详情编辑删除，以及按用户本地日期聚合的最近 7 天趋势。阶段 2D 已补齐安全审查、完整回归和 CI E2E 配置。当前仍不包含 Gemini、AI 反馈、风险检测、支付、30 天报告、导出或账户删除实现。
 
 ## Windows 环境要求
 
@@ -96,7 +96,7 @@ java -version
 pnpm test:integration
 ```
 
-最小 E2E 测试会自动启动 Emulator 和 Next.js，并使用本机 Google Chrome。测试账户使用 `example.test` 虚构邮箱，不连接真实 Firebase 项目：
+E2E 会自动启动 Emulator 和 Next.js。本地默认使用已安装的 Google Chrome；CI 设置 `PLAYWRIGHT_USE_BUNDLED_CHROMIUM=true` 后使用 Playwright Chromium。测试账户使用 `example.test` 虚构邮箱，不连接真实 Firebase 项目：
 
 ```powershell
 java -version
@@ -109,7 +109,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-完整的阶段 1 本地验证顺序：
+完整的阶段 2 本地验证顺序：
 
 ```powershell
 pnpm format:check
@@ -119,16 +119,18 @@ pnpm test:unit
 pnpm test:integration
 pnpm test:e2e
 pnpm build
+git diff --check
 ```
 
 ## GitHub Actions
 
-`.github/workflows/ci.yml` 包含两个不使用秘密的任务：
+`.github/workflows/ci.yml` 包含三个不使用秘密的任务：
 
 - `quality`：安装锁定依赖，运行格式、lint、类型、单元测试和构建。
 - `integration`：在 Java 21 下使用 `mindtrace-demo` 运行 Firebase Emulator 集成测试。
+- `e2e`：安装 Playwright Chromium 和 Java 21，使用 Firebase Emulator、虚构账户与项目运行浏览器回归；失败时只上传不含截图、trace、正文或请求体的净化测试摘要。
 
-基础 CI 暂不运行 E2E。GitHub Actions 配置不需要 Firebase 登录、真实 Firebase 项目、Gemini 密钥或服务账号。
+GitHub Actions 不执行 Firebase 登录，也不需要真实 Firebase 项目、Gemini 密钥或服务账号。
 
 ## 本地认证流程
 
@@ -147,4 +149,4 @@ pnpm build
 - API 从已验证的会话取得 UID，不接受客户端传入 UID 作为数据所有者。
 - `accounts/{uid}` 不保存邮箱；邮箱由 Firebase Authentication 管理。
 - 测试账户使用 `example.test` 和完全虚构的数据。
-- 当前阶段没有 Gemini、日记、趋势、报告、支付、Cloud Tasks 或 Cloud Run 正式部署代码。
+- 当前阶段没有 Gemini、AI 反馈、风险检测、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。

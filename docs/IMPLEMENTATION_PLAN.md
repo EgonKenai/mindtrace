@@ -65,6 +65,59 @@
 - 桌面和移动视口下表单、历史和趋势无文本溢出或控件重叠。
 - 单元、Emulator 集成和关键 E2E 测试通过。
 
+### 阶段 2A：日记数据模型、服务端验证和 API
+
+阶段 2A 只实现后端数据模型、服务端 schema、Firestore repository、service 和 `/api/v1/entries` API；不实现页面、趋势图、Gemini、AI 反馈、支付、报告、导出或账户删除。
+
+已采用的实现细节：
+
+- 日记正文和结构化字段保存在 `journals/{uid}/entries/{entryId}`，`uid` 始终来自服务端会话验证，不接受客户端 owner 字段。
+- 生活事件标签首版为受控 ID，最多 5 个且不允许重复；中文展示名位于 `src/i18n/messages/zh-CN.ts`。
+- `GET /api/v1/entries` 使用稳定游标分页，默认按 `occurredAt desc` 排序，版本 2 游标包含 `occurredAt`、`createdAt`、`entryId` 和当前用户作用域指纹；跨用户和畸形游标被拒绝。
+- `POST`、`PATCH`、`DELETE` 执行同源 Origin/CSRF 防护；所有响应使用字段白名单。
+- 不存在和不属于当前用户的 `entryId` 都返回同一 `NOT_FOUND` 错误，不泄露其他用户资源是否存在。
+- 当前阶段新增集合 `journals/{uid}/entries` 已加入未来导出和账户删除覆盖要求；本阶段不实现导出和账户删除。
+
+### 阶段 2B：记录、历史、详情编辑和删除页面
+
+阶段 2B 实现 `/[locale]/today`、`/[locale]/history` 和 `/[locale]/entries/[entryId]`，复用阶段 2A 的 schema、字段定义和 API。
+
+已采用的实现细节：
+
+- 创建和编辑共用 `JournalEntryForm` 及字段组件；客户端校验使用共享 Zod schema，服务端仍是最终权威。
+- 历史页面按 `occurredAt` 倒序加载，每页 10 条并使用 `nextCursor` 追加，不做全量读取。
+- 详情页面使用统一的安全错误处理；不存在和无权访问均展示相同的不可用状态。
+- 删除使用键盘可取消的原生确认对话框，确认后调用现有 DELETE API 并返回历史页面。
+- 所有中文界面文本和标签名称来自 `zh-CN` locale 消息结构；浏览器不直接访问 Firestore。
+- E2E 使用 Firebase Emulator 和完全虚构的数据，覆盖桌面 CRUD、未登录拦截和 360px 手机创建流程，Playwright 不启用失败重试。
+
+### 阶段 2C：最近 7 天趋势和时区边界
+
+阶段 2C 实现 `/[locale]/trends` 和 `GET /api/v1/trends?days=7`，继续复用阶段 2A 的日记数据与产品准入，不新增趋势数据副本或客户端 Firestore 访问。
+
+已采用的实现细节：
+
+- 最近日期窗口以账户当前 IANA 时区中的本地“今天”为终点，使用日期日历运算生成连续 7 个 `YYYY-MM-DD`，不直接减去 UTC 24 小时。
+- 记录按保存时的 `localDate` 分组；账户时区变化不会重新解释旧记录的日期归属。
+- 同一天的全部记录对五项数值分别取算术平均值，最多保留两位小数，并返回当天记录数。
+- 缺失日期返回 `null` 指标和 0 条记录，不伪造数值 0。
+- 趋势 repository 查询限定在当前用户和 7 日本地日期范围，只读取聚合所需字段，不读取日记正文。
+- 页面包含加载、空、失败与重试状态；五项可视化同时显示文字数值，并提供完整可访问数据表。
+- 单元、Firebase Emulator 集成和 E2E 覆盖跨午夜、DST、时区变化、同日多条、缺失日及 360px、768px、1280px 视口。
+
+### 阶段 2D：安全审查、完整回归、CI 和验收收尾
+
+阶段 2D 不增加产品功能，只审查和收紧阶段 2A、2B、2C 的授权、验证、分页、聚合、页面回归与 CI。
+
+已采用的实现细节：
+
+- 日记和趋势 API 的会话、当前版本同意、跨用户隔离、Origin、schema、字段白名单和安全错误格式由单元、Emulator 集成及 E2E 共同验证。
+- 分页游标升级为严格版本化、用户作用域绑定格式；游标仍只承载排序键，不包含正文、标签或账户资料。
+- E2E 覆盖同日第二条记录、12 条历史分页、编辑 revision、删除后历史与趋势同步、缺失日、跨用户 ID、未登录/未同意和 360px 手机 CRUD。
+- GitHub Actions 保留 `quality`、`integration`，新增独立 `e2e` job；三个 job 均不登录 Firebase、不使用真实项目、Gemini、服务账号或密钥。
+- CI E2E 使用 Java 21、Firebase Emulator、Playwright Chromium 和虚构数据；失败报告不包含截图、trace、正文或请求体。
+- 阶段 2 详细验收依据记录在 `docs/PHASE_2_REVIEW.md`。
+
 ## 4. 阶段 3：AI 反馈、安全检测和建议闭环
 
 ### 目标
@@ -203,7 +256,7 @@
 | `PATCH /api/v1/account`                     | 修改允许的偏好                                |
 | `POST /api/v1/account/consents`             | 接受当前版本文案                              |
 | `GET /api/v1/entries`                       | 分页读取历史                                  |
-| `POST /api/v1/entries`                      | 创建记录和分析占位                            |
+| `POST /api/v1/entries`                      | 创建记录（阶段 2A 不创建 AI 分析占位）        |
 | `GET /api/v1/entries/[entryId]`             | 获取记录详情                                  |
 | `PATCH /api/v1/entries/[entryId]`           | 编辑自己的记录                                |
 | `DELETE /api/v1/entries/[entryId]`          | 删除记录及关联数据                            |

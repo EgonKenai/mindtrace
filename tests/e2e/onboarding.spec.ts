@@ -80,7 +80,7 @@ test("new user completes the phase 1 authentication and consent flow", async ({
   expect((await consentResponse).status()).toBe(201);
 
   await expect(
-    page.getByRole("heading", { name: "账户已准备好" }),
+    page.getByRole("heading", { name: "记录此刻的状态" }),
   ).toBeVisible();
   await expect(page).toHaveURL(/\/zh-CN\/today$/);
 
@@ -105,6 +105,12 @@ test("new user completes the phase 1 authentication and consent flow", async ({
   await expect(page).toHaveURL(/\/zh-CN\/login$/);
 
   await page.goto("/zh-CN/today");
+  await expect(page).toHaveURL(/\/zh-CN\/login$/);
+
+  await page.goto("/zh-CN/history");
+  await expect(page).toHaveURL(/\/zh-CN\/login$/);
+
+  await page.goto("/zh-CN/entries/fictional-missing-entry");
   await expect(page).toHaveURL(/\/zh-CN\/login$/);
 
   await page.goto("/zh-CN/product-boundary");

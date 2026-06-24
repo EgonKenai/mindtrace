@@ -41,4 +41,20 @@ describe("Firestore client security rules", () => {
       }),
     );
   });
+
+  it("denies direct browser reads and writes to journal entries", async () => {
+    const database = testEnvironment
+      .authenticatedContext("fictional-user")
+      .firestore();
+    const journalRef = doc(database, "journals/fictional-user/entries/entry-1");
+
+    await assertFails(getDoc(journalRef));
+    await assertFails(
+      setDoc(journalRef, {
+        mood: 5,
+        stress: 4,
+        energy: 6,
+      }),
+    );
+  });
 });

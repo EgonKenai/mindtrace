@@ -17,6 +17,8 @@ export async function SiteHeader() {
           {user && (
             <>
               <Link href="/zh-CN/today">{zhCN.navigation.today}</Link>
+              <Link href="/zh-CN/history">{zhCN.navigation.history}</Link>
+              <Link href="/zh-CN/trends">{zhCN.navigation.trends}</Link>
               <Link href="/zh-CN/settings">{zhCN.navigation.settings}</Link>
             </>
           )}
