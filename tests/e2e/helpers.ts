@@ -78,6 +78,16 @@ export async function registerAndConsent(
   await completeConsent(page);
 }
 
+export async function acceptAiConsent(page: Page): Promise<void> {
+  const consentResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      response.url().endsWith("/api/v1/account/ai-consent"),
+  );
+  await page.getByRole("button", { name: "同意并生成" }).click();
+  expect((await consentResponse).status()).toBe(200);
+}
+
 export async function createEntryViaApi(
   page: Page,
   input: FictionalEntryInput,

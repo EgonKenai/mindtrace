@@ -228,8 +228,56 @@ export const zhCN = {
     },
   },
   aiFeedback: {
+    eyebrow: "可选功能",
+    title: "AI 支持性反馈",
+    intro: "你可以选择让 AI 对这条记录生成一段简短反思和至多一条低风险建议。",
     disclaimer:
       "这是一条记录辅助信息，不是诊断、治疗或用药建议，也不能替代专业人员或紧急服务。",
+    actions: {
+      generate: "生成 AI 反馈",
+      checking: "正在检查同意状态",
+      generating: "正在生成反馈",
+    },
+    consent: {
+      title: "AI 数据处理说明",
+      body: "生成反馈时，服务端会把五项状态数值、受控标签、截断后的日记文字、locale 和非识别性趋势摘要发送给第三方 AI Provider。",
+      optional:
+        "AI 反馈完全可选。拒绝不会影响日记、历史或趋势功能，也不会向 AI Provider 发送内容。",
+      dataItems: [
+        "不会发送 uid、邮箱、Cookie、token、IP 或 Firestore 路径。",
+        "Provider 可能为滥用监测保留提示词和输出。",
+        "你可以拒绝，并继续正常使用 MindTrace 的基础记录功能。",
+      ],
+      decline: "拒绝并关闭",
+      accept: "同意并生成",
+      saving: "正在保存选择",
+      declinedStatus:
+        "你已拒绝 AI 数据处理。本条记录未发送给 AI Provider，基础记录功能仍可正常使用。",
+    },
+    status: {
+      generated: "支持性反馈",
+      supportive: "建议先获得现实支持",
+      crisis: "请立即寻求紧急支持",
+      fallback: "暂时无法生成 AI 反馈",
+    },
+    suggestionsTitle: "可以考虑",
+    fallback: {
+      "not-configured": "AI Provider 尚未配置。你的日记仍已保存，可稍后再试。",
+      timeout: "AI Provider 响应超时。没有返回原始错误或不完整内容。",
+      "rate-limited": "AI Provider 当前请求较多，请稍后再试。",
+      unavailable: "AI Provider 暂时不可用，请稍后再试。",
+      blocked: "Provider 的安全过滤阻止了本次输出，已改用安全降级内容。",
+      invalid: "Provider 输出未通过本地结构或安全校验，已被丢弃。",
+      generic: "本次反馈未能安全生成，已改用安全降级内容。",
+    },
+    errors: {
+      consentCheck: "无法确认 AI 同意状态，请稍后重试。",
+      consentSave: "无法保存 AI 数据处理选择，请重试。",
+      notFound: "无法为这条记录生成反馈。",
+      timeout: "反馈请求超时，请稍后重试。",
+      rateLimited: "反馈请求过多，请稍后重试。",
+      generic: "反馈暂时不可用，请稍后重试。",
+    },
     generated: {
       fallbackReflection:
         "你的记录已经保存。AI 反馈目前不可用，你仍可以稍后回看自己的记录。",

@@ -413,6 +413,15 @@ interface BillingProvider {
 - prompt safety block、candidate safety finish、空候选、malformed JSON、schema 失败及内容策略失败全部进入固定降级。
 - `accounts/{uid}/consents/ai-processing-2026-06-25-v2` 单独保存 AI 处理接受/拒绝决定。产品基础 consent 不再要求 AI 接受；只有即将调用配置 Provider 时才校验该文档。
 
+阶段 3C 的客户端流程为：
+
+1. `/zh-CN/entries/[entryId]` 加载当前用户日记后渲染独立 `EntryAiFeedback` 区域。
+2. 用户点击生成时先调用 `GET /api/v1/account` 读取服务端 AI 同意状态；浏览器本地状态不作为授权依据。
+3. 未同意时显示 `AiConsentDialog`。接受或拒绝均调用 `POST /api/v1/account/ai-consent`；拒绝后不调用反馈 API。
+4. 已同意或接受成功后，客户端单次调用 `POST /api/v1/entries/[entryId]/feedback`。按钮在请求期间禁用，客户端不自动重试。
+5. `FeedbackResult` 只作为纯文本渲染；crisis/supportive 使用服务端固定 locale 文案，safe fallback 根据稳定 reason code 显示可访问说明。
+6. 反馈结果只保存在当前 React 状态，不持久化、不写入浏览器存储。路由刷新后可再次按需生成。
+
 ## 12. 日志、监控和审计
 
 允许记录：
@@ -438,7 +447,7 @@ interface BillingProvider {
 - 单元测试：schema、日期聚合、授权 service、输出校验、风险决策矩阵、报告统计。
 - 集成测试：Firebase Auth/Firestore Emulator、repository、事务、级联删除、安全规则。
 - 契约测试：Gemini adapter 使用固定虚构响应，不在常规 CI 调用真实模型。
-- E2E：阶段 2 覆盖注册、同意、同日多条、历史稳定分页、详情编辑、删除、趋势、跨用户拒绝和移动端；后续阶段再增加 AI、导出、报告和付费门控。
+- E2E：阶段 2 覆盖注册、基础同意、同日多条、历史稳定分页、详情编辑、删除、趋势、跨用户拒绝和移动端；阶段 3C 覆盖独立 AI 同意接受/拒绝、纯文本生成、固定分流、降级、错误、单次提交、跨用户拒绝和 360px 流程。后续阶段再增加导出、报告和付费门控。
 - 安全测试：跨用户 ID、越权修改、prompt injection、诊断/药物输出、危机语料、多语言变体。
 - 所有 fixtures 使用明显虚构、匿名数据。
 

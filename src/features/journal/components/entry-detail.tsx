@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { EntryAiFeedback } from "@/features/ai-feedback/components/entry-ai-feedback";
 import { DeleteEntryDialog } from "@/features/journal/components/delete-entry-dialog";
 import { JournalEntryForm } from "@/features/journal/components/journal-entry-form";
 import { formatJournalDateTime } from "@/features/journal/display";
@@ -258,6 +259,8 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
           {entry.note || zhCN.journal.history.noteEmpty}
         </p>
       </section>
+
+      <EntryAiFeedback entryId={entry.id} />
 
       <section
         className="entry-metadata"

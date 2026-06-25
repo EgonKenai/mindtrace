@@ -2,9 +2,9 @@
 
 MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记录 Web 应用。它不是心理治疗、疾病诊断、药物建议或紧急援助工具。
 
-当前仓库已完成阶段 2、阶段 3A 的 AI 反馈安全基础，以及阶段 3B 的真实 Gemini Provider 服务端 adapter。反馈仍经过确定性安全路由、最小化输入、结构化输出和本地严格安全校验。
+当前仓库已完成阶段 2，以及阶段 3A/3B/3C 的 AI 反馈安全基础、真实 Gemini Provider 服务端 adapter、独立 AI 同意界面和记录详情反馈界面。反馈仍经过确定性安全路由、最小化输入、结构化输出和本地严格安全校验。
 
-阶段 3B 使用官方 `@google/genai` 2.10.0 的无状态 `models.generateContent` API。仓库不包含真实 API Key，自动化测试不调用 Gemini。未同时配置 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 时，普通反馈继续返回明确的 `PROVIDER_NOT_CONFIGURED` 固定降级。最终反馈页面、独立模型安全分类器、建议效果闭环、持久化、支付、30 天报告、导出和账户删除仍未实现。
+阶段 3B 使用官方 `@google/genai` 2.10.0 的无状态 `models.generateContent` API。仓库不包含真实 API Key，自动化测试不调用 Gemini。未同时配置 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 时，普通反馈继续返回明确的 `PROVIDER_NOT_CONFIGURED` 固定降级。阶段 3C 在 `/zh-CN/entries/[entryId]` 提供按需反馈和独立同意流程；反馈不持久化。独立模型安全分类器、建议效果闭环、支付、30 天报告、导出和账户删除仍未实现。
 
 ## Windows 环境要求
 
@@ -120,7 +120,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-阶段 3B 不包含 AI 页面，自动化测试通过 SDK mock 和 Fake Provider 完成，不调用真实 Gemini。完整本地验证顺序：
+阶段 3C 浏览器测试通过路由 mock、SDK mock 和 Fake Provider 覆盖同意、生成、分流、降级与错误状态，不调用真实 Gemini。完整本地验证顺序：
 
 ```powershell
 pnpm format:check
@@ -150,6 +150,7 @@ GitHub Actions 不执行 Firebase 登录，也不需要真实 Firebase 项目、
 3. `/api/v1/auth/session` 只验证 ID token 并设置 HttpOnly 会话 Cookie。
 4. 新用户进入 `/zh-CN/onboarding/consent` 完成年确认和当前版本同意。
 5. 完成准入后，受保护的 `/zh-CN/today` 才可访问。
+6. 用户在记录详情页首次选择“生成 AI 反馈”时，单独接受或拒绝当前 AI 数据处理说明。
 
 会话创建不依赖同意状态，因此首次注册不会形成循环依赖。
 
@@ -167,6 +168,6 @@ GitHub Actions 不执行 Firebase 登录，也不需要真实 Firebase 项目、
 - Fake Provider 和 SDK mock 只用于单元和 Emulator 集成测试。
 - `accounts/{uid}` 不保存邮箱；邮箱由 Firebase Authentication 管理。
 - 测试账户使用 `example.test` 和完全虚构的数据。
-- 当前仓库包含 Gemini SDK adapter，但没有 API Key、真实调用、最终 AI 页面、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
+- 当前仓库包含 Gemini SDK adapter 和详情页反馈界面，但没有 API Key、真实调用、反馈持久化、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
 
-AI 安全设计、第三方处理边界和阶段 3C 排除项见 `docs/AI_SAFETY.md`。
+AI 安全设计、第三方处理边界和阶段 3 验收见 `docs/AI_SAFETY.md` 与 `docs/PHASE_3_REVIEW.md`。

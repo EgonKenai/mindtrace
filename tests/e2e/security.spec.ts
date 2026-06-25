@@ -236,6 +236,13 @@ test("another user's entry IDs and trend data remain indistinguishable and isola
       404,
       "NOT_FOUND",
     );
+    await expectSafeError(
+      await page.request.post(`/api/v1/entries/${entryId}/feedback`, {
+        headers: { origin: appOrigin },
+      }),
+      404,
+      "NOT_FOUND",
+    );
   }
 
   const trendsResponse = await page.request.get("/api/v1/trends?days=7");
