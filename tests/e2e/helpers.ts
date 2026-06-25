@@ -55,7 +55,6 @@ export async function completeConsent(page: Page): Promise<void> {
   await page.getByLabel("我确认自己已达到所在地区的法定成年年龄。").check();
   await page.getByLabel("我已阅读并理解产品边界。").check();
   await page.getByLabel("我已阅读并接受当前隐私说明。").check();
-  await page.getByLabel("我已阅读并接受当前 AI 数据处理说明。").check();
   await page.getByLabel("你的时区").fill("Asia/Tokyo");
 
   const consentResponse = page.waitForResponse(

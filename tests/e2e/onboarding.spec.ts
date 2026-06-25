@@ -69,7 +69,9 @@ test("new user completes the phase 1 authentication and consent flow", async ({
   await page.getByLabel("我确认自己已达到所在地区的法定成年年龄。").check();
   await page.getByLabel("我已阅读并理解产品边界。").check();
   await page.getByLabel("我已阅读并接受当前隐私说明。").check();
-  await page.getByLabel("我已阅读并接受当前 AI 数据处理说明。").check();
+  await expect(
+    page.getByLabel("我同意当前版本的第三方 AI 数据处理说明。"),
+  ).not.toBeChecked();
   await page.getByLabel("你的时区").fill("Asia/Tokyo");
   const consentResponse = page.waitForResponse(
     (response) =>
@@ -86,6 +88,14 @@ test("new user completes the phase 1 authentication and consent flow", async ({
 
   const protectedResponse = await page.request.get("/api/v1/personal/status");
   expect(protectedResponse.ok()).toBe(true);
+  const accountResponse = await page.request.get("/api/v1/account");
+  expect(accountResponse.ok()).toBe(true);
+  await expect(accountResponse.json()).resolves.toMatchObject({
+    data: {
+      hasAiProcessingConsent: false,
+      hasProductAccess: true,
+    },
+  });
 
   await page.goto("/zh-CN/settings");
   const finalLogout = page.waitForResponse(
