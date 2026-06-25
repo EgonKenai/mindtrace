@@ -79,4 +79,25 @@ describe("authentication and consent with Firebase emulators", () => {
       },
     });
   });
+
+  it("does not require AI processing consent for journal product access", async () => {
+    const userId = `fictional-no-ai-${Date.now()}`;
+    await ensureAccount(userId);
+    await recordConsent(userId, {
+      adultConfirmed: true,
+      aiProcessingAccepted: false,
+      locale: "zh-CN",
+      privacyAccepted: true,
+      productBoundaryAccepted: true,
+      timeZone: "Asia/Tokyo",
+    });
+
+    await expect(getAccessState(userId)).resolves.toMatchObject({
+      hasProductAccess: true,
+      account: {
+        status: "active",
+        timeZone: "Asia/Tokyo",
+      },
+    });
+  });
 });

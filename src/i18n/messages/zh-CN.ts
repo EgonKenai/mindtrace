@@ -65,8 +65,10 @@ export const zhCN = {
     privacyCheckbox: "我已阅读并接受当前隐私说明。",
     aiTitle: "AI 数据处理说明",
     aiBody:
-      "后续启用 AI 功能时，请求将由服务端最小化处理并发送给配置的 AI 供应商。当前阶段尚未启用 AI。",
-    aiCheckbox: "我已阅读并接受当前 AI 数据处理说明。",
+      "使用 AI 反馈时，服务端会把评分、受控标签和截断后的日记文字发送给第三方 AI Provider。Provider 可能为滥用监测保留提示词和输出；MindTrace 不发送账户标识、Cookie 或 token。",
+    aiCheckbox: "我同意当前版本的第三方 AI 数据处理说明。",
+    aiOptionalHint:
+      "此项可选。不同意不会影响日记、历史或趋势；系统不会调用第三方 AI Provider。",
     timeZoneLabel: "你的时区",
     timeZoneHint: "用于确定记录所属的本地日期，可稍后在设置中修改。",
     submit: "完成确认",

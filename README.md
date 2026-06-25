@@ -2,9 +2,9 @@
 
 MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记录 Web 应用。它不是心理治疗、疾病诊断、药物建议或紧急援助工具。
 
-当前仓库已完成阶段 2，并实现阶段 3A 的 AI 反馈安全基础：版本化反馈契约、确定性安全路由、最小化 Provider 输入、严格输出校验、Provider 抽象、测试 Fake Provider，以及 `POST /api/v1/entries/[entryId]/feedback` 服务端骨架。
+当前仓库已完成阶段 2、阶段 3A 的 AI 反馈安全基础，以及阶段 3B 的真实 Gemini Provider 服务端 adapter。反馈仍经过确定性安全路由、最小化输入、结构化输出和本地严格安全校验。
 
-阶段 3A 不安装 Gemini SDK、不读取 API Key、不调用真实模型、不持久化反馈，也不提供最终反馈页面。生产普通分支会返回明确的 `PROVIDER_NOT_CONFIGURED` 固定降级。真实 Provider、独立模型安全分类器、建议效果闭环、支付、30 天报告、导出和账户删除仍未实现。
+阶段 3B 使用官方 `@google/genai` 2.10.0 的无状态 `models.generateContent` API。仓库不包含真实 API Key，自动化测试不调用 Gemini。未同时配置 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 时，普通反馈继续返回明确的 `PROVIDER_NOT_CONFIGURED` 固定降级。最终反馈页面、独立模型安全分类器、建议效果闭环、持久化、支付、30 天报告、导出和账户删除仍未实现。
 
 ## Windows 环境要求
 
@@ -37,6 +37,15 @@ Copy-Item .env.example .env.local
 ```
 
 `.env.example` 只包含本地 Emulator 的虚构配置。不要提交 `.env.local`、Firebase 服务账号 JSON、Firebase Admin 私钥、Gemini 密钥或任何真实用户数据。
+
+如需在明确批准的本地或预发布环境启用 Gemini，请只在被 Git 忽略的服务端环境或 Secret Manager 设置：
+
+```text
+GEMINI_API_KEY=
+GEMINI_MODEL=
+```
+
+两个值缺一不可。不要使用 `NEXT_PUBLIC_` 前缀。本阶段验证不需要也不会使用真实值。
 
 ## 启动 Firebase Emulator
 
@@ -111,7 +120,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-阶段 3A 不要求 AI 页面 E2E。完整本地验证顺序：
+阶段 3B 不包含 AI 页面，自动化测试通过 SDK mock 和 Fake Provider 完成，不调用真实 Gemini。完整本地验证顺序：
 
 ```powershell
 pnpm format:check
@@ -151,9 +160,13 @@ GitHub Actions 不执行 Firebase 登录，也不需要真实 Firebase 项目、
 - API 从已验证的会话取得 UID，不接受客户端传入 UID 作为数据所有者。
 - AI 反馈只有普通记录可进入 Provider；明确危险和高度痛苦分支使用本地化固定模板。
 - Provider 输入不含 UID、邮箱、entryId、token、Cookie、精确时间或 Firestore 路径。
-- 阶段 3A 没有真实 AI Provider；Fake Provider 只用于单元和 Emulator 集成测试。
+- `@google/genai` 只由 `src/server/ai/gemini-provider.ts` 的 `server-only` 模块导入。
+- Gemini 使用无状态 `models.generateContent`，不使用 Interactions、聊天、工具、搜索、后台任务或 previous interaction ID。
+- 四类 Gemini safety setting 均显式使用 `BLOCK_LOW_AND_ABOVE`，blocked response 进入固定降级。
+- AI 第三方处理同意独立于日记准入；拒绝 AI 不影响日记、历史和趋势，但普通反馈不会调用 Provider。
+- Fake Provider 和 SDK mock 只用于单元和 Emulator 集成测试。
 - `accounts/{uid}` 不保存邮箱；邮箱由 Firebase Authentication 管理。
 - 测试账户使用 `example.test` 和完全虚构的数据。
-- 当前阶段没有 Gemini SDK/API Key、真实模型调用、最终 AI 页面、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
+- 当前仓库包含 Gemini SDK adapter，但没有 API Key、真实调用、最终 AI 页面、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
 
-AI 安全设计、已知限制和阶段 3B 门槛见 `docs/AI_SAFETY.md`。
+AI 安全设计、第三方处理边界和阶段 3C 排除项见 `docs/AI_SAFETY.md`。

@@ -33,8 +33,7 @@ export function ConsentForm() {
     if (
       !payload.adultConfirmed ||
       !payload.productBoundaryAccepted ||
-      !payload.privacyAccepted ||
-      !payload.aiProcessingAccepted
+      !payload.privacyAccepted
     ) {
       setErrorMessage(zhCN.consent.errors.incomplete);
       setSubmitting(false);
@@ -101,9 +100,10 @@ export function ConsentForm() {
         <h2>{zhCN.consent.aiTitle}</h2>
         <p>{zhCN.consent.aiBody}</p>
         <label className="checkbox-field">
-          <input name="aiProcessingAccepted" required type="checkbox" />
+          <input name="aiProcessingAccepted" type="checkbox" />
           <span>{zhCN.consent.aiCheckbox}</span>
         </label>
+        <small className="field-hint">{zhCN.consent.aiOptionalHint}</small>
       </section>
 
       <label className="field">

@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 
 import {
+  AiProcessingConsentRequiredError,
   ProductAccessRequiredError,
   ResourceNotFoundError,
   UnauthenticatedError,
@@ -98,6 +99,26 @@ describe("AI feedback service with Firebase emulators", () => {
     await expect(
       generateEntryFeedback(userId, "entry", { provider }),
     ).rejects.toBeInstanceOf(ProductAccessRequiredError);
+    expect(provider.calls).toHaveLength(0);
+  });
+
+  it("does not call the provider when AI processing consent is declined", async () => {
+    const userId = uniqueUserId("ai-declined");
+    await ensureAccount(userId);
+    await recordConsent(userId, {
+      adultConfirmed: true,
+      aiProcessingAccepted: false,
+      locale: "zh-CN",
+      privacyAccepted: true,
+      productBoundaryAccepted: true,
+      timeZone: "Asia/Tokyo",
+    });
+    const entry = await createJournalEntry(userId, baseEntry);
+    const provider = new FakeAiFeedbackProvider();
+
+    await expect(
+      generateEntryFeedback(userId, entry.id, { provider }),
+    ).rejects.toBeInstanceOf(AiProcessingConsentRequiredError);
     expect(provider.calls).toHaveLength(0);
   });
 

@@ -1,4 +1,4 @@
-# MindTrace 阶段 3A AI 反馈安全设计
+# MindTrace 阶段 3A/3B AI 反馈安全设计
 
 ## 1. 产品边界
 
@@ -34,7 +34,9 @@ MindTrace 的 AI 反馈只用于简短情绪反思和低风险自我照顾建议
 
 只有 `allow_generation` 可以进入 `AiFeedbackProvider.generateFeedback`。service 依赖抽象接口，不依赖 Gemini SDK。
 
-阶段 3A 没有真实 Provider。默认 `UnconfiguredAiFeedbackProvider` 返回受控的未配置状态，service 将其映射为：
+阶段 3B 提供 `GeminiAiFeedbackProvider`，使用官方 `@google/genai` 2.10.0 和无状态 `models.generateContent`。它不使用 Interactions、chat、previous interaction ID、后台任务、工具、搜索、缓存或长期对话状态。由于未采用 Interactions API，网络请求没有 `store` 字段；代码中的状态策略仍显式声明 `store: false`，且不会创建可检索 interaction。
+
+默认配置缺少 `GEMINI_API_KEY` 或 `GEMINI_MODEL` 时，`UnconfiguredAiFeedbackProvider` 返回受控的未配置状态，service 将其映射为：
 
 - `policyDecision: safe_fallback`
 - `reasonCodes: ["PROVIDER_NOT_CONFIGURED"]`
@@ -42,7 +44,18 @@ MindTrace 的 AI 反馈只用于简短情绪反思和低风险自我照顾建议
 
 测试使用 `tests/fixtures/fake-ai-feedback-provider.ts`。Fake Provider 不进入生产业务代码。
 
-Provider 调用使用 `AbortSignal` 和 3 秒默认超时。blocked、unavailable、rate limited、timeout 和未知异常只映射为稳定 reason code，不回显供应商错误。
+Provider 调用使用 `AbortSignal` 和 3 秒 service 超时。只有 429、502、503 可进行一次额外尝试；其余错误不重试。blocked、empty candidate、malformed JSON、unavailable、rate limited、timeout 和未知异常只映射为稳定 reason code 或本地 strict validation 失败，不回显供应商错误。
+
+Gemini 请求显式设置：
+
+- `responseMimeType: application/json`
+- strict JSON response schema
+- `candidateCount: 1`
+- `temperature: 0.2`
+- `maxOutputTokens: 512`
+- harassment、hate speech、sexually explicit、dangerous content 均为 `BLOCK_LOW_AND_ABOVE`
+
+不得降低为 `BLOCK_NONE` 或 `OFF`。
 
 ## 4. 输入最小化
 
@@ -101,7 +114,7 @@ Provider 只能返回严格的 `reflection` 和 `suggestions`，未知字段被�
 
 他人记录和不存在记录统一返回 `NOT_FOUND`。客户端请求体中的 uid 或 ownerId 不参与授权。
 
-阶段 3A 不持久化反馈，避免在真实 Provider 和生命周期规则尚未完成前复制敏感数据。`AiFeedbackRepository` 只定义未来边界；允许保存的形状仅包含已验证结果、版本、provider/model 占位、策略决定、reason codes、创建时间、输入 revision 和非敏感运行状态。
+阶段 3A/3B 不持久化反馈，避免在生命周期规则尚未完成前复制敏感数据。`AiFeedbackRepository` 只定义未来边界；允许保存的形状仅包含已验证结果、版本、provider/model 标识、策略决定、reason codes、创建时间、输入 revision 和非敏感运行状态。
 
 禁止持久化 API key、完整 prompt、session/token、Provider 原始错误、未验证输出或调试用日记副本。
 
@@ -115,7 +128,20 @@ Provider 只能返回严格的 `reflection` 和 `suggestions`，未知字段被�
 
 API 未知异常继续使用统一 `INTERNAL_ERROR`，不返回内部消息。
 
-## 8. 安全降级
+## 8. 独立 AI 第三方处理同意
+
+日记基础准入只要求成年确认、产品边界和隐私同意。AI 处理同意是单独的版本化决定：
+
+- 当前 AI 处理版本为 `2026-06-25-v2`；
+- 用户可拒绝 AI，同时继续创建、查看、编辑日记和趋势；
+- 只有普通反馈分支且真实或测试 Provider 即将调用时，service 才检查当前 AI 同意；
+- 未同意返回安全的 `AI_CONSENT_REQUIRED`，Provider 调用数为 0；
+- 危机、支持、本地降级和 Provider 未配置分支不向第三方发送数据；
+- 用户可通过 `POST /api/v1/account/ai-consent` 更新接受或拒绝决定。
+
+同意文案说明发送的是最小化评分、受控标签和截断后的日记文字，不发送账户标识、Cookie 或 token。第三方 Provider 可能依据其服务条款为安全和滥用监测保留提示词与输出；具体保留期限、区域和训练用途必须在上线前按所选账户层级与条款再次核验。
+
+## 9. 安全降级
 
 以下情况都返回人工编写的固定降级，不展示原始 Provider 内容：
 
@@ -126,12 +152,12 @@ API 未知异常继续使用统一 `INTERNAL_ERROR`，不返回内部消息。
 
 日记创建与保存不依赖反馈成功。阶段 3A 的反馈 API 也不会修改日记记录。
 
-## 9. 已知限制与阶段 3B
+## 10. 已知限制与阶段 3C
 
 - 确定性规则不能识别所有危机表达，不能作为临床判断依据。
-- 阶段 3A 只有基础中英文规则，不包含独立模型安全分类器。
+- 当前只有基础中英文确定性规则，不包含独立模型安全分类器。
 - 地区化危机资源和专业审核仍是上线前门槛。
 - 当前没有反馈页面、建议效果闭环或反馈持久化。
-- 当前没有真实 Gemini adapter、SDK、API key 或外部请求。
+- 仓库包含真实 Gemini adapter 和 SDK，但没有 API key，常规测试也不发起外部请求。
 
-阶段 3B 在接入真实模型前必须完成供应商条款与地区评审、独立安全分类器、真实 adapter 契约测试、模型/提示词版本锁定、预发布日志抽查、输出人工抽样和完整安全回归。不得用普通生成模型替代独立安全决策。
+阶段 3C 或上线前仍需完成供应商条款与地区评审、独立安全分类器、模型/系统指令版本锁定、预发布真实模型 smoke test、日志抽查、输出人工抽样和专业安全回归。不得用普通生成模型替代独立安全决策。

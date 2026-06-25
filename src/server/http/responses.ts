@@ -47,6 +47,13 @@ export class ProductAccessRequiredError extends Error {
   }
 }
 
+export class AiProcessingConsentRequiredError extends Error {
+  constructor() {
+    super("AI_CONSENT_REQUIRED");
+    this.name = "AiProcessingConsentRequiredError";
+  }
+}
+
 export class ResourceNotFoundError extends Error {
   constructor() {
     super("NOT_FOUND");
@@ -72,6 +79,13 @@ export function apiErrorResponse(error: unknown): NextResponse {
   if (error instanceof ProductAccessRequiredError) {
     return NextResponse.json(
       { error: { code: "CONSENT_REQUIRED" } },
+      { status: 403 },
+    );
+  }
+
+  if (error instanceof AiProcessingConsentRequiredError) {
+    return NextResponse.json(
+      { error: { code: "AI_CONSENT_REQUIRED" } },
       { status: 403 },
     );
   }

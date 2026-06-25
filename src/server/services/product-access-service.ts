@@ -1,6 +1,8 @@
 import { getAccessState } from "@/server/auth/access";
+import { hasCurrentAiProcessingConsent } from "@/server/repositories/account-repository";
 import { isValidTimeZone } from "@/server/journal/schema";
 import {
+  AiProcessingConsentRequiredError,
   InvalidRequestError,
   ProductAccessRequiredError,
   UnauthenticatedError,
@@ -9,6 +11,14 @@ import {
 export interface ProductDataAccessContext {
   timeZone: string;
   userId: string;
+}
+
+export async function requireAiProcessingConsent(
+  userId: string,
+): Promise<void> {
+  if (!(await hasCurrentAiProcessingConsent(userId))) {
+    throw new AiProcessingConsentRequiredError();
+  }
 }
 
 export async function requireProductDataAccess(

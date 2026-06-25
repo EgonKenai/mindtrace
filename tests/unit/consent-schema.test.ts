@@ -16,6 +16,20 @@ describe("consentSubmissionSchema", () => {
     expect(consentSubmissionSchema.parse(validConsent)).toEqual(validConsent);
   });
 
+  it("allows product access consent without optional AI processing consent", () => {
+    expect(
+      consentSubmissionSchema.parse({
+        ...validConsent,
+        aiProcessingAccepted: false,
+      }),
+    ).toMatchObject({
+      adultConfirmed: true,
+      aiProcessingAccepted: false,
+      privacyAccepted: true,
+      productBoundaryAccepted: true,
+    });
+  });
+
   it("rejects incomplete consent", () => {
     expect(() =>
       consentSubmissionSchema.parse({

@@ -6,22 +6,27 @@ import {
   AiFeedbackProviderError,
   type AiFeedbackProvider,
 } from "@/server/ai/provider";
+import { AiProcessingConsentRequiredError } from "@/server/http/responses";
 import type { JournalEntryRecord } from "@/server/repositories/journal-repository";
 import { generateEntryFeedback } from "@/server/services/ai-feedback-service";
 import { FakeAiFeedbackProvider } from "../fixtures/fake-ai-feedback-provider";
 
-const { getJournalEntryRecordMock, requireProductDataAccessMock } = vi.hoisted(
-  () => ({
-    getJournalEntryRecordMock: vi.fn(),
-    requireProductDataAccessMock: vi.fn(),
-  }),
-);
+const {
+  getJournalEntryRecordMock,
+  requireAiProcessingConsentMock,
+  requireProductDataAccessMock,
+} = vi.hoisted(() => ({
+  getJournalEntryRecordMock: vi.fn(),
+  requireAiProcessingConsentMock: vi.fn(),
+  requireProductDataAccessMock: vi.fn(),
+}));
 
 vi.mock("@/server/repositories/journal-repository", () => ({
   getJournalEntryRecord: getJournalEntryRecordMock,
 }));
 
 vi.mock("@/server/services/product-access-service", () => ({
+  requireAiProcessingConsent: requireAiProcessingConsentMock,
   requireProductDataAccess: requireProductDataAccessMock,
 }));
 
@@ -49,6 +54,8 @@ function createEntry(
 }
 
 beforeEach(() => {
+  vi.clearAllMocks();
+  requireAiProcessingConsentMock.mockResolvedValue(undefined);
   requireProductDataAccessMock.mockResolvedValue({
     userId: "fictional-user",
     timeZone: "Asia/Tokyo",
@@ -64,6 +71,9 @@ describe("AI feedback service orchestration", () => {
     });
 
     expect(provider.calls).toHaveLength(1);
+    expect(requireAiProcessingConsentMock).toHaveBeenCalledWith(
+      "fictional-user",
+    );
     expect(result).toMatchObject({
       status: "generated",
       policyDecision: "allow_generation",
@@ -82,6 +92,7 @@ describe("AI feedback service orchestration", () => {
     });
 
     expect(provider.calls).toHaveLength(0);
+    expect(requireAiProcessingConsentMock).not.toHaveBeenCalled();
     expect(result.status).toBe(status);
   });
 
@@ -177,12 +188,28 @@ describe("AI feedback service orchestration", () => {
   });
 
   it("uses a clearly marked fallback when production provider is absent", async () => {
-    const result = await generateEntryFeedback("fictional-user", "entry-1");
+    const result = await generateEntryFeedback("fictional-user", "entry-1", {
+      providerFactory: async () => null,
+    });
 
     expect(result).toMatchObject({
       status: "safe_fallback",
       policyDecision: "safe_fallback",
       reasonCodes: ["PROVIDER_NOT_CONFIGURED"],
     });
+    expect(requireAiProcessingConsentMock).not.toHaveBeenCalled();
+  });
+
+  it("does not call a configured provider without current AI consent", async () => {
+    requireAiProcessingConsentMock.mockRejectedValue(
+      new AiProcessingConsentRequiredError(),
+    );
+    const provider = new FakeAiFeedbackProvider();
+
+    await expect(
+      generateEntryFeedback("fictional-user", "entry-1", { provider }),
+    ).rejects.toBeInstanceOf(AiProcessingConsentRequiredError);
+
+    expect(provider.calls).toHaveLength(0);
   });
 });

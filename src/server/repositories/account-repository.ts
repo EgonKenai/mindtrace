@@ -1,7 +1,11 @@
 import { FieldValue, type Timestamp } from "firebase-admin/firestore";
 
 import { defaultLocale } from "@/i18n/config";
-import { CURRENT_CONSENT_ID } from "@/server/consent/constants";
+import {
+  CONSENT_VERSIONS,
+  CURRENT_AI_PROCESSING_CONSENT_ID,
+  CURRENT_PRODUCT_CONSENT_ID,
+} from "@/server/consent/constants";
 import { getAdminFirestore } from "@/server/firebase/admin";
 
 export interface AccountRecord {
@@ -55,8 +59,39 @@ export async function hasCurrentConsent(userId: string): Promise<boolean> {
     .collection("accounts")
     .doc(userId)
     .collection("consents")
-    .doc(CURRENT_CONSENT_ID)
+    .doc(CURRENT_PRODUCT_CONSENT_ID)
     .get();
 
-  return snapshot.exists;
+  if (!snapshot.exists) {
+    return false;
+  }
+
+  const consent = snapshot.data();
+  return (
+    consent?.privacyAccepted === true &&
+    consent.privacyVersion === CONSENT_VERSIONS.privacy &&
+    consent?.productBoundaryAccepted === true &&
+    consent.productBoundaryVersion === CONSENT_VERSIONS.productBoundary
+  );
+}
+
+export async function hasCurrentAiProcessingConsent(
+  userId: string,
+): Promise<boolean> {
+  const snapshot = await getAdminFirestore()
+    .collection("accounts")
+    .doc(userId)
+    .collection("consents")
+    .doc(CURRENT_AI_PROCESSING_CONSENT_ID)
+    .get();
+
+  if (!snapshot.exists) {
+    return false;
+  }
+
+  const consent = snapshot.data();
+  return (
+    consent?.accepted === true &&
+    consent.aiProcessingVersion === CONSENT_VERSIONS.aiProcessing
+  );
 }

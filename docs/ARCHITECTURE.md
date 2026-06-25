@@ -18,7 +18,7 @@
 | UI       | React + 项目内设计令牌                   | 首版不引入重型组件框架，优先无障碍原生控件    |
 | 身份     | Firebase Authentication                  | 浏览器登录后换取服务端会话 Cookie             |
 | 数据     | Cloud Firestore                          | 仅服务端 Admin SDK 访问业务数据               |
-| AI       | Provider 抽象；未来 Gemini adapter       | 阶段 3A 仅本地规则与测试 Fake，不调用真实模型 |
+| AI       | `@google/genai` Provider adapter         | 仅 server-only；测试使用 Fake/SDK mock        |
 | 运行环境 | Google Cloud Run                         | 部署整个 Next.js 模块化单体                   |
 | 异步任务 | Cloud Tasks + Cloud Run 内部任务端点     | 用于可靠删除、可重试报告等长任务              |
 | 验证     | 统一 schema 库                           | API 输入、环境变量和 AI 输出共用 schema       |
@@ -150,13 +150,27 @@ match /{document=**} {
 
 子集合 `accounts/{uid}/consents/{consentId}`：
 
-| 字段                  | 类型      | 说明                |
-| --------------------- | --------- | ------------------- |
-| `privacyVersion`      | string    | 隐私文本版本        |
-| `termsVersion`        | string    | 产品边界版本        |
-| `aiProcessingVersion` | string    | AI 数据处理说明版本 |
-| `acceptedAt`          | timestamp | 服务端时间          |
-| `locale`              | string    | 接受时语言          |
+基础产品同意文档 `2026-06-22-v1`：
+
+| 字段                      | 类型      | 说明         |
+| ------------------------- | --------- | ------------ |
+| `privacyAccepted`         | boolean   | 必须为 true  |
+| `privacyVersion`          | string    | 隐私文本版本 |
+| `productBoundaryAccepted` | boolean   | 必须为 true  |
+| `productBoundaryVersion`  | string    | 产品边界版本 |
+| `acceptedAt`              | timestamp | 服务端时间   |
+| `locale`                  | string    | 接受时语言   |
+
+独立 AI 处理决定文档 `ai-processing-2026-06-25-v2`：
+
+| 字段                  | 类型      | 说明                              |
+| --------------------- | --------- | --------------------------------- |
+| `accepted`            | boolean   | true 才允许向第三方 Provider 发送 |
+| `aiProcessingVersion` | string    | AI 数据处理说明版本               |
+| `decidedAt`           | timestamp | 接受或拒绝的服务端时间            |
+| `locale`              | string    | 决定时语言                        |
+
+基础产品访问不依赖 `accepted`。AI service 在真正调用配置 Provider 前单独检查该版本化决定。
 
 ### 7.2 `journals/{uid}/entries/{entryId}`
 
@@ -389,6 +403,16 @@ interface BillingProvider {
 
 具体规则、拒绝项和阶段 3B 门槛见 `docs/AI_SAFETY.md`。
 
+阶段 3B 在该流程中增加：
+
+- `src/server/ai/gemini-provider.ts` 是唯一导入 `@google/genai` 的模块，并使用 `server-only` 编译哨兵。
+- `GEMINI_API_KEY` 与 `GEMINI_MODEL` 只由服务端环境 schema 读取；缺一时 Provider factory 返回未配置状态。
+- 调用 API 为无状态 `models.generateContent`，不使用 Interactions、chat、previous interaction ID、background、tools、search 或 cache。`generateContent` 不提供 `store` 字段，因此不会创建 interaction；内部状态策略显式记录 `store: false`。
+- 请求把系统指令与序列化的最小用户数据分开，使用 JSON response schema，并显式启用四类 `BLOCK_LOW_AND_ABOVE` 安全过滤。
+- SDK client 接收 service 的 AbortSignal；service 以 3 秒超时中止等待。429、502、503 最多额外尝试一次。
+- prompt safety block、candidate safety finish、空候选、malformed JSON、schema 失败及内容策略失败全部进入固定降级。
+- `accounts/{uid}/consents/ai-processing-2026-06-25-v2` 单独保存 AI 处理接受/拒绝决定。产品基础 consent 不再要求 AI 接受；只有即将调用配置 Provider 时才校验该文档。
+
 ## 12. 日志、监控和审计
 
 允许记录：
@@ -420,7 +444,7 @@ interface BillingProvider {
 
 ## 14. 部署拓扑
 
-- 开发：Next.js 本地服务 + Firebase Emulator Suite + AI fake adapter。
+- 开发：Next.js 本地服务 + Firebase Emulator Suite + 默认未配置 Provider；测试使用 AI fake adapter/SDK mock。
 - 预发布：独立 Firebase/GCP 项目、测试 Gemini 配额、测试权益。
 - 生产：独立 Firebase/GCP 项目、Cloud Run、Secret Manager、Cloud Tasks、最小权限服务账号。
 - 环境之间不共享 Firestore、Auth 用户、密钥或导出文件。

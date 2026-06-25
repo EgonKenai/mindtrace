@@ -33,11 +33,11 @@
 1. 浏览器向 Firebase Authentication 提交登录凭据。
 2. 浏览器将 Firebase ID token 发送给 MindTrace 服务端换取安全会话。
 3. 日记通过同源 API 发送到 Cloud Run，并写入当前用户的 Firestore 路径。
-4. 阶段 3A 只在服务端构造最小化 Provider 输入；没有真实 Provider、Gemini SDK、API key 或外部 AI 请求。
-5. 未来启用真实 Provider 时，服务端必须先完成安全路由，再发送最小化输入，并在本地验证响应；未经验证的输出不得保存或展示。
+4. 阶段 3B 只有在用户接受当前 AI 第三方处理说明后，服务端才可能把最小化输入发送给 Gemini。
+5. 服务端先完成确定性安全路由，再使用官方 `@google/genai` 的无状态 `models.generateContent`；响应必须经过本地 strict schema 和内容安全校验，未经验证的输出不得保存或展示。
 6. 浏览器只获得当前用户有权查看的数据。
 
-在正式启用 AI 前，同意页面必须说明第三方 AI 处理、发送的数据类别、用途和可用替代路径。若产品不支持关闭 AI，应在提交记录前清晰说明。
+AI 同意独立于日记基础功能。拒绝 AI 不影响日记、历史和趋势；普通反馈 API 在调用 Provider 前返回 `AI_CONSENT_REQUIRED`。同意页面说明第三方处理、发送的数据类别和用途，并说明 Provider 可能依据其条款为滥用监测保留提示词和输出。
 
 ## 4. 身份与访问控制
 
@@ -93,6 +93,15 @@
 - 阶段 3A 不持久化反馈。未来 `analyses/{uid}/entryFeedback` 只能保存已验证最终结果和最小化元数据，并必须加入导出和账户删除覆盖。
 - 反馈审计事件只包含 decision 和稳定 reason code；默认不记录日记、prompt、Provider 原始输出或原始错误。
 
+阶段 3B 第三方处理约束：
+
+- `@google/genai` 仅存在于 `server-only` 模块，API key 和 model 只从服务端环境读取。
+- 使用无状态 `models.generateContent`；不使用 Interactions、chat、previous interaction ID、缓存、后台任务、工具或搜索。
+- 缺少 key 或 model 时不发起请求，返回 `PROVIDER_NOT_CONFIGURED`。
+- 只有 429、502、503 可重试一次；任何错误响应、SDK 消息和原始输出均不进入用户响应或普通日志。
+- 自动化测试只使用注入 client/Fake Provider，不使用真实 key，不连接 Gemini。
+- Gemini 对输入输出的保留、滥用监测、区域和训练用途以实际账户层级及届时有效的供应商条款为准；上线前必须再次核验并更新用户文案。
+
 ## 7. 数据保留
 
 初始保留策略：
@@ -147,7 +156,7 @@
 
 - 只使用匿名、虚构人物和虚构日记。
 - fixture 文本应明确标注为测试内容，不复制公开论坛或真实案例。
-- 常规 CI 使用 AI fake adapter，不把测试日记发送到真实 Gemini。
+- 常规 CI 使用 AI fake adapter 和 SDK mock，不设置 `GEMINI_API_KEY`，不把测试日记发送到真实 Gemini。
 - E2E 每个测试创建隔离用户并在结束时清理。
 - Firebase Emulator 在每个 CI job 结束时销毁全部虚构测试数据；当前测试不连接真实 Firebase 项目。
 - 禁止将生产数据库导出到本地排障。

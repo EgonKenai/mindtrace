@@ -22,7 +22,10 @@ import {
 } from "@/server/ai/templates";
 import { ResourceNotFoundError } from "@/server/http/responses";
 import { getJournalEntryRecord } from "@/server/repositories/journal-repository";
-import { requireProductDataAccess } from "@/server/services/product-access-service";
+import {
+  requireAiProcessingConsent,
+  requireProductDataAccess,
+} from "@/server/services/product-access-service";
 
 const DEFAULT_PROVIDER_TIMEOUT_MS = 3_000;
 
@@ -38,6 +41,7 @@ export interface FeedbackAuditLogger {
 export interface AiFeedbackServiceDependencies {
   auditLogger?: FeedbackAuditLogger;
   provider?: AiFeedbackProvider;
+  providerFactory?: () => Promise<AiFeedbackProvider | null>;
   timeoutMs?: number;
 }
 
@@ -50,6 +54,12 @@ class ProviderTimeoutError extends Error {
     super("AI_FEEDBACK_PROVIDER_TIMEOUT");
     this.name = "ProviderTimeoutError";
   }
+}
+
+async function createDefaultProvider(): Promise<AiFeedbackProvider | null> {
+  const { createConfiguredAiFeedbackProvider } =
+    await import("@/server/ai/gemini-provider");
+  return createConfiguredAiFeedbackProvider();
 }
 
 function serializeFeedbackResult(result: FeedbackResult): FeedbackResult {
@@ -159,8 +169,15 @@ export async function generateEntryFeedback(
     );
   }
 
-  const provider =
-    dependencies.provider ?? new UnconfiguredAiFeedbackProvider();
+  const configuredProvider =
+    dependencies.provider ??
+    (await (dependencies.providerFactory ?? createDefaultProvider)());
+  const provider = configuredProvider ?? new UnconfiguredAiFeedbackProvider();
+
+  if (provider.providerType !== "unconfigured") {
+    await requireAiProcessingConsent(context.userId);
+  }
+
   const providerInput = buildAiFeedbackProviderInput(entry);
   let rawOutput: unknown;
 

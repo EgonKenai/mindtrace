@@ -158,7 +158,22 @@
 - `POST /api/v1/entries/[entryId]/feedback`，复用会话、当前同意、用户路径、Origin 和安全错误处理；
 - `AiFeedbackRepository` 持久化接口与安全数据形状，但本阶段不写入反馈副本。
 
-阶段 3A 明确未安装或调用 Gemini，不读取 API key，不实现 AI 页面、建议效果、真实模型安全分类器或反馈持久化。真实 Provider 与独立安全分类器属于阶段 3B，必须先完成供应商、地区、专业文案和真实模型回归评审。
+阶段 3A 明确不调用 Gemini，不实现 AI 页面、建议效果、真实模型安全分类器或反馈持久化。
+
+### 阶段 3B：真实 Gemini Provider 接入与服务端安全验证
+
+阶段 3B 已实现：
+
+- 官方 `@google/genai` 2.10.0，仅由 `server-only` Gemini adapter 导入；
+- 服务端 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 配置，缺一时继续安全降级；
+- 无状态 `models.generateContent`、AbortSignal、3 秒 service 超时和 429/502/503 一次有界重试；
+- 严格 JSON response schema、保守生成参数和四类 `BLOCK_LOW_AND_ABOVE` safety settings；
+- blocked、空候选、malformed JSON、SDK 异常及本地 schema/content policy 失败的统一安全降级；
+- AI 第三方处理同意版本 `2026-06-25-v2`，与日记基础准入分离；
+- `POST /api/v1/account/ai-consent` 更新接受/拒绝决定，`GET /api/v1/account` 返回当前 AI 同意状态；
+- SDK mock/Fake Provider 测试，不在本地常规检查或 CI 调用真实 Gemini。
+
+阶段 3B 不实现最终反馈页面、独立模型安全分类器、反馈持久化、建议结果闭环或阶段 3C。真实 key、真实请求和预发布人工抽样仍是上线前受控验证事项。
 
 ## 5. 阶段 4：30 天报告、测试权益和 Billing 接口
 
@@ -270,6 +285,7 @@
 | `GET /api/v1/account`                       | 当前账户和偏好                                |
 | `PATCH /api/v1/account`                     | 修改允许的偏好                                |
 | `POST /api/v1/account/consents`             | 接受当前版本文案                              |
+| `POST /api/v1/account/ai-consent`           | 独立接受或拒绝当前 AI 第三方处理说明          |
 | `GET /api/v1/entries`                       | 分页读取历史                                  |
 | `POST /api/v1/entries`                      | 创建记录（阶段 2A 不创建 AI 分析占位）        |
 | `GET /api/v1/entries/[entryId]`             | 获取记录详情                                  |
