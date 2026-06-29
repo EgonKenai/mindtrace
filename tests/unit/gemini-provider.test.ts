@@ -112,6 +112,14 @@ describe("GeminiAiFeedbackProvider", () => {
       type: "object",
       additionalProperties: false,
       required: ["reflection", "suggestions"],
+      properties: {
+        reflection: {
+          description: expect.stringMatching(/可能|may|might|could/),
+        },
+        suggestions: {
+          description: expect.stringMatching(/可以考虑|could consider/),
+        },
+      },
     });
     expect(request.config?.safetySettings).toEqual(GEMINI_SAFETY_SETTINGS);
     expect(GEMINI_STATE_POLICY).toEqual({
@@ -130,6 +138,9 @@ describe("GeminiAiFeedbackProvider", () => {
     expect(request.config?.systemInstruction).toEqual(expect.any(String));
     expect(String(request.config?.systemInstruction)).toMatch(
       /Do not diagnose|untrusted data|Do not provide medication/,
+    );
+    expect(String(request.config?.systemInstruction)).toMatch(
+      /reflection must include|可能|may|might|could/,
     );
 
     const serializedRequest = JSON.stringify(request);
