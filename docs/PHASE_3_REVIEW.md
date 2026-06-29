@@ -17,7 +17,25 @@
 | 详情页按需生成并覆盖安全状态                    | 已通过   | `EntryAiFeedback`；`tests/e2e/ai-feedback.spec.ts` 覆盖生成、crisis、supportive、fallback、未配置、超时、限流和错误。  |
 | 输出仅按纯文本渲染                              | 已通过   | React 文本节点；E2E 使用 HTML 样式字符串并验证未创建 `<strong>`。                                                      |
 | 跨用户与不存在 entryId 不泄露差异               | 已通过   | `ai-feedback-service.integration.test.ts`、`security.spec.ts` 的 feedback API 404 `NOT_FOUND`。                        |
-| 真实 Gemini 冒烟测试                            | 尚未验证 | 已新增 local-only `pnpm smoke:gemini` 入口；本次未设置真实 key，也未发起真实 Gemini 请求。上线前在隔离预发布环境执行。 |
+| 真实 Gemini 冒烟测试                            | 已通过 | 使用固定虚构内容执行 pnpm smoke:gemini；Provider 成功调用，schema 与 safety 校验均通过，未打印 API Key、完整 Prompt、Gemini 原始输出、真实用户数据、Cookie 或 token。 |
+
+验证结果：
+
+providerCalled: true
+requestSucceeded: true
+schemaPassed: true
+safetyPassed: true
+fallbackUsed: false
+policyDecision: allow_generation
+latencyRange: 1-3s
+
+说明：
+
+本次仅使用固定虚构日记内容。
+未读取真实 Firestore 用户日记。
+未创建、修改或删除真实用户数据。
+未打印 API Key、完整 Prompt、Gemini 原始输出、真实用户数据、Cookie 或 token。
+测试运行后已清空本地 GEMINI_API_KEY、GEMINI_MODEL、代理相关环境变量。 |
 
 ## 隐私与安全
 
