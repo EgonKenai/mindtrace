@@ -145,6 +145,51 @@
 - 用户可标记建议是否尝试及 1 到 5 的帮助程度。
 - 普通日志和错误追踪中不出现完整日记或完整 AI prompt。
 
+### 阶段 3A：安全基础、领域契约与模拟 Provider
+
+阶段 3A 已实现：
+
+- 版本 `1` 的 `FeedbackResult`、策略决定和稳定 reason code schema；
+- 中文与基础英文的确定性规则组合、否定/历史/引用语境处理，以及 fail-closed 路由；
+- 固定、本地化的危机、支持和 Provider 降级响应；
+- 最多 1,200 个 Unicode 字符的 note Provider 输入，且不含任何账户或资源标识；
+- `AiFeedbackProvider` 抽象、AbortSignal、3 秒默认超时和测试专用 Fake Provider；
+- 本地输出 schema 与诊断、药物、因果、依赖、绝对保证、电话号码、HTML、敏感原文复现校验；
+- `POST /api/v1/entries/[entryId]/feedback`，复用会话、当前同意、用户路径、Origin 和安全错误处理；
+- `AiFeedbackRepository` 持久化接口与安全数据形状，但本阶段不写入反馈副本。
+
+阶段 3A 明确不调用 Gemini，不实现 AI 页面、建议效果、真实模型安全分类器或反馈持久化。
+
+### 阶段 3B：真实 Gemini Provider 接入与服务端安全验证
+
+阶段 3B 已实现：
+
+- 官方 `@google/genai` 2.10.0，仅由 `server-only` Gemini adapter 导入；
+- 服务端 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 配置，缺一时继续安全降级；
+- 无状态 `models.generateContent`、AbortSignal、3 秒 service 超时和 429/502/503 一次有界重试；
+- 严格 JSON response schema、保守生成参数和四类 `BLOCK_LOW_AND_ABOVE` safety settings；
+- blocked、空候选、malformed JSON、SDK 异常及本地 schema/content policy 失败的统一安全降级；
+- AI 第三方处理同意版本 `2026-06-25-v2`，与日记基础准入分离；
+- `POST /api/v1/account/ai-consent` 更新接受/拒绝决定，`GET /api/v1/account` 返回当前 AI 同意状态；
+- SDK mock/Fake Provider 测试，不在本地常规检查或 CI 调用真实 Gemini。
+
+阶段 3B 不实现最终反馈页面、独立模型安全分类器、反馈持久化、建议结果闭环或阶段 3C。真实 key、真实请求和预发布人工抽样仍是上线前受控验证事项。
+
+### 阶段 3C：独立同意界面、反馈界面与本地验收
+
+阶段 3C 已实现：
+
+- `/zh-CN/entries/[entryId]` 的按需 AI 反馈区域；
+- 第一次生成前读取服务端 AI 同意状态，并通过独立原生对话框接受或拒绝；
+- 拒绝 AI 后不调用反馈 API，日记、历史和趋势继续可用；
+- 正常、crisis、supportive、safe fallback、Provider 未配置、超时、限流和通用失败展示；
+- reflection、suggestions 和 disclaimer 仅按纯文本渲染，并始终显示非医疗边界；
+- 请求进行中禁用重复提交，结果只存在当前页面内存；
+- Fake Provider、SDK mock 和浏览器网络拦截测试，不使用真实 key 或真实 Gemini 请求；
+- 360px、768px、1280px 响应式与可访问状态回归。
+
+阶段 3C 不实现反馈持久化、建议结果闭环、独立模型安全分类器、支付、报告、导出或账户删除。真实 Gemini 冒烟测试尚未验证。
+
 ## 5. 阶段 4：30 天报告、测试权益和 Billing 接口
 
 ### 目标
@@ -228,21 +273,21 @@
 
 路由以 `/{locale}` 开头，首版 locale 为 `zh-CN`。
 
-| 路由                        | 页面                              | 访问                 |
-| --------------------------- | --------------------------------- | -------------------- |
-| `/zh-CN`                    | 根据会话跳转到今日记录或登录      | 公开                 |
-| `/zh-CN/login`              | 登录                              | 公开                 |
-| `/zh-CN/register`           | 注册与成年确认入口                | 公开                 |
-| `/zh-CN/onboarding/consent` | 成年确认、隐私、边界、AI 处理同意 | 已登录，不要求已同意 |
-| `/zh-CN/today`              | 创建记录、查看本次 AI 反馈        | 已同意               |
-| `/zh-CN/history`            | 历史记录列表                      | 已同意               |
-| `/zh-CN/history/[entryId]`  | 详情、编辑、删除、建议结果        | 所有者               |
-| `/zh-CN/trends`             | 最近 7 天趋势                     | 已同意               |
-| `/zh-CN/reports/30-day`     | 30 天报告与数据不足状态           | 已同意且有权益       |
-| `/zh-CN/settings`           | 语言、时区、地区、账户设置        | 已登录               |
-| `/zh-CN/settings/data`      | 导出和永久删除                    | 近期认证             |
-| `/zh-CN/product-boundary`   | 产品能力和非医疗声明              | 公开                 |
-| `/zh-CN/safety`             | 危机与安全资源                    | 公开且免费           |
+| 路由                        | 页面                           | 访问                 |
+| --------------------------- | ------------------------------ | -------------------- |
+| `/zh-CN`                    | 根据会话跳转到今日记录或登录   | 公开                 |
+| `/zh-CN/login`              | 登录                           | 公开                 |
+| `/zh-CN/register`           | 注册与成年确认入口             | 公开                 |
+| `/zh-CN/onboarding/consent` | 成年确认、隐私和产品边界       | 已登录，不要求已同意 |
+| `/zh-CN/today`              | 创建记录                       | 已同意               |
+| `/zh-CN/history`            | 历史记录列表                   | 已同意               |
+| `/zh-CN/entries/[entryId]`  | 详情、编辑、删除、按需 AI 反馈 | 所有者               |
+| `/zh-CN/trends`             | 最近 7 天趋势                  | 已同意               |
+| `/zh-CN/reports/30-day`     | 30 天报告与数据不足状态        | 已同意且有权益       |
+| `/zh-CN/settings`           | 语言、时区、地区、账户设置     | 已登录               |
+| `/zh-CN/settings/data`      | 导出和永久删除                 | 近期认证             |
+| `/zh-CN/product-boundary`   | 产品能力和非医疗声明           | 公开                 |
+| `/zh-CN/safety`             | 危机与安全资源                 | 公开且免费           |
 
 ## 9. 预计 API
 
@@ -255,12 +300,13 @@
 | `GET /api/v1/account`                       | 当前账户和偏好                                |
 | `PATCH /api/v1/account`                     | 修改允许的偏好                                |
 | `POST /api/v1/account/consents`             | 接受当前版本文案                              |
+| `POST /api/v1/account/ai-consent`           | 独立接受或拒绝当前 AI 第三方处理说明          |
 | `GET /api/v1/entries`                       | 分页读取历史                                  |
 | `POST /api/v1/entries`                      | 创建记录（阶段 2A 不创建 AI 分析占位）        |
 | `GET /api/v1/entries/[entryId]`             | 获取记录详情                                  |
 | `PATCH /api/v1/entries/[entryId]`           | 编辑自己的记录                                |
 | `DELETE /api/v1/entries/[entryId]`          | 删除记录及关联数据                            |
-| `POST /api/v1/entries/[entryId]/feedback`   | 幂等生成或重新生成反馈                        |
+| `POST /api/v1/entries/[entryId]/feedback`   | 阶段 3A 安全路由与反馈骨架；当前不持久化      |
 | `PUT /api/v1/feedback/[feedbackId]/outcome` | 更新建议尝试结果                              |
 | `GET /api/v1/trends?days=7`                 | 获取受控趋势聚合                              |
 | `GET /api/v1/reports/30-day`                | 获取当前周期报告状态/内容                     |

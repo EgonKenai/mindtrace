@@ -2,7 +2,9 @@
 
 MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记录 Web 应用。它不是心理治疗、疾病诊断、药物建议或紧急援助工具。
 
-当前仓库已完成阶段 2：包含服务端日记 schema 与 API、今日记录、历史稳定分页、详情编辑删除，以及按用户本地日期聚合的最近 7 天趋势。阶段 2D 已补齐安全审查、完整回归和 CI E2E 配置。当前仍不包含 Gemini、AI 反馈、风险检测、支付、30 天报告、导出或账户删除实现。
+当前仓库已完成阶段 2，以及阶段 3A/3B/3C 的 AI 反馈安全基础、真实 Gemini Provider 服务端 adapter、独立 AI 同意界面和记录详情反馈界面。反馈仍经过确定性安全路由、最小化输入、结构化输出和本地严格安全校验。
+
+阶段 3B 使用官方 `@google/genai` 2.10.0 的无状态 `models.generateContent` API。仓库不包含真实 API Key，自动化测试不调用 Gemini。未同时配置 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 时，普通反馈继续返回明确的 `PROVIDER_NOT_CONFIGURED` 固定降级。阶段 3C 在 `/zh-CN/entries/[entryId]` 提供按需反馈和独立同意流程；反馈不持久化。独立模型安全分类器、建议效果闭环、支付、30 天报告、导出和账户删除仍未实现。
 
 ## Windows 环境要求
 
@@ -35,6 +37,29 @@ Copy-Item .env.example .env.local
 ```
 
 `.env.example` 只包含本地 Emulator 的虚构配置。不要提交 `.env.local`、Firebase 服务账号 JSON、Firebase Admin 私钥、Gemini 密钥或任何真实用户数据。
+
+如需在明确批准的本地或预发布环境启用 Gemini，请只在被 Git 忽略的服务端环境或 Secret Manager 设置：
+
+```text
+GEMINI_API_KEY=
+GEMINI_MODEL=
+```
+
+两个值缺一不可。不要使用 `NEXT_PUBLIC_` 前缀。本阶段验证不需要也不会使用真实值。
+
+## 本地 Gemini 冒烟测试
+
+仓库提供一个 local-only 的真实 Gemini Provider 冒烟测试入口，用固定虚构日记内容验证 Provider、最小化输入、结构化输出 schema 和本地安全校验是否仍能贯通。它不会读取 Firestore、真实账户或真实用户日记，也不会创建、修改或删除任何数据。
+
+仅在明确批准的本地或预发布服务端环境中设置 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 后运行：
+
+```powershell
+pnpm smoke:gemini
+```
+
+如果缺少任一变量，脚本会安全跳过并提示缺少变量，不发送请求。配置齐全时，输出仅包含 `requestSucceeded`、`providerCalled`、`policyDecision`、`schemaPassed`、`safetyPassed`、`fallbackUsed` 和延迟区间。脚本不会打印 API Key、完整 Prompt、完整 Gemini 原始输出、用户 ID、邮箱、Cookie、token、Firestore 路径或真实日记内容。
+
+该命令不属于 CI 流程；GitHub Actions 不设置真实 Gemini Key，也不运行真实 Gemini 请求。
 
 ## 启动 Firebase Emulator
 
@@ -109,7 +134,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-完整的阶段 2 本地验证顺序：
+阶段 3C 浏览器测试通过路由 mock、SDK mock 和 Fake Provider 覆盖同意、生成、分流、降级与错误状态，不调用真实 Gemini。完整本地验证顺序：
 
 ```powershell
 pnpm format:check
@@ -139,6 +164,7 @@ GitHub Actions 不执行 Firebase 登录，也不需要真实 Firebase 项目、
 3. `/api/v1/auth/session` 只验证 ID token 并设置 HttpOnly 会话 Cookie。
 4. 新用户进入 `/zh-CN/onboarding/consent` 完成年确认和当前版本同意。
 5. 完成准入后，受保护的 `/zh-CN/today` 才可访问。
+6. 用户在记录详情页首次选择“生成 AI 反馈”时，单独接受或拒绝当前 AI 数据处理说明。
 
 会话创建不依赖同意状态，因此首次注册不会形成循环依赖。
 
@@ -147,6 +173,15 @@ GitHub Actions 不执行 Firebase 登录，也不需要真实 Firebase 项目、
 - Firebase Admin SDK 只在 `src/server` 和服务端 Route Handlers 中使用。
 - 浏览器不能直接读写 Firestore 业务集合；`firestore.rules` 默认拒绝。
 - API 从已验证的会话取得 UID，不接受客户端传入 UID 作为数据所有者。
+- AI 反馈只有普通记录可进入 Provider；明确危险和高度痛苦分支使用本地化固定模板。
+- Provider 输入不含 UID、邮箱、entryId、token、Cookie、精确时间或 Firestore 路径。
+- `@google/genai` 只由 `src/server/ai/gemini-provider.ts` 的 `server-only` 模块导入。
+- Gemini 使用无状态 `models.generateContent`，不使用 Interactions、聊天、工具、搜索、后台任务或 previous interaction ID。
+- 四类 Gemini safety setting 均显式使用 `BLOCK_LOW_AND_ABOVE`，blocked response 进入固定降级。
+- AI 第三方处理同意独立于日记准入；拒绝 AI 不影响日记、历史和趋势，但普通反馈不会调用 Provider。
+- Fake Provider 和 SDK mock 只用于单元和 Emulator 集成测试。
 - `accounts/{uid}` 不保存邮箱；邮箱由 Firebase Authentication 管理。
 - 测试账户使用 `example.test` 和完全虚构的数据。
-- 当前阶段没有 Gemini、AI 反馈、风险检测、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
+- 当前仓库包含 Gemini SDK adapter 和详情页反馈界面，但没有 API Key、真实调用、反馈持久化、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
+
+AI 安全设计、第三方处理边界和阶段 3 验收见 `docs/AI_SAFETY.md` 与 `docs/PHASE_3_REVIEW.md`。

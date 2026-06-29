@@ -65,8 +65,10 @@ export const zhCN = {
     privacyCheckbox: "我已阅读并接受当前隐私说明。",
     aiTitle: "AI 数据处理说明",
     aiBody:
-      "后续启用 AI 功能时，请求将由服务端最小化处理并发送给配置的 AI 供应商。当前阶段尚未启用 AI。",
-    aiCheckbox: "我已阅读并接受当前 AI 数据处理说明。",
+      "使用 AI 反馈时，服务端会把评分、受控标签和截断后的日记文字发送给第三方 AI Provider。Provider 可能为滥用监测保留提示词和输出；MindTrace 不发送账户标识、Cookie 或 token。",
+    aiCheckbox: "我同意当前版本的第三方 AI 数据处理说明。",
+    aiOptionalHint:
+      "此项可选。不同意不会影响日记、历史或趋势；系统不会调用第三方 AI Provider。",
     timeZoneLabel: "你的时区",
     timeZoneHint: "用于确定记录所属的本地日期，可稍后在设置中修改。",
     submit: "完成确认",
@@ -223,6 +225,78 @@ export const zhCN = {
     table: {
       date: "本地日期",
       entryCount: "记录数",
+    },
+  },
+  aiFeedback: {
+    eyebrow: "可选功能",
+    title: "AI 支持性反馈",
+    intro: "你可以选择让 AI 对这条记录生成一段简短反思和至多一条低风险建议。",
+    disclaimer:
+      "这是一条记录辅助信息，不是诊断、治疗或用药建议，也不能替代专业人员或紧急服务。",
+    actions: {
+      generate: "生成 AI 反馈",
+      checking: "正在检查同意状态",
+      generating: "正在生成反馈",
+    },
+    consent: {
+      title: "AI 数据处理说明",
+      body: "生成反馈时，服务端会把五项状态数值、受控标签、截断后的日记文字、locale 和非识别性趋势摘要发送给第三方 AI Provider。",
+      optional:
+        "AI 反馈完全可选。拒绝不会影响日记、历史或趋势功能，也不会向 AI Provider 发送内容。",
+      dataItems: [
+        "不会发送 uid、邮箱、Cookie、token、IP 或 Firestore 路径。",
+        "Provider 可能为滥用监测保留提示词和输出。",
+        "你可以拒绝，并继续正常使用 MindTrace 的基础记录功能。",
+      ],
+      decline: "拒绝并关闭",
+      accept: "同意并生成",
+      saving: "正在保存选择",
+      declinedStatus:
+        "你已拒绝 AI 数据处理。本条记录未发送给 AI Provider，基础记录功能仍可正常使用。",
+    },
+    status: {
+      generated: "支持性反馈",
+      supportive: "建议先获得现实支持",
+      crisis: "请立即寻求紧急支持",
+      fallback: "暂时无法生成 AI 反馈",
+    },
+    suggestionsTitle: "可以考虑",
+    fallback: {
+      "not-configured": "AI Provider 尚未配置。你的日记仍已保存，可稍后再试。",
+      timeout: "AI Provider 响应超时。没有返回原始错误或不完整内容。",
+      "rate-limited": "AI Provider 当前请求较多，请稍后再试。",
+      unavailable: "AI Provider 暂时不可用，请稍后再试。",
+      blocked: "Provider 的安全过滤阻止了本次输出，已改用安全降级内容。",
+      invalid: "Provider 输出未通过本地结构或安全校验，已被丢弃。",
+      generic: "本次反馈未能安全生成，已改用安全降级内容。",
+    },
+    errors: {
+      consentCheck: "无法确认 AI 同意状态，请稍后重试。",
+      consentSave: "无法保存 AI 数据处理选择，请重试。",
+      notFound: "无法为这条记录生成反馈。",
+      timeout: "反馈请求超时，请稍后重试。",
+      rateLimited: "反馈请求过多，请稍后重试。",
+      generic: "反馈暂时不可用，请稍后重试。",
+    },
+    generated: {
+      fallbackReflection:
+        "你的记录已经保存。AI 反馈目前不可用，你仍可以稍后回看自己的记录。",
+    },
+    supportive: {
+      reflection:
+        "听起来你现在可能承受着很强的痛苦。MindTrace 无法判断紧急程度，也不能提供紧急援助。",
+      suggestions: [
+        "请现在联系一位你信任的人或专业支持，并直接说明你需要陪伴或帮助。",
+      ],
+    },
+    crisis: {
+      reflection:
+        "你描述的情况可能涉及当前的紧急危险。MindTrace 不能提供紧急援助。",
+      suggestions: [
+        "如果危险正在发生，请立即联系当地紧急服务或前往最近的急诊机构。",
+        "请现在联系一位可信任的人，清楚告诉对方你需要立即陪伴或帮助，并尽量不要独处。",
+        "你也可以打开 MindTrace 的安全资源页面查找进一步支持。",
+      ],
     },
   },
   settings: {

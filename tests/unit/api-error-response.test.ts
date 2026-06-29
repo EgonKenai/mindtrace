@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { apiErrorResponse } from "@/server/http/responses";
+import {
+  AiProcessingConsentRequiredError,
+  apiErrorResponse,
+} from "@/server/http/responses";
 
 describe("safe API errors", () => {
   it("does not expose unknown error messages or journal content", async () => {
@@ -40,5 +43,14 @@ describe("safe API errors", () => {
       },
     });
     expect(JSON.stringify(body)).not.toContain("ownerId");
+  });
+
+  it("returns a distinct safe error when AI processing consent is required", async () => {
+    const response = apiErrorResponse(new AiProcessingConsentRequiredError());
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toEqual({
+      error: { code: "AI_CONSENT_REQUIRED" },
+    });
   });
 });

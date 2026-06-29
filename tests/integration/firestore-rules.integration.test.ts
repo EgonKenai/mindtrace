@@ -57,4 +57,22 @@ describe("Firestore client security rules", () => {
       }),
     );
   });
+
+  it("denies direct browser reads and writes to AI feedback data", async () => {
+    const database = testEnvironment
+      .authenticatedContext("fictional-user")
+      .firestore();
+    const feedbackRef = doc(
+      database,
+      "analyses/fictional-user/entryFeedback/feedback-1",
+    );
+
+    await assertFails(getDoc(feedbackRef));
+    await assertFails(
+      setDoc(feedbackRef, {
+        status: "ready",
+        reflection: "不应由浏览器写入的虚构反馈。",
+      }),
+    );
+  });
 });

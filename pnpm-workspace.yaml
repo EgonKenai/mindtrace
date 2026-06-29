@@ -1,6 +1,7 @@
 verifyDepsBeforeRun: warn
 allowBuilds:
   "@firebase/util": true
+  "@google/genai": false
   protobufjs: true
   re2: false
   sharp: true
