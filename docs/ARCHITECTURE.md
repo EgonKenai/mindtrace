@@ -482,3 +482,15 @@ interface BillingProvider {
 全部个人 API 均从服务端会话取得 `uid`，复用 `requireProductDataAccess`，状态变更继续执行 Origin/CSRF 防护，错误通过统一安全格式返回。浏览器客户端仍不能直接读写 `plans`、`longTermSummaries` 或其他业务集合；Firestore rules 继续 deny-by-default，Emulator rules 测试覆盖新路径。
 
 未来导出和账户删除必须覆盖 `plans/{uid}` 及全部行动项。长期摘要当前不持久化；如果未来新增 `longTermSummaries/{uid}` 持久化摘要，也必须纳入导出、删除 worker 和集合覆盖测试。
+
+## 16. 阶段 4B-1 AI 计划建议草稿
+
+阶段 4B-1 在分析域新增 `analyses/{uid}/planSuggestions/{suggestionId}`。该集合只保存已经通过本地 schema 与安全校验的 AI 计划建议草稿，不保存完整日记正文、完整 prompt、Gemini 原始输出、uid、email、Cookie、token、IP 或 Firestore 路径。
+
+草稿字段包括 `summaryWindow`、`startDate`、`endDate`、`title`、`description`、`suggestedActions`、`linkedTags`、`rationale`、`safetyLabel`、`status`、`generatedAt`、`updatedAt` 和 `schemaVersion`。草稿状态为 `draft`、`accepted` 或 `dismissed`。`suggestedActions` 仅包含低风险标题、描述、建议天数和受控标签。
+
+`POST /api/v1/plans/suggestions` 先复用 4A 的长期摘要服务。数据不足时返回 `insufficient_data` 且 Provider 调用数为 0；未接受当前 AI 数据处理说明时返回 `AI_CONSENT_REQUIRED` 且 Provider 调用数为 0。Provider 输入只使用长期摘要中的统计字段、常见标签、非识别性模式和缺失日期。
+
+`POST /api/v1/plans/suggestions/[suggestionId]/accept` 是唯一会创建正式计划的 AI 草稿入口。它要求草稿仍为 `draft`，然后通过服务端计划服务创建 `sourceType: "ai_suggested"` 的正式计划和行动项，并把草稿标记为 `accepted`。AI Provider 不能直接写入 `plans` 集合。
+
+`POST /api/v1/plans/suggestions/[suggestionId]/dismiss` 只把当前用户自己的草稿标记为 `dismissed`。所有 suggestion API 都从服务端 session 获取 uid，状态变更继续执行 Origin/CSRF 防护，跨用户或不存在的草稿使用统一安全错误。

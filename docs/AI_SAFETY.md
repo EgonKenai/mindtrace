@@ -163,7 +163,22 @@ API 未知异常继续使用统一 `INTERNAL_ERROR`，不返回内部消息。
 - 请求期间使用单次进行中保护并禁用按钮，不自动重试浏览器请求。
 - API 原始 JSON、prompt、Provider 错误、堆栈和日记正文不进入页面日志。
 
-## 11. 已知限制与上线前事项
+## 11. 阶段 4B-1 AI 计划建议草稿
+
+阶段 4B-1 的 AI 计划建议只生成草稿，不会自动创建正式计划。用户必须在 `/zh-CN/plans` 明确点击保存，服务端才会把草稿转换成 `sourceType: "ai_suggested"` 的正式计划和行动项。
+
+草稿生成复用阶段 3 的安全分层原则：
+
+- 数据不足时返回 `insufficient_data`，Provider 调用数为 0。
+- 未接受当前 AI 数据处理说明时返回 `AI_CONSENT_REQUIRED`，Provider 调用数为 0。
+- 本地安全路由发现高风险信号时返回安全降级，不生成普通计划草稿。
+- Provider 输入只包含长期摘要聚合字段，不包含完整日记正文、完整 prompt、uid、email、entryId、Cookie、token、IP 或 Firestore 路径。
+- Provider 输出必须通过 plan suggestion strict schema 和本地安全校验；诊断、用药、治疗承诺、绝对化语言、危机处理承诺、HTML 或缺少低风险措辞都会被拒绝。
+- 被拒绝的输出整体丢弃，不做截断修补，不向用户显示原始输出或 Provider 原始错误。
+
+当前阶段自动化测试使用 Fake Provider 和 SDK/浏览器 mock，不运行真实 Gemini 计划建议请求。真实 Gemini 计划建议 smoke test、完整 AI 长报告和 AI 自动生成计划属于后续阶段，尚未验证。
+
+## 12. 已知限制与上线前事项
 
 - 确定性规则不能识别所有危机表达，不能作为临床判断依据。
 - 当前只有基础中英文确定性规则，不包含独立模型安全分类器。

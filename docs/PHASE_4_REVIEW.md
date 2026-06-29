@@ -54,3 +54,37 @@
 ## 尚未验证
 
 - 768px 和 1280px 的独立手工视口检查未单独运行；已有 E2E 覆盖 360px 手机计划流程，现有响应式 E2E 覆盖阶段 2 页面。
+
+## 阶段 4B-1：AI 辅助计划建议草稿
+
+范围：阶段 4B-1 只实现 AI 计划建议草稿基础、确认保存和忽略流程。它不实现完整 AI 长报告、AI 自动创建正式计划、真实 Gemini 计划建议 smoke test、支付、部署、聊天陪伴、医疗诊断、阶段 4C、阶段 5 或阶段 6。
+
+### 已完成
+
+- AI 计划建议草稿数据结构与 Firestore 路径 `analyses/{uid}/planSuggestions/{suggestionId}`。
+  依据：`src/features/plans/model.ts`、`src/server/repositories/plan-suggestion-repository.ts`。
+- 草稿生成 API `POST /api/v1/plans/suggestions` 与列表 API `GET /api/v1/plans/suggestions`。
+  依据：`src/app/api/v1/plans/suggestions/route.ts`、`tests/integration/long-term-plans.integration.test.ts`。
+- 用户确认后保存为正式计划，不由 AI 自动写入 `plans`。
+  依据：`POST /api/v1/plans/suggestions/[suggestionId]/accept`、`createSuggestedPlanFromDraft`、集成测试“accepts a draft into a formal plan”。
+- 忽略草稿和防止已接受/已忽略草稿再次接受。
+  依据：`dismissPlanSuggestion`、单元测试和集成测试。
+- AI 输入最小化，Provider 输入不包含完整日记正文、uid、email、Cookie、token 或 Firestore 路径。
+  依据：`buildProviderInput`、`plan-suggestion-service.test.ts`。
+- 数据不足、缺少 AI 同意和高风险安全路由不会调用 Provider。
+  依据：`plan-suggestion-service.test.ts`、`long-term-plans.integration.test.ts`。
+- Provider 输出通过 strict schema 和安全校验，诊断、用药、治疗承诺、绝对化语言和 HTML 被拒绝。
+  依据：`plan-suggestion-output.test.ts`。
+- `/zh-CN/plans` 最小 UI 支持生成草稿、保存为计划、忽略建议、AI 同意缺失、数据不足和安全降级状态。
+  依据：`src/features/plans/components/plans-dashboard.tsx`、`tests/e2e/long-term-plans.spec.ts`。
+- 浏览器客户端仍不能直接读写草稿集合。
+  依据：`tests/integration/firestore-rules.integration.test.ts`。
+
+### 尚未验证
+
+- 真实 Gemini 计划建议 smoke test 尚未运行；当前阶段自动化测试只使用 Fake Provider 或浏览器 mock。
+- 768px 和 1280px 的阶段 4B-1 独立手工视口检查需在最终本地验收中补记。
+
+### 阶段 4B-1 不适用
+
+- 完整 AI 长报告、30 天 PDF、付费、部署、聊天陪伴、医疗诊断、自动危机干预和 AI 自动创建计划。

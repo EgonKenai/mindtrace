@@ -47,7 +47,7 @@ export interface CreatePlanRecordInput {
   checkInFrequency: PlanCheckInFrequency;
   description: string;
   linkedTags: JournalEventTagId[];
-  sourceType: "manual";
+  sourceType: PlanSourceType;
   startDate: string;
   targetDate: string | null;
   title: string;
