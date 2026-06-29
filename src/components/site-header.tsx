@@ -19,6 +19,8 @@ export async function SiteHeader() {
               <Link href="/zh-CN/today">{zhCN.navigation.today}</Link>
               <Link href="/zh-CN/history">{zhCN.navigation.history}</Link>
               <Link href="/zh-CN/trends">{zhCN.navigation.trends}</Link>
+              <Link href="/zh-CN/long-term">{zhCN.navigation.longTerm}</Link>
+              <Link href="/zh-CN/plans">{zhCN.navigation.plans}</Link>
               <Link href="/zh-CN/settings">{zhCN.navigation.settings}</Link>
             </>
           )}

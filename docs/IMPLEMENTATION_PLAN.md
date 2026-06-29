@@ -386,3 +386,38 @@
 - 安全阈值与文案的专业审阅方式
 - 真实支付供应商、价格和退款规则
 - 是否允许用户关闭 AI 并继续只做手动记录
+
+## 14. 阶段 4A：长期摘要与行动计划基础结构
+
+阶段 4A 已建立确定性的 7/14/30 天长期摘要、手动行动计划和最小可验证 UI。本阶段不调用真实 Gemini，不实现完整 AI 长报告、AI 自动创建计划、30 天 PDF、付费订阅、部署、邮件通知、聊天陪伴、医疗诊断或自动危机干预。
+
+已实现：
+
+- `GET /api/v1/long-term/summary?window=7|14|30`：从服务端会话取得 `uid`，复用产品准入，按当前账户时区生成窗口，按记录保存时的 `localDate` 聚合。窗口内无记录时返回 `insufficient_data`；平均值为 `null`，缺失日期不显示为 0。
+- `GET/POST/PATCH/DELETE /api/v1/plans` 和行动项 API：计划保存在 `plans/{uid}/items/{planId}`，行动项保存在 `plans/{uid}/items/{planId}/actions/{actionId}`。请求体不接受 `uid`、`ownerId`、`createdAt`、`updatedAt` 或其他服务端字段。
+- `/zh-CN/long-term`：7/14/30 天切换、数据不足状态、平均值、常见标签、简短非诊断性模式和缺失日期表。
+- `/zh-CN/plans`：查看计划列表、创建手动计划、修改状态、添加行动项和标记完成。
+- Firestore rules 继续 deny-by-default，Emulator rules 测试覆盖 `longTermSummaries`、`plans` 和行动项直连拒绝。
+
+摘要当前按需计算，不持久化副本；repository 不读取日记正文，摘要不保存完整 prompt 或 Gemini 原始输出。行动计划当前只支持用户手动创建，未来若加入 AI 建议计划，必须先经过独立安全评审和用户确认后才可保存。
+
+阶段 4A 新增页面：
+
+- `/zh-CN/long-term`
+- `/zh-CN/plans`
+
+阶段 4A 新增 API：
+
+- `GET /api/v1/long-term/summary?window=7|14|30`
+- `GET /api/v1/plans`
+- `POST /api/v1/plans`
+- `PATCH /api/v1/plans/[planId]`
+- `DELETE /api/v1/plans/[planId]`
+- `POST /api/v1/plans/[planId]/actions`
+- `PATCH /api/v1/plans/[planId]/actions/[actionId]`
+
+阶段 4A 新增集合覆盖：
+
+- `plans/{uid}/items/{planId}`
+- `plans/{uid}/items/{planId}/actions/{actionId}`
+- `longTermSummaries/{uid}` 仅作为未来可能持久化的规则覆盖路径；当前摘要不持久化。

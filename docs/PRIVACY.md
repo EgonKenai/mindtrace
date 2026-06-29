@@ -204,3 +204,13 @@ AI 同意独立于日记基础功能。拒绝 AI 不影响日记、历史和趋�
 - 删除任务覆盖全部集合并验证 Auth 删除
 - Secret Manager 和服务账号权限最小化
 - 隐私、同意、备份和保留文案经过法律审阅
+
+## 14. 阶段 4A 长期摘要与行动计划隐私说明
+
+阶段 4A 的长期摘要为确定性按需计算，不调用真实 Gemini，不发送第三方 AI Provider，不保存完整 prompt 或 Gemini 原始输出。摘要查询只读取当前用户 `journals/{uid}/entries` 中的 `localDate`、五项数值和受控标签，不读取或复制完整日记正文。
+
+摘要窗口使用当前账户 IANA 时区生成最近 7/14/30 个本地日期，但记录归属仍以保存时的 `localDate` 为准。缺失日期保留为空，不伪造为 0。窗口内无记录时返回 `insufficient_data`。
+
+行动计划只保存用户明确创建或更新的手动计划和行动项，路径为 `plans/{uid}/items/{planId}` 和 `plans/{uid}/items/{planId}/actions/{actionId}`。阶段 4A 不让 AI 自动创建计划；未来如增加 AI 建议计划，必须经过用户确认后才保存，并更新本隐私说明。
+
+未来 JSON 导出和账户删除必须覆盖 `plans/{uid}` 及全部行动项。长期摘要当前不持久化；如果未来新增 `longTermSummaries/{uid}`，也必须加入导出、删除 worker 和自动化覆盖测试。本阶段不实现导出或账户删除。

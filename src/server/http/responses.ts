@@ -15,6 +15,15 @@ const safeRequestFieldNames = new Set([
   "cursor",
   "limit",
   "days",
+  "window",
+  "title",
+  "description",
+  "status",
+  "startDate",
+  "targetDate",
+  "checkInFrequency",
+  "linkedTags",
+  "dueDate",
 ]);
 
 function getSafeValidationFields(
