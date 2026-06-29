@@ -66,12 +66,23 @@ describe("Firestore client security rules", () => {
       database,
       "analyses/fictional-user/entryFeedback/feedback-1",
     );
+    const planSuggestionRef = doc(
+      database,
+      "analyses/fictional-user/planSuggestions/suggestion-1",
+    );
 
     await assertFails(getDoc(feedbackRef));
     await assertFails(
       setDoc(feedbackRef, {
         status: "ready",
         reflection: "不应由浏览器写入的虚构反馈。",
+      }),
+    );
+    await assertFails(getDoc(planSuggestionRef));
+    await assertFails(
+      setDoc(planSuggestionRef, {
+        status: "accepted",
+        title: "client forged suggestion",
       }),
     );
   });

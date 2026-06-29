@@ -24,6 +24,8 @@ const safeRequestFieldNames = new Set([
   "checkInFrequency",
   "linkedTags",
   "dueDate",
+  "summaryWindow",
+  "suggestionId",
 ]);
 
 function getSafeValidationFields(

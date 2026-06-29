@@ -208,4 +208,16 @@ pnpm build
 git diff --check
 ```
 
+## 阶段 4B-1：AI 辅助计划建议草稿
+
+阶段 4B-1 新增按需生成的 AI 计划建议草稿，但不会自动创建正式计划。用户必须先完成基础产品同意；生成草稿前还必须接受独立 AI 数据处理说明。拒绝 AI 同意不影响日记、历史、趋势、长期摘要或手动计划。
+
+- API：`POST /api/v1/plans/suggestions`、`GET /api/v1/plans/suggestions`、`POST /api/v1/plans/suggestions/[suggestionId]/accept`、`POST /api/v1/plans/suggestions/[suggestionId]/dismiss`
+- 数据路径：草稿保存在 `analyses/{uid}/planSuggestions/{suggestionId}`；正式计划仍保存在 `plans/{uid}/items/{planId}`
+- Provider 输入只包含长期摘要中的统计字段、常见标签、非识别性模式和缺失日期，不包含完整日记正文、uid、email、Cookie、token、IP 或 Firestore 路径
+- 自动化测试使用 Fake Provider 和浏览器路由 mock，不调用真实 Gemini，不需要真实 API Key
+- `/zh-CN/plans` 提供最小草稿 UI：生成草稿、保存为计划、忽略建议、AI 同意缺失、数据不足和安全降级状态
+
+阶段 4B-1 不包含完整 AI 长报告、AI 自动创建计划、真实 Gemini 计划建议 smoke test、支付、部署、聊天陪伴、医疗诊断或阶段 4C/5/6 功能。
+
 AI 安全设计、第三方处理边界和阶段 3 验收见 `docs/AI_SAFETY.md` 与 `docs/PHASE_3_REVIEW.md`。

@@ -421,3 +421,18 @@
 - `plans/{uid}/items/{planId}`
 - `plans/{uid}/items/{planId}/actions/{actionId}`
 - `longTermSummaries/{uid}` 仅作为未来可能持久化的规则覆盖路径；当前摘要不持久化。
+
+### 阶段 4B-1：AI 辅助计划建议草稿
+
+阶段 4B-1 已建立基于 4A 长期摘要的 AI 计划建议草稿能力，但不实现完整 AI 长报告、AI 自动创建计划、真实 Gemini 计划建议 smoke test、支付、部署、聊天陪伴、医疗诊断或阶段 4C/5/6。
+
+已实现：
+
+- `POST /api/v1/plans/suggestions`：生成计划建议草稿。服务端从 session 取得 uid，复用产品准入和 AI 独立同意；数据不足、未同意或安全路由阻断时 Provider 调用数为 0。
+- `GET /api/v1/plans/suggestions`：列出当前用户自己的草稿。
+- `POST /api/v1/plans/suggestions/[suggestionId]/accept`：用户确认后把 `draft` 草稿保存为 `sourceType: "ai_suggested"` 的正式计划和行动项。
+- `POST /api/v1/plans/suggestions/[suggestionId]/dismiss`：用户忽略自己的草稿。
+- `/zh-CN/plans` 最小 UI：生成草稿、AI 同意缺失、数据不足、安全降级、保存为计划和忽略建议。
+- `analyses/{uid}/planSuggestions/{suggestionId}`：保存通过本地 strict schema 和安全校验后的草稿，不保存完整日记正文、完整 prompt 或 Gemini 原始输出。
+
+Provider 输入最小化为长期摘要统计字段、常见标签、非识别性模式和缺失日期；不得包含 uid、email、Cookie、token、IP、Firestore 路径、完整日记正文或完整历史条目。Provider 输出必须使用低风险、非诊断性措辞；不合规输出整体丢弃并返回安全降级。

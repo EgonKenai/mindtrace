@@ -214,3 +214,15 @@ AI 同意独立于日记基础功能。拒绝 AI 不影响日记、历史和趋�
 行动计划只保存用户明确创建或更新的手动计划和行动项，路径为 `plans/{uid}/items/{planId}` 和 `plans/{uid}/items/{planId}/actions/{actionId}`。阶段 4A 不让 AI 自动创建计划；未来如增加 AI 建议计划，必须经过用户确认后才保存，并更新本隐私说明。
 
 未来 JSON 导出和账户删除必须覆盖 `plans/{uid}` 及全部行动项。长期摘要当前不持久化；如果未来新增 `longTermSummaries/{uid}`，也必须加入导出、删除 worker 和自动化覆盖测试。本阶段不实现导出或账户删除。
+
+## 15. 阶段 4B-1 AI 计划建议草稿隐私说明
+
+阶段 4B-1 的计划建议草稿是可选 AI 功能。用户拒绝 AI 数据处理说明后，日记、历史、趋势、长期摘要和手动计划仍可正常使用；生成草稿前服务端会再次验证当前 AI 数据处理说明已接受。
+
+Provider 输入只使用长期摘要中的低风险聚合字段：窗口、记录数、五项平均值、常见标签、非识别性模式和缺失日期。服务端不会向 Provider 发送完整日记正文、完整历史条目、uid、email、Cookie、token、IP、账户资料或 Firestore 路径。
+
+草稿保存在 `analyses/{uid}/planSuggestions/{suggestionId}`，仅包含通过本地 strict schema 和安全校验后的草稿字段。系统不保存完整 AI prompt、Gemini 原始输出、Provider 原始错误或未验证输出。输出不合规时丢弃并返回安全降级。
+
+用户点击“保存为计划”前，AI 不会自动创建正式计划。确认保存后，服务端通过计划服务创建 `plans/{uid}/items/{planId}` 和行动项，并把草稿标记为 `accepted`。忽略草稿只把状态标记为 `dismissed`。
+
+未来 JSON 导出和账户删除必须覆盖 `analyses/{uid}/planSuggestions`。阶段 4B-1 本身不实现导出、账户删除、真实 Gemini 计划建议 smoke test、完整 AI 长报告、支付、部署或聊天陪伴。

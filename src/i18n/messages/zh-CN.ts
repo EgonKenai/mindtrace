@@ -286,6 +286,35 @@ export const zhCN = {
       addAction: "添加行动项",
       completeAction: "标记完成",
     },
+    suggestions: {
+      title: "AI 计划建议草稿",
+      intro:
+        "可选功能：AI 只会根据长期摘要生成草稿，不会自动创建计划。保存前需要你确认。",
+      disclaimer: "AI 建议仅供参考，不是医疗建议。",
+      windowLabel: "摘要窗口",
+      generate: "生成计划建议草稿",
+      generating: "正在生成草稿",
+      save: "保存为计划",
+      saving: "正在保存",
+      dismiss: "忽略建议",
+      dismissing: "正在忽略",
+      actionsTitle: "建议行动项",
+      rationaleTitle: "建议依据",
+      consentRequired:
+        "需要先接受独立 AI 数据处理说明，才会向 AI Provider 发送最小化摘要。",
+      insufficientData:
+        "当前窗口数据不足，暂时不会调用 AI Provider，也不会生成计划草稿。",
+      fallback:
+        "本次没有生成可用草稿。系统已安全停止，不会显示 Provider 原始输出。",
+      generatedStatus: "已生成草稿，保存前请确认内容是否适合你。",
+      savedStatus: "草稿已保存为正式计划。",
+      dismissedStatus: "草稿已忽略。",
+      errors: {
+        generic: "计划建议暂时不可用，请稍后重试。",
+        saveFailed: "草稿未能保存为计划，请稍后重试。",
+        dismissFailed: "草稿未能忽略，请稍后重试。",
+      },
+    },
     statuses: {
       active: "进行中",
       completed: "已完成",

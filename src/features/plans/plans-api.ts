@@ -3,6 +3,8 @@ import type {
   PlanAction,
   PlanApiErrorPayload,
   PlanFieldName,
+  PlanSuggestionDraft,
+  PlanSuggestionGenerationResult,
   PlanStatus,
 } from "@/features/plans/model";
 import type {
@@ -26,6 +28,23 @@ interface PlanListResponse {
 interface PlanActionResponse {
   data: {
     action: PlanAction;
+  };
+}
+
+interface PlanSuggestionGenerationResponse {
+  data: PlanSuggestionGenerationResult;
+}
+
+interface PlanSuggestionResponse {
+  data: {
+    suggestion: PlanSuggestionDraft;
+  };
+}
+
+interface PlanSuggestionAcceptResponse {
+  data: {
+    plan: ActionPlan;
+    suggestion: PlanSuggestionDraft;
   };
 }
 
@@ -141,4 +160,40 @@ export async function completePlanActionRequest(
   );
 
   return response.data.action;
+}
+
+export async function generatePlanSuggestionRequest(
+  summaryWindow: 7 | 14 | 30,
+): Promise<PlanSuggestionGenerationResult> {
+  const response = await requestJson<PlanSuggestionGenerationResponse>(
+    "/api/v1/plans/suggestions",
+    {
+      method: "POST",
+      body: JSON.stringify({ summaryWindow }),
+    },
+  );
+
+  return response.data;
+}
+
+export async function acceptPlanSuggestionRequest(
+  suggestionId: string,
+): Promise<PlanSuggestionAcceptResponse["data"]> {
+  const response = await requestJson<PlanSuggestionAcceptResponse>(
+    `/api/v1/plans/suggestions/${encodeURIComponent(suggestionId)}/accept`,
+    { method: "POST" },
+  );
+
+  return response.data;
+}
+
+export async function dismissPlanSuggestionRequest(
+  suggestionId: string,
+): Promise<PlanSuggestionDraft> {
+  const response = await requestJson<PlanSuggestionResponse>(
+    `/api/v1/plans/suggestions/${encodeURIComponent(suggestionId)}/dismiss`,
+    { method: "POST" },
+  );
+
+  return response.data.suggestion;
 }

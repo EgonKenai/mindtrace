@@ -1005,6 +1005,7 @@ button:disabled {
 }
 
 .summary-grid section,
+.plan-suggestion-panel,
 .plan-create-form,
 .plan-card {
   min-width: 0;
@@ -1036,6 +1037,34 @@ button:disabled {
 .plan-list {
   display: grid;
   gap: 18px;
+}
+
+.plan-suggestion-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.plan-suggestion-controls {
+  display: grid;
+  gap: 8px;
+}
+
+.plan-suggestion-draft {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+}
+
+.plan-suggestion-draft h3,
+.plan-suggestion-draft h4,
+.plan-suggestion-draft p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.plan-suggestion-draft h3 {
+  font-size: 1.15rem;
 }
 
 .plan-create-form textarea {

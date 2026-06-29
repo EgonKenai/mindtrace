@@ -77,6 +77,40 @@ export async function createPlan(
   return serializePlan(context.userId, plan);
 }
 
+export interface CreateSuggestedPlanInput {
+  actions: Array<{
+    description: string;
+    dueDate: string | null;
+    title: string;
+  }>;
+  description: string;
+  linkedTags: Parameters<typeof createPlanRecord>[1]["linkedTags"];
+  startDate: string;
+  targetDate: string | null;
+  title: string;
+}
+
+export async function createSuggestedPlanFromDraft(
+  userId: string,
+  input: CreateSuggestedPlanInput,
+): Promise<ActionPlan> {
+  const plan = await createPlanRecord(userId, {
+    checkInFrequency: "weekly",
+    description: input.description,
+    linkedTags: input.linkedTags,
+    sourceType: "ai_suggested",
+    startDate: input.startDate,
+    targetDate: input.targetDate,
+    title: input.title,
+  });
+
+  for (const action of input.actions) {
+    await createPlanActionRecord(userId, plan.id, action);
+  }
+
+  return serializePlan(userId, plan);
+}
+
 export async function updatePlan(
   userId: string | null | undefined,
   planId: string,
