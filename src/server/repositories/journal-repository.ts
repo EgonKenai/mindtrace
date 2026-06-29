@@ -35,6 +35,17 @@ export type JournalTrendRecord = Pick<
   "energy" | "localDate" | "mood" | "sleepHours" | "sleepQuality" | "stress"
 >;
 
+export type JournalSummaryRecord = Pick<
+  JournalEntryRecord,
+  | "energy"
+  | "eventTags"
+  | "localDate"
+  | "mood"
+  | "sleepHours"
+  | "sleepQuality"
+  | "stress"
+>;
+
 export interface CreateJournalEntryRecordInput {
   energy: number;
   eventTags: JournalEventTagId[];
@@ -247,6 +258,31 @@ export async function listJournalTrendRecords(
 
   return snapshot.docs.map(
     (documentSnapshot) => documentSnapshot.data() as JournalTrendRecord,
+  );
+}
+
+export async function listJournalSummaryRecords(
+  userId: string,
+  startDate: string,
+  endDate: string,
+): Promise<JournalSummaryRecord[]> {
+  const snapshot = await entriesCollection(userId)
+    .where("localDate", ">=", startDate)
+    .where("localDate", "<=", endDate)
+    .orderBy("localDate", "asc")
+    .select(
+      "localDate",
+      "mood",
+      "stress",
+      "energy",
+      "sleepHours",
+      "sleepQuality",
+      "eventTags",
+    )
+    .get();
+
+  return snapshot.docs.map(
+    (documentSnapshot) => documentSnapshot.data() as JournalSummaryRecord,
   );
 }
 

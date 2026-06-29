@@ -458,3 +458,27 @@ interface BillingProvider {
 - 生产：独立 Firebase/GCP 项目、Cloud Run、Secret Manager、Cloud Tasks、最小权限服务账号。
 - 环境之间不共享 Firestore、Auth 用户、密钥或导出文件。
 - Cloud Run 区域、Firestore 区域和 AI 数据处理区域在上线国家明确后统一确定。
+
+## 15. 阶段 4A 长期摘要与行动计划
+
+阶段 4A 新增长期摘要和手动行动计划基础结构，不调用真实 Gemini，不保存完整 AI prompt，不保存 Gemini 原始输出，也不把完整日记正文复制到摘要。
+
+长期摘要通过 `GET /api/v1/long-term/summary?window=7|14|30` 按需计算，当前实现不持久化摘要文档。响应字段包括 `summaryWindow`、`startDate`、`endDate`、`entryCount`、五项平均值、`mostCommonTags`、`notablePatterns`、`missingDays`、`generatedAt`、`schemaVersion`、`status` 和 `timeZone`。摘要 repository 只从 `journals/{uid}/entries` 选择 `localDate`、五项数值和 `eventTags`，不读取 `note`。
+
+摘要窗口边界使用当前账户 IANA 时区生成最近 7/14/30 个本地日期；分组与缺失日判断使用记录保存时的 `localDate`，不使用服务器 UTC 日期或 24 小时差。窗口内无记录时返回 `status: "insufficient_data"`，平均值为 `null`，缺失日期列出为本地日期。数值字段使用窗口内全部记录的算术平均值，常见标签按出现次数倒序、标签 ID 升序稳定排序。`notablePatterns` 只使用低风险、非诊断性固定文案。
+
+行动计划持久化在 `plans/{uid}/items/{planId}`，行动项持久化在 `plans/{uid}/items/{planId}/actions/{actionId}`。计划字段包括 `title`、`description`、`sourceType`、`status`、`startDate`、`targetDate`、`checkInFrequency`、`linkedTags`、`createdAt`、`updatedAt` 和 `schemaVersion`；行动项字段包括 `title`、`description`、`status`、`dueDate`、`completedAt`、`createdAt`、`updatedAt` 和 `schemaVersion`。服务端路径隐含所有者，API 响应不返回 `uid`，请求体中的 `uid`、`ownerId` 和服务端字段会被 strict schema 拒绝。
+
+新增 API：
+
+- `GET /api/v1/long-term/summary?window=7|14|30`
+- `GET /api/v1/plans`
+- `POST /api/v1/plans`
+- `PATCH /api/v1/plans/[planId]`
+- `DELETE /api/v1/plans/[planId]`
+- `POST /api/v1/plans/[planId]/actions`
+- `PATCH /api/v1/plans/[planId]/actions/[actionId]`
+
+全部个人 API 均从服务端会话取得 `uid`，复用 `requireProductDataAccess`，状态变更继续执行 Origin/CSRF 防护，错误通过统一安全格式返回。浏览器客户端仍不能直接读写 `plans`、`longTermSummaries` 或其他业务集合；Firestore rules 继续 deny-by-default，Emulator rules 测试覆盖新路径。
+
+未来导出和账户删除必须覆盖 `plans/{uid}` 及全部行动项。长期摘要当前不持久化；如果未来新增 `longTermSummaries/{uid}` 持久化摘要，也必须纳入导出、删除 worker 和集合覆盖测试。

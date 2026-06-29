@@ -17,12 +17,26 @@ export interface CreatedEntrySummary {
   revision: number;
 }
 
-async function expectSessionCreated(page: Page) {
-  const response = await page.waitForResponse(
-    (candidate) =>
-      candidate.request().method() === "POST" &&
-      candidate.url().endsWith("/api/v1/auth/session"),
-  );
+function hasApiPath(candidateUrl: string, pathname: string): boolean {
+  return new URL(candidateUrl).pathname === pathname;
+}
+
+async function expectSessionCreated(
+  page: Page,
+  triggerSessionRequest: () => Promise<unknown>,
+) {
+  const [response] = await Promise.all([
+    page.waitForResponse((candidate) => {
+      const request = candidate.request();
+
+      return (
+        request.method() === "POST" &&
+        hasApiPath(candidate.url(), "/api/v1/auth/session") &&
+        candidate.status() === 200
+      );
+    }),
+    triggerSessionRequest(),
+  ]);
 
   expect(response.status()).toBe(200);
   await expect
@@ -42,32 +56,36 @@ export async function registerWithoutConsent(
   const password = "Fictional-pass-2026";
 
   await page.goto("/zh-CN/register");
-  await page.getByLabel("邮箱").fill(email);
-  await page.getByLabel("密码").fill(password);
-  const sessionCreated = expectSessionCreated(page);
-  await page.getByRole("button", { name: "注册" }).click();
-  await sessionCreated;
+  await page.locator('input[name="email"]').fill(email);
+  await page.locator('input[name="password"]').fill(password);
+  await expectSessionCreated(page, () =>
+    page.locator("form").getByRole("button").click(),
+  );
 
   await expect(page).toHaveURL(/\/zh-CN\/onboarding\/consent$/);
 }
 
 export async function completeConsent(page: Page): Promise<void> {
-  await page.getByLabel("我确认自己已达到所在地区的法定成年年龄。").check();
-  await page.getByLabel("我已阅读并理解产品边界。").check();
-  await page.getByLabel("我已阅读并接受当前隐私说明。").check();
-  await page.getByLabel("你的时区").fill("Asia/Tokyo");
+  await page.locator('input[name="adultConfirmed"]').check();
+  await page.locator('input[name="productBoundaryAccepted"]').check();
+  await page.locator('input[name="privacyAccepted"]').check();
+  await page.locator('input[name="timeZone"]').fill("Asia/Tokyo");
 
-  const consentResponse = page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" &&
-      response.url().endsWith("/api/v1/account/consents"),
-  );
-  await page.getByRole("button", { name: "完成确认" }).click();
-  expect((await consentResponse).status()).toBe(201);
+  const [consentResponse] = await Promise.all([
+    page.waitForResponse((response) => {
+      const request = response.request();
+
+      return (
+        request.method() === "POST" &&
+        hasApiPath(response.url(), "/api/v1/account/consents") &&
+        response.status() === 201
+      );
+    }),
+    page.locator("form").getByRole("button").click(),
+  ]);
+  expect(consentResponse.status()).toBe(201);
   await expect(page).toHaveURL(/\/zh-CN\/today$/);
-  await expect(
-    page.getByRole("heading", { name: "记录此刻的状态" }),
-  ).toBeVisible();
+  await expect(page.locator("main h1")).toBeVisible();
 }
 
 export async function registerAndConsent(
@@ -79,13 +97,19 @@ export async function registerAndConsent(
 }
 
 export async function acceptAiConsent(page: Page): Promise<void> {
-  const consentResponse = page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" &&
-      response.url().endsWith("/api/v1/account/ai-consent"),
-  );
-  await page.getByRole("button", { name: "同意并生成" }).click();
-  expect((await consentResponse).status()).toBe(200);
+  const [consentResponse] = await Promise.all([
+    page.waitForResponse((response) => {
+      const request = response.request();
+
+      return (
+        request.method() === "POST" &&
+        hasApiPath(response.url(), "/api/v1/account/ai-consent") &&
+        response.status() === 200
+      );
+    }),
+    page.locator(".ai-consent-dialog").locator(".primary-button").click(),
+  ]);
+  expect(consentResponse.status()).toBe(200);
 }
 
 export async function createEntryViaApi(

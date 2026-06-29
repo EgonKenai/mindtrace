@@ -184,4 +184,28 @@ GitHub Actions 不执行 Firebase 登录，也不需要真实 Firebase 项目、
 - 测试账户使用 `example.test` 和完全虚构的数据。
 - 当前仓库包含 Gemini SDK adapter 和详情页反馈界面，但没有 API Key、真实调用、反馈持久化、30 天报告、支付、导出、账户删除、Cloud Tasks 或 Cloud Run 正式部署代码。
 
+## 阶段 4A：长期摘要与手动行动计划
+
+阶段 4A 新增确定性的长期摘要和手动行动计划基础结构，不调用真实 Gemini，不实现完整 AI 长报告、AI 自动创建计划、30 天 PDF、付费、部署、聊天陪伴、医疗诊断或自动危机干预。
+
+- 长期摘要 API：`GET /api/v1/long-term/summary?window=7|14|30`
+- 计划 API：`GET /api/v1/plans`、`POST /api/v1/plans`、`PATCH /api/v1/plans/[planId]`、`DELETE /api/v1/plans/[planId]`、`POST /api/v1/plans/[planId]/actions`、`PATCH /api/v1/plans/[planId]/actions/[actionId]`
+- 页面：`/zh-CN/long-term` 和 `/zh-CN/plans`
+- 数据路径：计划为 `plans/{uid}/items/{planId}`，行动项为 `plans/{uid}/items/{planId}/actions/{actionId}`。摘要当前按需计算，不持久化摘要副本。
+
+摘要窗口使用当前账户 IANA 时区生成最近 7/14/30 个本地日期，聚合使用记录保存时的 `localDate`。数值字段使用算术平均值；缺失日期返回为空，不显示为 0；无记录时返回 `insufficient_data`。摘要查询不读取 `note`，不会复制完整日记正文、保存 prompt 或保存 Gemini 原始输出。
+
+阶段 4A 完整本地检查：
+
+```powershell
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test:unit
+pnpm test:integration
+pnpm test:e2e
+pnpm build
+git diff --check
+```
+
 AI 安全设计、第三方处理边界和阶段 3 验收见 `docs/AI_SAFETY.md` 与 `docs/PHASE_3_REVIEW.md`。

@@ -75,4 +75,26 @@ describe("Firestore client security rules", () => {
       }),
     );
   });
+
+  it("denies direct browser reads and writes to long-term summaries and plans", async () => {
+    const database = testEnvironment
+      .authenticatedContext("fictional-user")
+      .firestore();
+    const summaryRef = doc(
+      database,
+      "longTermSummaries/fictional-user/summaries/window-7",
+    );
+    const planRef = doc(database, "plans/fictional-user/items/plan-1");
+    const actionRef = doc(
+      database,
+      "plans/fictional-user/items/plan-1/actions/action-1",
+    );
+
+    await assertFails(getDoc(summaryRef));
+    await assertFails(setDoc(summaryRef, { entryCount: 1 }));
+    await assertFails(getDoc(planRef));
+    await assertFails(setDoc(planRef, { title: "client write" }));
+    await assertFails(getDoc(actionRef));
+    await assertFails(setDoc(actionRef, { title: "client write" }));
+  });
 });

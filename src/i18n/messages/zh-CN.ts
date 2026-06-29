@@ -10,6 +10,8 @@ export const zhCN = {
   navigation: {
     ariaLabel: "主导航",
     history: "历史",
+    longTerm: "长期摘要",
+    plans: "计划",
     productBoundary: "产品边界",
     safety: "安全资源",
     settings: "设置",
@@ -225,6 +227,85 @@ export const zhCN = {
     table: {
       date: "本地日期",
       entryCount: "记录数",
+    },
+  },
+  longTerm: {
+    eyebrow: "长期回顾",
+    title: "长期摘要",
+    intro:
+      "按用户本地日期回顾最近 7、14 或 30 天的记录。摘要由确定性算法生成，不调用 Gemini，也不复制完整日记正文。",
+    loading: "正在加载长期摘要…",
+    errorTitle: "无法加载长期摘要",
+    errorBody: "长期摘要暂时不可用，请稍后重试。",
+    noData: "无记录",
+    windowLabel: (days: number) => `${days} 天`,
+    summaryTitle: (days: number, startDate: string, endDate: string) =>
+      `最近 ${days} 天：${startDate} 至 ${endDate}`,
+    summaryBody: (entryCount: number, timeZone: string) =>
+      `共汇总 ${entryCount} 条记录，窗口边界采用当前账户时区 ${timeZone}，分组采用记录保存时的本地日期。`,
+    aggregationNote:
+      "数值字段使用窗口内全部记录的算术平均值；缺失日期保留为空，不会显示为 0。",
+    insufficientTitle: "数据仍然不足",
+    insufficientBody:
+      "这个窗口内还没有可汇总的记录。继续记录后，这里会显示低风险、非诊断性的回顾。",
+    commonTagsTitle: "常见生活事件",
+    noTags: "暂无标签可汇总。",
+    patternsTitle: "简短模式",
+    noPatterns: "暂无可显示的模式。",
+    missingDaysTitle: "缺失日期",
+    missingDaysIntro: "这些本地日期在当前窗口内没有记录。",
+    missingDaysRegionLabel: "长期摘要缺失日期表，可横向滚动",
+    missingState: "状态",
+    noMissingDays: "当前窗口内没有缺失日期。",
+    noEntryForDay: "无记录",
+  },
+  plans: {
+    eyebrow: "行动计划",
+    title: "长期计划",
+    intro:
+      "创建手动计划和简单行动项。阶段 4A 不会让 AI 自动创建计划，未来 AI 建议也必须由用户确认后才保存。",
+    loading: "正在加载计划…",
+    emptyTitle: "还没有计划",
+    emptyBody: "创建一个手动计划后，它会显示在这里。",
+    errorTitle: "无法加载计划",
+    errorBody: "计划暂时不可用，请稍后重试。",
+    noDescription: "没有描述。",
+    actionsTitle: "行动项",
+    noActions: "还没有行动项。",
+    meta: (status: string, frequency: string) =>
+      `状态：${status}；签到频率：${frequency}`,
+    form: {
+      titleLabel: "计划标题",
+      descriptionLabel: "计划描述",
+      actionTitleLabel: "行动项标题",
+    },
+    actions: {
+      create: "创建计划",
+      creating: "正在创建",
+      delete: "删除计划",
+      addAction: "添加行动项",
+      completeAction: "标记完成",
+    },
+    statuses: {
+      active: "进行中",
+      completed: "已完成",
+      paused: "已暂停",
+      abandoned: "已放弃",
+    },
+    actionStatuses: {
+      todo: "待完成",
+      done: "已完成",
+      skipped: "已跳过",
+    },
+    frequencies: {
+      none: "不提醒",
+      daily: "每日",
+      weekly: "每周",
+    },
+    errors: {
+      actionTitleRequired: "请填写行动项标题。",
+      saveFailed: "计划未能保存，请稍后重试。",
+      deleteFailed: "计划未能删除，请稍后重试。",
     },
   },
   aiFeedback: {
