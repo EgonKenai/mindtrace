@@ -47,6 +47,20 @@ GEMINI_MODEL=
 
 两个值缺一不可。不要使用 `NEXT_PUBLIC_` 前缀。本阶段验证不需要也不会使用真实值。
 
+## 本地 Gemini 冒烟测试
+
+仓库提供一个 local-only 的真实 Gemini Provider 冒烟测试入口，用固定虚构日记内容验证 Provider、最小化输入、结构化输出 schema 和本地安全校验是否仍能贯通。它不会读取 Firestore、真实账户或真实用户日记，也不会创建、修改或删除任何数据。
+
+仅在明确批准的本地或预发布服务端环境中设置 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 后运行：
+
+```powershell
+pnpm smoke:gemini
+```
+
+如果缺少任一变量，脚本会安全跳过并提示缺少变量，不发送请求。配置齐全时，输出仅包含 `requestSucceeded`、`providerCalled`、`policyDecision`、`schemaPassed`、`safetyPassed`、`fallbackUsed` 和延迟区间。脚本不会打印 API Key、完整 Prompt、完整 Gemini 原始输出、用户 ID、邮箱、Cookie、token、Firestore 路径或真实日记内容。
+
+该命令不属于 CI 流程；GitHub Actions 不设置真实 Gemini Key，也不运行真实 Gemini 请求。
+
 ## 启动 Firebase Emulator
 
 Firebase Auth Emulator 和 Firestore Emulator 需要 Java 21。先检查当前 Java 版本：

@@ -6,18 +6,18 @@
 
 ## 核心验收
 
-| 验收项                                          | 状态     | 依据                                                                                                                  |
-| ----------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| 确定性安全路由与 Provider 调用分离              | 已通过   | `src/server/ai/policy.ts`、`ai-feedback-service.test.ts`；crisis/supportive 的 Provider 调用数为 0。                  |
-| 最小化输入不含账户与资源标识                    | 已通过   | `src/server/ai/input.ts`、`ai-feedback-input.test.ts`。                                                               |
-| 官方 Gemini SDK 仅存在于 server-only adapter    | 已通过   | `src/server/ai/gemini-provider.ts`；`@google/genai` 2.10.0。                                                          |
-| 结构化输出经过本地 strict schema 与内容安全校验 | 已通过   | `ai-feedback-output.test.ts`、`gemini-provider.test.ts`。                                                             |
-| 独立 AI 同意不影响基础日记准入                  | 已通过   | `tests/e2e/ai-feedback.spec.ts` 的拒绝流程；`registerAndConsent` 不接受 AI 同意。                                     |
-| 未同意时 Provider 调用数为 0                    | 已通过   | `ai-feedback-service.test.ts`；`ai-feedback-service.integration.test.ts`。                                            |
-| 详情页按需生成并覆盖安全状态                    | 已通过   | `EntryAiFeedback`；`tests/e2e/ai-feedback.spec.ts` 覆盖生成、crisis、supportive、fallback、未配置、超时、限流和错误。 |
-| 输出仅按纯文本渲染                              | 已通过   | React 文本节点；E2E 使用 HTML 样式字符串并验证未创建 `<strong>`。                                                     |
-| 跨用户与不存在 entryId 不泄露差异               | 已通过   | `ai-feedback-service.integration.test.ts`、`security.spec.ts` 的 feedback API 404 `NOT_FOUND`。                       |
-| 真实 Gemini 冒烟测试                            | 尚未验证 | 本阶段禁止创建真实 key 或发起真实 Gemini 请求；上线前在隔离预发布环境执行。                                           |
+| 验收项                                          | 状态     | 依据                                                                                                                   |
+| ----------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 确定性安全路由与 Provider 调用分离              | 已通过   | `src/server/ai/policy.ts`、`ai-feedback-service.test.ts`；crisis/supportive 的 Provider 调用数为 0。                   |
+| 最小化输入不含账户与资源标识                    | 已通过   | `src/server/ai/input.ts`、`ai-feedback-input.test.ts`。                                                                |
+| 官方 Gemini SDK 仅存在于 server-only adapter    | 已通过   | `src/server/ai/gemini-provider.ts`；`@google/genai` 2.10.0。                                                           |
+| 结构化输出经过本地 strict schema 与内容安全校验 | 已通过   | `ai-feedback-output.test.ts`、`gemini-provider.test.ts`。                                                              |
+| 独立 AI 同意不影响基础日记准入                  | 已通过   | `tests/e2e/ai-feedback.spec.ts` 的拒绝流程；`registerAndConsent` 不接受 AI 同意。                                      |
+| 未同意时 Provider 调用数为 0                    | 已通过   | `ai-feedback-service.test.ts`；`ai-feedback-service.integration.test.ts`。                                             |
+| 详情页按需生成并覆盖安全状态                    | 已通过   | `EntryAiFeedback`；`tests/e2e/ai-feedback.spec.ts` 覆盖生成、crisis、supportive、fallback、未配置、超时、限流和错误。  |
+| 输出仅按纯文本渲染                              | 已通过   | React 文本节点；E2E 使用 HTML 样式字符串并验证未创建 `<strong>`。                                                      |
+| 跨用户与不存在 entryId 不泄露差异               | 已通过   | `ai-feedback-service.integration.test.ts`、`security.spec.ts` 的 feedback API 404 `NOT_FOUND`。                        |
+| 真实 Gemini 冒烟测试                            | 尚未验证 | 已新增 local-only `pnpm smoke:gemini` 入口；本次未设置真实 key，也未发起真实 Gemini 请求。上线前在隔离预发布环境执行。 |
 
 ## 隐私与安全
 

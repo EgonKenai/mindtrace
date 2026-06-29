@@ -19,7 +19,8 @@
     "emulators:start": "firebase emulators:start --project mindtrace-demo --only auth,firestore",
     "test:integration": "firebase emulators:exec --project mindtrace-demo --only auth,firestore \"vitest run --config vitest.integration.config.ts\"",
     "test:integration:run": "vitest run --config vitest.integration.config.ts",
-    "test:e2e": "firebase emulators:exec --project mindtrace-demo --only auth,firestore \"playwright test\""
+    "test:e2e": "firebase emulators:exec --project mindtrace-demo --only auth,firestore \"playwright test\"",
+    "smoke:gemini": "node --no-warnings --conditions=react-server --experimental-transform-types scripts/gemini-smoke.ts"
   },
   "dependencies": {
     "@google/genai": "2.10.0",

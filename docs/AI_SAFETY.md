@@ -169,7 +169,7 @@ API 未知异常继续使用统一 `INTERNAL_ERROR`，不返回内部消息。
 - 当前只有基础中英文确定性规则，不包含独立模型安全分类器。
 - 地区化危机资源和专业审核仍是上线前门槛。
 - 当前没有建议效果闭环或反馈持久化。
-- 仓库包含真实 Gemini adapter 和 SDK，但没有 API key，常规测试也不发起外部请求。
+- 仓库包含真实 Gemini adapter 和 SDK，但没有 API key，常规测试也不发起外部请求。`pnpm smoke:gemini` 是仅供本地或预发布服务端环境手动执行的真实 Provider 冒烟入口；它使用固定虚构日记内容，复用正式 Gemini Provider、最小化输入构造、结构化输出 schema 和本地安全校验，不读取 Firestore、真实账户或真实日记，也不写入任何数据。缺少 `GEMINI_API_KEY` 或 `GEMINI_MODEL` 时脚本安全跳过；配置齐全时也只输出请求是否成功、Provider 是否被调用、policyDecision、schema/safety 是否通过、是否 fallback 和延迟区间，不打印 API Key、Prompt、原始模型输出或原始错误。
 - 真实 Gemini 冒烟测试尚未验证。
 
 上线前仍需完成供应商条款与地区评审、独立安全分类器、模型/系统指令版本锁定、预发布真实模型 smoke test、日志抽查、输出人工抽样和专业安全回归。不得用普通生成模型替代独立安全决策。
