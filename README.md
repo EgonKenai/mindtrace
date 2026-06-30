@@ -1,10 +1,69 @@
 # MindTrace
 
-MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记录 Web 应用。它不是心理治疗、疾病诊断、药物建议或紧急援助工具。
+MindTrace 是一个面向成年人的个人情绪、压力、睡眠和生活事件记录 MVP。它帮助用户记录日常状态、回看 7 天趋势、查看长期摘要、维护手动行动计划，并在用户明确同意后生成低风险 AI 反思或草稿。
 
-当前仓库已完成阶段 2，以及阶段 3A/3B/3C 的 AI 反馈安全基础、真实 Gemini Provider 服务端 adapter、独立 AI 同意界面和记录详情反馈界面。反馈仍经过确定性安全路由、最小化输入、结构化输出和本地严格安全校验。
+MindTrace 不是医疗产品，不提供疾病诊断、治疗、心理咨询、药物建议或紧急援助。AI 内容只用于支持性反思和建议草稿，不能替代专业人员，也不会自动替用户创建计划或做决定。
 
-阶段 3B 使用官方 `@google/genai` 2.10.0 的无状态 `models.generateContent` API。仓库不包含真实 API Key，自动化测试不调用 Gemini。未同时配置 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 时，普通反馈继续返回明确的 `PROVIDER_NOT_CONFIGURED` 固定降级。阶段 3C 在 `/zh-CN/entries/[entryId]` 提供按需反馈和独立同意流程；反馈不持久化。独立模型安全分类器、建议效果闭环、支付、30 天报告、导出和账户删除仍未实现。
+## Project Snapshot
+
+| 项目维度     | 说明                                                                                              |
+| ------------ | ------------------------------------------------------------------------------------------------- |
+| 产品定位     | 成人情绪、压力、睡眠和生活事件记录与自我反思辅助工具                                              |
+| 当前阶段     | 阶段 5B：演示材料、作品集说明和提交准备                                                           |
+| 核心体验     | 注册/登录、基础同意、日记 CRUD、历史、7 天趋势、长期摘要、手动计划、AI 反馈/计划建议/长期洞察入口 |
+| AI 边界      | 服务端调用、最小化输入、独立 AI 同意、严格 schema 和本地安全校验；自动化测试不调用真实 Gemini     |
+| 默认运行方式 | 本地 Next.js + Firebase Emulator + Fake Provider/SDK mock                                         |
+| 明确未完成   | 部署、付费、PDF 报告、数据导出、账户删除、聊天陪伴、医疗诊断、自动危机干预                        |
+
+## Why This Exists
+
+很多人想记录近期状态，却不希望一个工具过度医疗化、过度推断或把私密日记变成黑盒模型输入。MindTrace 的目标是提供一个边界清楚的记录空间：先记录事实，再用趋势和摘要帮助用户观察自己的节奏；AI 只作为可选的低风险反思辅助。
+
+## Core Features
+
+- 账户与基础 onboarding：邮箱注册/登录、成年确认、产品边界同意、隐私说明同意和时区设置。
+- 日记记录：mood、stress、energy、sleepHours、sleepQuality、受控生活事件标签、可选 note、发生时间。
+- 历史与详情：稳定分页、详情查看、编辑、删除和 revision 递增。
+- 7 天趋势：按用户本地日期聚合同日多条记录；缺失日期显示为空，不伪造为 0。
+- 长期摘要：7/14/30 天窗口，确定性聚合平均值、常见标签、缺失日期和非诊断性模式描述。
+- 行动计划：创建手动计划、添加行动项、标记行动项完成。
+- AI 可选草稿：记录反馈、计划建议草稿、长期洞察草稿；均需要独立 AI 数据处理同意。
+- 安全资源与产品边界：公开可访问，不依赖付费或 AI。
+
+## Tech Stack
+
+- Next.js App Router + React + TypeScript strict
+- Firebase Authentication + Firestore via Firebase Admin SDK
+- Firebase Emulator Suite for local and CI tests
+- `@google/genai` server-only Provider adapter for optional Gemini integration
+- Zod-style strict validation schemas for API/model boundaries
+- Vitest unit/integration tests + Playwright E2E
+- GitHub Actions quality, Firebase Emulator integration, and E2E jobs
+
+## AI Safety And Privacy Boundaries
+
+- Gemini SDK is imported only from server-only modules.
+- The browser never receives Gemini API keys, Firebase Admin credentials, prompts, raw model output, cookies, tokens, or Firestore owner paths.
+- AI features require an independent AI data processing consent. Refusing AI consent does not block journal, history, trends, long-term summary, or manual plans.
+- Provider input is minimized: controlled scores/tags, locale, truncated note where applicable, and non-identifying aggregate summaries.
+- Crisis/supportive redirects use fixed locale copy; they do not call the Provider.
+- Model output must pass strict local schema and safety validation. Invalid or unsafe output is discarded and replaced with safe fallback copy.
+- Real Gemini calls are not part of normal tests or CI. They require manual `GEMINI_API_KEY` and `GEMINI_MODEL` configuration.
+
+## Demo And Submission Materials
+
+- [Project overview](docs/PROJECT_OVERVIEW.md): one-page product, architecture, safety, and roadmap summary.
+- [Demo guide](docs/DEMO_GUIDE.md): step-by-step local MVP walkthrough for portfolio, hackathon, or review demos.
+- [Portfolio notes](docs/PORTFOLIO_NOTES.md): resume bullets, interview talking points, and technical tradeoffs.
+- [Phase 5 review](docs/PHASE_5_REVIEW.md): Stage 5A/5B acceptance notes and remaining unverified items.
+
+## Current Status And Roadmap
+
+Completed in the current MVP: account/session onboarding, versioned consent, journal CRUD, history, 7-day trends, deterministic long-term summaries, manual plans, optional AI feedback, AI plan suggestion drafts, AI long-term insight drafts, and demo-ready documentation.
+
+Still intentionally out of scope: production deployment, payment, PDF reports, data export, account deletion, email notifications, chat companionship, medical diagnosis, automatic crisis intervention, and automatic plan creation.
+
+Likely next work: privacy lifecycle hardening for export/deletion, deployment readiness, production observability, and optional report packaging after separate entitlement and privacy review.
 
 ## Stage 5A MVP demo flow
 
