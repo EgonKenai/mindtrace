@@ -147,6 +147,127 @@ textarea {
   color: var(--text-muted);
 }
 
+.home-dashboard {
+  display: grid;
+  gap: 32px;
+}
+
+.home-hero {
+  display: grid;
+  gap: 18px;
+  max-width: 820px;
+}
+
+.home-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.home-hero p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.home-actions,
+.home-safety-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.section-heading {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.section-heading h2,
+.section-heading p {
+  margin: 0;
+}
+
+.section-heading p {
+  color: var(--text-muted);
+}
+
+.demo-flow-grid,
+.home-info-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-info-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.demo-flow-card,
+.home-info-card,
+.home-safety-strip {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 18px;
+}
+
+.demo-flow-card {
+  display: grid;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.demo-flow-card:hover {
+  border-color: var(--brand);
+}
+
+.demo-flow-card span {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #e6f2ed;
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.demo-flow-card strong,
+.home-info-card h2,
+.home-safety-strip h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.demo-flow-card p,
+.home-info-card p,
+.home-safety-strip p {
+  margin: 0;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.home-info-card {
+  display: grid;
+  gap: 8px;
+}
+
+.home-safety-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.home-safety-strip > div:first-child {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
 .eyebrow {
   color: var(--accent) !important;
   font-size: 0.78rem;
@@ -1448,6 +1569,16 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
+  .demo-flow-grid,
+  .home-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-safety-strip {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .trend-chart-grid {
     grid-template-columns: 1fr;
   }
@@ -1493,7 +1624,9 @@ button:disabled {
 
   .detail-actions,
   .form-actions,
-  .success-actions {
+  .success-actions,
+  .home-actions,
+  .home-safety-actions {
     width: 100%;
     justify-content: stretch;
   }
@@ -1501,6 +1634,8 @@ button:disabled {
   .detail-actions > *,
   .form-actions > *,
   .success-actions > *,
+  .home-actions > *,
+  .home-safety-actions > *,
   .ai-feedback-heading .primary-button {
     flex: 1 1 auto;
   }

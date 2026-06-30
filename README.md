@@ -6,6 +6,25 @@ MindTrace 是面向成年人的个人情绪、压力、睡眠和生活事件记�
 
 阶段 3B 使用官方 `@google/genai` 2.10.0 的无状态 `models.generateContent` API。仓库不包含真实 API Key，自动化测试不调用 Gemini。未同时配置 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 时，普通反馈继续返回明确的 `PROVIDER_NOT_CONFIGURED` 固定降级。阶段 3C 在 `/zh-CN/entries/[entryId]` 提供按需反馈和独立同意流程；反馈不持久化。独立模型安全分类器、建议效果闭环、支付、30 天报告、导出和账户删除仍未实现。
 
+## Stage 5A MVP demo flow
+
+阶段 5A 只做 MVP 体验打磨与演示准备，不新增付费、部署、聊天陪伴、PDF 报告或真实 Gemini 批量调用。默认本地和 CI 仍使用 Firebase Emulator、Fake Provider、SDK mock 与虚构 `example.test` 用户数据。
+
+推荐演示路径：
+
+1. 打开 `/zh-CN/register`，注册一个虚构测试用户。
+2. 完成基础 onboarding：成年确认、产品边界同意、隐私说明同意和时区设置。
+3. 进入 `/zh-CN` 总览页，说明 MindTrace 是记录、趋势和反思辅助工具，不是医疗诊断或治疗工具。
+4. 到 `/zh-CN/today` 创建一条虚构日记记录。
+5. 到 `/zh-CN/history` 查看历史列表和记录详情。
+6. 到 `/zh-CN/trends` 查看最近 7 个本地日期趋势；缺失日期显示为空，不伪造为 0。
+7. 到 `/zh-CN/long-term` 查看 7/14/30 天长期摘要；数据不足时会提示先记录几天日记。
+8. 到 `/zh-CN/plans` 创建一个手动计划并添加行动项。
+9. 展示 AI 反馈、AI 计划建议和 AI 长期洞察入口：这些功能仅供反思参考，需要独立 AI 同意，不会自动保存计划，也不会替用户做决定。
+10. 打开产品边界和安全资源页面，说明隐私、安全和非医疗边界。
+
+真实 Gemini 只在显式配置 `GEMINI_API_KEY` 与 `GEMINI_MODEL` 后通过本地 smoke test 单独验证；常规测试、E2E 和 CI 不运行真实 Gemini 请求，也不需要真实 API Key。
+
 ## Windows 环境要求
 
 - Node.js 24
