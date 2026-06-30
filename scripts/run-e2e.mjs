@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import http from "node:http";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -65,6 +66,37 @@ function waitForPort(port, host, timeoutMs) {
 
     tryConnect();
   });
+}
+
+function requestStatus(url) {
+  return new Promise((resolve) => {
+    const request = http.get(url, (response) => {
+      response.resume();
+      response.once("end", () => resolve(response.statusCode ?? 0));
+    });
+
+    request.setTimeout(2_000, () => {
+      request.destroy();
+      resolve(0);
+    });
+    request.once("error", () => resolve(0));
+  });
+}
+
+async function waitForHttpStatus(url, expectedStatus, timeoutMs) {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt <= timeoutMs) {
+    const status = await requestStatus(url);
+
+    if (status === expectedStatus) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  throw new Error(`Timed out waiting for ${url} to return ${expectedStatus}`);
 }
 
 function run(command, args) {
@@ -173,6 +205,7 @@ try {
   });
 
   await waitForPort(3000, "127.0.0.1", 120_000);
+  await waitForHttpStatus("http://127.0.0.1:3000/zh-CN/login", 200, 120_000);
 
   const result = await run(playwrightBin, playwrightArgs);
   await shutdown(result.code);

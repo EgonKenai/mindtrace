@@ -10,6 +10,44 @@ MindTrace is a personal MVP for adult mood, stress, sleep, and life-event journa
 
 It should be presented as a personal MVP or hackathon/portfolio project, not as an already launched medical or commercial product.
 
+## Copy-Ready Concise Versions
+
+### 中文 3 行版本
+
+MindTrace 是一个个人全栈 MVP，用于成年人的情绪、压力、睡眠和生活事件记录。
+它支持日记 CRUD、历史分页、7 天趋势、长期摘要、手动行动计划和可选 AI 反思草稿。
+项目重点是服务端授权、隐私最小化、AI 安全校验、Firebase Emulator 测试和可复现本地 demo；它不是医疗诊断或治疗产品。
+
+### English 3-Line Version
+
+MindTrace is a personal full-stack MVP for adult mood, stress, sleep, and life-event journaling.
+It includes journal CRUD, paginated history, 7-day trends, long-term summaries, manual plans, and optional AI reflection drafts.
+The project emphasizes server-side authorization, data minimization, AI safety validation, Firebase Emulator testing, and reproducible local demos; it is not a medical or therapy product.
+
+### 中文简历 Bullet 版本
+
+- 独立实现 MindTrace 全栈 MVP：Next.js App Router、TypeScript strict、Firebase Auth、Firestore Admin SDK、日记 CRUD、趋势聚合、长期摘要和行动计划。
+- 设计可选 AI 反思流程：独立 AI 同意、服务端 Gemini adapter、最小化 Provider 输入、严格 JSON schema、本地安全校验和安全降级。
+- 建立完整质量保障：Vitest 单元测试、Firebase Emulator 集成测试、Playwright E2E、响应式检查、GitHub Actions CI 和虚构数据 demo flow。
+
+### English Resume Bullet Version
+
+- Built MindTrace, a full-stack Next.js and Firebase journaling MVP with strict TypeScript, secure session-scoped APIs, Firestore repositories, journal CRUD, trend aggregation, long-term summaries, and manual plans.
+- Designed an optional AI reflection pipeline with independent AI consent, a server-only Gemini adapter, minimized Provider input, strict JSON schemas, local safety validation, and safe fallbacks.
+- Implemented quality coverage with Vitest unit tests, Firebase Emulator integration tests, Playwright E2E, responsive checks, GitHub Actions CI, and reproducible fictional-data demo flows.
+
+### 60-Second Interview Pitch
+
+MindTrace is a personal MVP I built to explore how to combine private journaling, trend review, and optional AI assistance without turning the product into diagnosis or therapy. The core flow is simple: a user registers, accepts basic product and privacy boundaries, records mood, stress, energy, sleep, tags, and notes, then reviews history, seven-day trends, long-term summaries, and manual plans. AI features are deliberately optional: they require separate AI data processing consent, use minimized inputs, and only produce low-risk reflection drafts or plan suggestions that the user must confirm. Technically, the project is a modular Next.js monolith with Firebase Auth, Firestore through Admin SDK, strict schemas, server-scoped repositories, Firebase Emulator integration tests, Playwright E2E, and CI. The result is demo-ready locally, but it is not deployed, not commercialized, and not a medical product.
+
+### Technical Highlights Talk Track
+
+The engineering focus was authorization, data modeling, and deterministic behavior before AI. Every user-data API derives identity from the verified server session and rejects client-supplied owner fields. Firestore access is routed through service and repository layers, while browser direct access to business collections remains deny-by-default. Journal history uses stable cursor pagination, trends and long-term summaries use saved `localDate` values rather than server UTC grouping, and tests cover cross-user isolation, invalid inputs, pagination, time-zone boundaries, and responsive flows. CI uses Firebase Emulator and fictional users rather than real projects or secrets.
+
+### AI Safety Design Talk Track
+
+AI is treated as a constrained optional subsystem, not the center of the product. Core journaling works without AI consent. Before Provider calls, the service checks independent AI consent, runs local safety routing, minimizes input, and excludes identifiers such as uid, email, cookies, tokens, IP, Firestore paths, and full account profiles. Gemini code lives in server-only modules, and normal tests use Fake Provider or SDK mocks. Output must match strict schemas and pass local safety validation; malformed, unsafe, blocked, timed-out, or unavailable responses are discarded and replaced with safe fallback copy. Crisis and supportive responses are fixed locale text, not model-generated.
+
 ## What I Built
 
 Use this wording when presenting the project:

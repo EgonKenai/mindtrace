@@ -89,6 +89,7 @@ The project includes:
 - AI entry feedback UI with independent consent.
 - AI plan suggestion and AI long-term insight draft entry points.
 - Product boundary and safety resource pages.
+- Final demo checklist, submission summary, and portfolio notes for local demos and project review.
 
 ## Not Yet Complete
 
@@ -103,7 +104,7 @@ The project includes:
 
 ## Roadmap
 
-- Phase 5C or later: export/account deletion implementation and privacy hardening.
+- Future phase: export/account deletion implementation and privacy hardening.
 - Future phase: deployment checklist, production observability, and region/legal review.
 - Future phase: optional paid report or PDF flow, only after entitlement and privacy review.
 - Future phase: additional human-reviewed AI safety regression sets and real Gemini pre-release validation.
