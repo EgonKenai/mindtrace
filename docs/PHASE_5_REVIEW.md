@@ -49,3 +49,29 @@ AI 功能仍是低风险草稿或反思参考，不是医疗诊断、治疗、�
 ## 不适用
 
 - 医疗诊断、治疗建议、用药建议、自动危机干预、聊天陪伴、社区、私信、公开动态和 provider marketplace。
+
+## 阶段 5B：演示材料、作品集说明和提交准备
+
+阶段 5B 只完成项目展示材料、作品集说明和提交准备文档，没有新增产品功能、API、数据库结构、付费、部署或真实 Gemini 调用。
+
+| 验收项                         | 状态   | 依据                                                                               |
+| ------------------------------ | ------ | ---------------------------------------------------------------------------------- |
+| README 展示优化                | 已通过 | `README.md` 的项目概览、核心功能、技术栈、AI 安全边界、demo flow、当前状态和路线图 |
+| 项目亮点文档                   | 已通过 | `docs/PROJECT_OVERVIEW.md`                                                         |
+| Demo guide 完成                | 已通过 | `docs/DEMO_GUIDE.md`                                                               |
+| Portfolio notes 完成           | 已通过 | `docs/PORTFOLIO_NOTES.md`                                                          |
+| 项目路线图更新                 | 已通过 | `README.md`、`docs/PROJECT_OVERVIEW.md`、`docs/IMPLEMENTATION_PLAN.md`             |
+| 明确未部署                     | 已通过 | `README.md`、`docs/DEMO_GUIDE.md`、`docs/PROJECT_OVERVIEW.md`                      |
+| 明确未实现付费、PDF、账号删除  | 已通过 | `README.md`、`docs/PROJECT_OVERVIEW.md`、`docs/PORTFOLIO_NOTES.md`                 |
+| 明确未运行真实 Gemini 批量调用 | 已通过 | `README.md`、`docs/DEMO_GUIDE.md`、`docs/AI_SAFETY.md` 的既有边界                  |
+| MVP 可以用于演示但不是医疗产品 | 已通过 | `README.md`、`docs/DEMO_GUIDE.md`、`docs/PORTFOLIO_NOTES.md`、`docs/PRODUCT.md`    |
+
+### 阶段 5B 尚未验证
+
+- 真实生产部署、正式域名、Secret Manager、Cloud Run、监控与告警：阶段 5B 未部署。
+- 真实 Gemini 批量调用或真实长期报告生成：阶段 5B 不运行真实 Gemini 请求。
+- 付费、退款、发票、30 天 PDF 报告、数据导出和账号删除：阶段 5B 未实现。
+
+### 阶段 5B 不适用
+
+- 医疗诊断、治疗建议、用药建议、自动危机干预、聊天陪伴、社区、私信、公开动态、provider marketplace 和自动创建计划。
