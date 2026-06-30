@@ -451,6 +451,18 @@ interface BillingProvider {
 - 安全测试：跨用户 ID、越权修改、prompt injection、诊断/药物输出、危机语料、多语言变体。
 - 所有 fixtures 使用明显虚构、匿名数据。
 
+## 13.1 阶段 5A MVP 总览与导航
+
+阶段 5A 不新增后端集合、API、Provider 或持久化数据流。它只在现有模块上增加 MVP 总览与演示路径：
+
+- `/zh-CN`：已登录且完成基础产品同意的用户看到总览页；未登录仍跳转登录，未完成基础同意仍跳转 onboarding。
+- 主导航保留现有路由，并新增“总览”入口指向 `/zh-CN`。
+- 总览页链接到 `/today`、`/history`、`/trends`、`/long-term` 和 `/plans`，并明确 AI 功能仅供反思参考。
+- AI 反馈、AI 计划建议和 AI 长期洞察仍分别复用阶段 3/4 的 API、独立 AI 同意、Fake Provider/SDK mock 测试和服务端安全边界。
+- 数据不足、Provider 未配置、AI 未同意、网络失败和安全降级继续由各功能的现有客户端组件与服务端安全错误格式处理。
+
+本阶段未引入真实 Gemini 调用、真实 API Key、付费、部署、PDF 报告、聊天陪伴、自动危机干预或自动创建计划。
+
 ## 14. 部署拓扑
 
 - 开发：Next.js 本地服务 + Firebase Emulator Suite + 默认未配置 Provider；测试使用 AI fake adapter/SDK mock。

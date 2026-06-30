@@ -11,6 +11,7 @@ export const zhCN = {
     ariaLabel: "主导航",
     history: "历史",
     longTerm: "长期摘要",
+    overview: "总览",
     plans: "计划",
     productBoundary: "产品边界",
     safety: "安全资源",
@@ -81,9 +82,63 @@ export const zhCN = {
     },
   },
   home: {
-    todayTitle: "今日",
-    readyTitle: "账户已准备好",
-    pendingFeature: "今日记录尚未开放。",
+    eyebrow: "MVP 演示路径",
+    title: "从一次记录开始，看见趋势，再选择下一步",
+    intro:
+      "MindTrace 帮助成年人记录情绪、压力、精力、睡眠和生活事件，回看趋势与长期摘要。AI 相关内容仅供反思参考，不会自动替你做决定，也不是医疗诊断或治疗建议。",
+    actionsLabel: "总览页主要操作",
+    primaryAction: "记录今天",
+    secondaryAction: "查看历史",
+    demoTitle: "建议演示顺序",
+    demoIntro:
+      "如果数据还不够，可以先记录几天日记；趋势和长期摘要会明确显示空日期，不会伪造为 0。",
+    demoSteps: [
+      {
+        title: "记录状态",
+        body: "保存一条今日记录，包含评分、睡眠、事件标签和可选文字。",
+        href: "/zh-CN/today",
+      },
+      {
+        title: "回看历史",
+        body: "按发生时间倒序查看记录，列表只展示安全预览。",
+        href: "/zh-CN/history",
+      },
+      {
+        title: "查看 7 天趋势",
+        body: "按用户本地日期聚合同日多条记录，缺失日期保持为空。",
+        href: "/zh-CN/trends",
+      },
+      {
+        title: "查看长期摘要",
+        body: "切换 7、14、30 天窗口，查看非诊断性的低风险回顾。",
+        href: "/zh-CN/long-term",
+      },
+      {
+        title: "创建手动计划",
+        body: "先由用户创建和确认行动计划，AI 草稿不会自动保存为计划。",
+        href: "/zh-CN/plans",
+      },
+    ],
+    infoAriaLabel: "MindTrace 核心功能说明",
+    infoCards: [
+      {
+        title: "每日记录",
+        body: "同一天可以记录多次，系统使用服务端会话识别用户，不接受客户端传入的 ownerId。",
+      },
+      {
+        title: "趋势与摘要",
+        body: "趋势、长期摘要和计划都基于自己的记录生成，日期边界使用保存时的本地日期。",
+      },
+      {
+        title: "AI 低风险草稿",
+        body: "AI 反馈、计划建议和长期洞察都需要独立同意，只生成可选草稿或反思参考。",
+      },
+    ],
+    aiBoundaryTitle: "AI 仅供反思参考",
+    aiBoundaryBody:
+      "MindTrace 不提供诊断、治疗、用药或紧急响应。AI 功能默认使用测试配置；真实 Gemini 需要手动配置并单独验证。",
+    safetyAction: "查看安全资源",
+    boundaryAction: "查看产品边界",
   },
   journal: {
     today: {
@@ -152,7 +207,8 @@ export const zhCN = {
       intro: "按发生时间从新到旧查看记录，每次只加载一页。",
       loading: "正在加载历史记录…",
       emptyTitle: "还没有记录",
-      emptyBody: "完成第一条状态记录后，它会显示在这里。",
+      emptyBody:
+        "先去今日记录保存一条状态记录；之后它会出现在这里，列表只展示安全预览。",
       errorTitle: "无法加载历史记录",
       noMore: "已经显示全部记录。",
       noteEmpty: "没有文字记录",
@@ -198,7 +254,8 @@ export const zhCN = {
     errorTitle: "无法加载趋势",
     errorBody: "趋势数据暂时不可用，请稍后重试。",
     emptyTitle: "最近 7 天还没有记录",
-    emptyBody: "没有记录的日期会保留为空，不会显示为 0。",
+    emptyBody:
+      "先记录几天日记后再回来查看趋势。没有记录的日期会保留为空，不会显示为 0。",
     noData: "无记录",
     summaryTitle: (recordedDays: number, totalDays: number) =>
       `${totalDays} 天中有 ${recordedDays} 天留下记录`,
@@ -247,7 +304,7 @@ export const zhCN = {
       "数值字段使用窗口内全部记录的算术平均值；缺失日期保留为空，不会显示为 0。",
     insufficientTitle: "数据仍然不足",
     insufficientBody:
-      "这个窗口内还没有可汇总的记录。继续记录后，这里会显示低风险、非诊断性的回顾。",
+      "这个窗口内还没有可汇总的记录。先记录几天日记后，这里会显示低风险、非诊断性的回顾。",
     commonTagsTitle: "常见生活事件",
     noTags: "暂无标签可汇总。",
     patternsTitle: "简短模式",
@@ -261,7 +318,7 @@ export const zhCN = {
     insights: {
       title: "AI 长期洞察草稿",
       intro:
-        "可选功能：AI 只会基于长期摘要生成自我反思草稿，不是医疗建议，也不会自动创建计划或替你做决定。",
+        "可选功能：AI 只会基于长期摘要生成自我反思草稿，仅供反思参考，不是医疗建议，也不会自动创建计划或替你做决定。",
       disclaimer: "AI 洞察仅供自我反思参考，不是诊断、治疗或用药建议。",
       noAutoPlan: "保存洞察只会保留这份草稿，不会自动创建行动计划。",
       generate: "生成长期洞察草稿",
@@ -299,7 +356,8 @@ export const zhCN = {
       "创建手动计划和简单行动项。阶段 4A 不会让 AI 自动创建计划，未来 AI 建议也必须由用户确认后才保存。",
     loading: "正在加载计划…",
     emptyTitle: "还没有计划",
-    emptyBody: "创建一个手动计划后，它会显示在这里。",
+    emptyBody:
+      "可以先创建一个手动计划。AI 计划建议只是可选草稿，保存前必须由你确认。",
     errorTitle: "无法加载计划",
     errorBody: "计划暂时不可用，请稍后重试。",
     noDescription: "没有描述。",
@@ -322,8 +380,8 @@ export const zhCN = {
     suggestions: {
       title: "AI 计划建议草稿",
       intro:
-        "可选功能：AI 只会根据长期摘要生成草稿，不会自动创建计划。保存前需要你确认。",
-      disclaimer: "AI 建议仅供参考，不是医疗建议。",
+        "可选功能：AI 只会根据长期摘要生成计划建议草稿，仅供反思参考，不会自动创建计划。保存前需要你确认。",
+      disclaimer: "AI 建议仅供反思参考，不是诊断、治疗或医疗建议。",
       windowLabel: "摘要窗口",
       generate: "生成计划建议草稿",
       generating: "正在生成草稿",
@@ -373,7 +431,8 @@ export const zhCN = {
   aiFeedback: {
     eyebrow: "可选功能",
     title: "AI 支持性反馈",
-    intro: "你可以选择让 AI 对这条记录生成一段简短反思和至多一条低风险建议。",
+    intro:
+      "你可以选择让 AI 对这条记录生成一段简短反思和至多一条低风险建议，仅供反思参考。",
     disclaimer:
       "这是一条记录辅助信息，不是诊断、治疗或用药建议，也不能替代专业人员或紧急服务。",
     actions: {

@@ -193,6 +193,14 @@ API 未知异常继续使用统一 `INTERNAL_ERROR`，不返回内部消息。
 
 当前阶段自动化测试使用 Fake Provider 和浏览器 route mock，不运行真实 Gemini 长期洞察请求。真实 Gemini 长期洞察 smoke test、完整 AI 长报告、PDF、付费和部署仍为后续待验证事项。
 
+## 12.1 阶段 5A MVP 展示边界
+
+阶段 5A 只打磨 AI 入口、说明文案和演示路径，不新增模型能力或放宽任何安全规则。页面文案统一说明 AI 反馈、AI 计划建议和 AI 长期洞察仅供反思参考，不是诊断、治疗、心理咨询、用药建议或紧急响应。
+
+AI 入口出现在记录详情、计划和长期摘要页面，但入口可见不代表自动调用 Provider。未接受独立 AI 数据处理说明时，Provider 调用数仍为 0；拒绝 AI 同意不影响日记、历史、趋势、长期摘要或手动计划。AI 计划建议和长期洞察仍是草稿，保存或转为计划前必须由用户确认。
+
+MVP demo、E2E 和 CI 使用 Fake Provider、SDK mock、浏览器 route mock 与虚构内容，不运行真实 Gemini 请求，不打印 prompt、Gemini 原始输出、API Key、Cookie、token、uid、email 或完整日记正文。
+
 ## 13. 已知限制与上线前事项
 
 - 确定性规则不能识别所有危机表达，不能作为临床判断依据。

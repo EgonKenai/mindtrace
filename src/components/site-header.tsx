@@ -16,6 +16,7 @@ export async function SiteHeader() {
         <nav aria-label={zhCN.navigation.ariaLabel} className="site-nav">
           {user && (
             <>
+              <Link href="/zh-CN">{zhCN.navigation.overview}</Link>
               <Link href="/zh-CN/today">{zhCN.navigation.today}</Link>
               <Link href="/zh-CN/history">{zhCN.navigation.history}</Link>
               <Link href="/zh-CN/trends">{zhCN.navigation.trends}</Link>
