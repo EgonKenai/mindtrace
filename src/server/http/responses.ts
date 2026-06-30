@@ -26,6 +26,7 @@ const safeRequestFieldNames = new Set([
   "dueDate",
   "summaryWindow",
   "suggestionId",
+  "insightId",
 ]);
 
 function getSafeValidationFields(

@@ -178,7 +178,22 @@ API 未知异常继续使用统一 `INTERNAL_ERROR`，不返回内部消息。
 
 当前阶段自动化测试使用 Fake Provider 和 SDK/浏览器 mock，不运行真实 Gemini 计划建议请求。真实 Gemini 计划建议 smoke test、完整 AI 长报告和 AI 自动生成计划属于后续阶段，尚未验证。
 
-## 12. 已知限制与上线前事项
+## 12. 阶段 4C-1 AI 长期洞察草稿
+
+阶段 4C-1 的 AI 长期洞察只生成草稿，用于低风险自我反思。它不是医疗建议、诊断、治疗计划、危机干预、PDF 报告或付费报告，也不会自动创建正式计划。
+
+洞察生成复用阶段 3 的安全分层原则：
+
+- 数据不足时返回 `insufficient_data`，Provider 调用数为 0。
+- 未接受当前 AI 数据处理说明时返回 `AI_CONSENT_REQUIRED`，Provider 调用数为 0。
+- 本地安全路由发现高风险或危机信号时返回安全降级，不生成普通洞察。
+- Provider 输入只包含长期摘要聚合字段，不包含完整日记正文、完整 prompt、uid、email、Cookie、token、IP、Firestore 路径、完整历史记录或账户资料。
+- Provider 输出必须通过 long-term insight strict schema 和本地安全校验；诊断、用药、治疗承诺、绝对化语言、危机处理承诺、HTML/脚本和缺少不确定性表达都会被拒绝。
+- 被拒绝输出整体丢弃，不截断修补，不显示原始 Provider 输出或原始错误。
+
+当前阶段自动化测试使用 Fake Provider 和浏览器 route mock，不运行真实 Gemini 长期洞察请求。真实 Gemini 长期洞察 smoke test、完整 AI 长报告、PDF、付费和部署仍为后续待验证事项。
+
+## 13. 已知限制与上线前事项
 
 - 确定性规则不能识别所有危机表达，不能作为临床判断依据。
 - 当前只有基础中英文确定性规则，不包含独立模型安全分类器。

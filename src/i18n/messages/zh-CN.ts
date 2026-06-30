@@ -258,6 +258,39 @@ export const zhCN = {
     missingState: "状态",
     noMissingDays: "当前窗口内没有缺失日期。",
     noEntryForDay: "无记录",
+    insights: {
+      title: "AI 长期洞察草稿",
+      intro:
+        "可选功能：AI 只会基于长期摘要生成自我反思草稿，不是医疗建议，也不会自动创建计划或替你做决定。",
+      disclaimer: "AI 洞察仅供自我反思参考，不是诊断、治疗或用药建议。",
+      noAutoPlan: "保存洞察只会保留这份草稿，不会自动创建行动计划。",
+      generate: "生成长期洞察草稿",
+      generating: "正在生成洞察",
+      save: "保存洞察",
+      saving: "正在保存",
+      dismiss: "忽略洞察",
+      dismissing: "正在忽略",
+      historyTitle: "历史洞察草稿",
+      emptyHistory: "还没有长期洞察草稿。",
+      patternsTitle: "可能的模式",
+      strengthsTitle: "可以保留的部分",
+      watchPointsTitle: "可以继续观察",
+      suggestionsTitle: "温和建议",
+      consentRequired:
+        "需要先接受独立 AI 数据处理说明，才会向 AI Provider 发送最小化长期摘要。",
+      insufficientData:
+        "当前窗口数据不足，系统不会调用 AI Provider，也不会生成长期洞察草稿。",
+      fallback:
+        "本次没有生成可用洞察。系统已安全停止，不会显示 Provider 原始输出。",
+      generatedStatus: "已生成洞察草稿，保存前请确认内容是否适合你。",
+      savedStatus: "洞察已保存。",
+      dismissedStatus: "洞察已忽略。",
+      errors: {
+        generic: "长期洞察暂时不可用，请稍后重试。",
+        saveFailed: "洞察未能保存，请稍后重试。",
+        dismissFailed: "洞察未能忽略，请稍后重试。",
+      },
+    },
   },
   plans: {
     eyebrow: "行动计划",

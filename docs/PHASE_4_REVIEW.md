@@ -88,3 +88,35 @@
 ### 阶段 4B-1 不适用
 
 - 完整 AI 长报告、30 天 PDF、付费、部署、聊天陪伴、医疗诊断、自动危机干预和 AI 自动创建计划。
+
+## 阶段 4C-1：AI 长期洞察报告草稿
+
+范围：阶段 4C-1 只实现基于 7/14/30 天长期摘要的 AI 长期洞察草稿基础、保存和忽略流程。它不实现真实 Gemini 长期洞察 smoke test、完整 AI 长报告、30 天 PDF、付费、部署、聊天陪伴、医疗诊断、自动危机干预、自动创建计划、阶段 5 或阶段 6。
+
+### 已完成
+
+- AI 长期洞察草稿数据结构与 Firestore 路径 `analyses/{uid}/longTermInsights/{insightId}`。
+  依据：`src/features/long-term/model.ts`、`src/server/repositories/long-term-insight-repository.ts`。
+- 洞察生成 API、列表 API、详情 API、保存 API 和忽略 API。
+  依据：`src/app/api/v1/long-term/insights/**/route.ts`、`tests/integration/long-term-plans.integration.test.ts`。
+- AI 输入最小化，不包含完整日记正文、uid、email、Cookie、token、IP 或 Firestore 路径。
+  依据：`buildProviderInput`、`long-term-insight-service.test.ts`、集成测试中的 provider input 断言。
+- 数据不足、AI 同意缺失和高风险安全路由不会调用 Provider。
+  依据：`long-term-insight-service.test.ts` 与 `long-term-plans.integration.test.ts`。
+- Provider 输出通过 strict schema 与本地安全校验；诊断、用药、治疗承诺、绝对化语言、HTML 和缺少不确定性表达会被拒绝。
+  依据：`long-term-insight-output.test.ts`。
+- save insight 只把草稿状态改为 `saved`，不会自动创建计划；dismiss 只把草稿状态改为 `dismissed`。
+  依据：`long-term-plans.integration.test.ts`。
+- `/zh-CN/long-term` 最小 UI 支持生成、AI 同意缺失、数据不足、安全降级、保存、忽略和历史列表。
+  依据：`src/features/long-term/components/long-term-summary-dashboard.tsx`、`tests/e2e/long-term-plans.spec.ts`。
+- 浏览器客户端仍不能直接读写 insight 集合。
+  依据：`tests/integration/firestore-rules.integration.test.ts`。
+
+### 尚未验证
+
+- 真实 Gemini 长期洞察 smoke test 尚未运行；当前阶段自动化测试只使用 Fake Provider 或浏览器 mock。
+- 768px 和 1280px 的阶段 4C-1 独立手工视口检查需在最终本地验收中补记。
+
+### 阶段 4C-1 不适用
+
+- 完整 AI 长报告、30 天 PDF、付费、部署、邮件通知、聊天陪伴、医疗诊断、自动危机干预、自动创建计划、阶段 5 和阶段 6。

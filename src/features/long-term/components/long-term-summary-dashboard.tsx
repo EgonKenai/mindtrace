@@ -1,17 +1,29 @@
 "use client";
 
-import { FileText, LoaderCircle, RefreshCw } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  LoaderCircle,
+  RefreshCw,
+  Sparkles,
+  XCircle,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import {
   LONG_TERM_SUMMARY_WINDOWS,
+  type LongTermInsightDraft,
   type LongTermSummary,
   type LongTermSummaryWindow,
 } from "@/features/long-term/model";
 import {
+  dismissLongTermInsightRequest,
+  generateLongTermInsightRequest,
   getLongTermSummaryRequest,
+  listLongTermInsightsRequest,
   LongTermSummaryApiError,
+  saveLongTermInsightRequest,
 } from "@/features/long-term/long-term-api";
 import {
   formatLocalDateLong,
@@ -25,11 +37,74 @@ function renderAverage(value: number | null, unit = ""): string {
     : `${formatTrendNumber(value)}${unit}`;
 }
 
+function renderInsightSections(insight: LongTermInsightDraft) {
+  return (
+    <div className="long-term-insight-draft">
+      <div>
+        <h3>{insight.title}</h3>
+        <p>{insight.overview}</p>
+      </div>
+
+      <section>
+        <h4>{zhCN.longTerm.insights.patternsTitle}</h4>
+        <ul>
+          {insight.patterns.map((pattern) => (
+            <li key={`${pattern.title}-${pattern.confidence}`}>
+              <strong>{pattern.title}</strong>
+              <span>{pattern.description}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <h4>{zhCN.longTerm.insights.strengthsTitle}</h4>
+        <ul>
+          {insight.strengths.map((strength) => (
+            <li key={strength}>{strength}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <h4>{zhCN.longTerm.insights.watchPointsTitle}</h4>
+        <ul>
+          {insight.watchPoints.map((watchPoint) => (
+            <li key={watchPoint}>{watchPoint}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <h4>{zhCN.longTerm.insights.suggestionsTitle}</h4>
+        <ul>
+          {insight.gentleSuggestions.map((suggestion) => (
+            <li key={`${suggestion.suggestedActionType}-${suggestion.title}`}>
+              <strong>{suggestion.title}</strong>
+              <span>{suggestion.description}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
+}
+
 export function LongTermSummaryDashboard() {
   const router = useRouter();
   const [selectedWindow, setSelectedWindow] =
     useState<LongTermSummaryWindow>(7);
   const [summary, setSummary] = useState<LongTermSummary | null>(null);
+  const [insights, setInsights] = useState<LongTermInsightDraft[]>([]);
+  const [activeInsight, setActiveInsight] =
+    useState<LongTermInsightDraft | null>(null);
+  const [insightStatusMessage, setInsightStatusMessage] = useState<
+    string | null
+  >(null);
+  const [insightError, setInsightError] = useState<string | null>(null);
+  const [insightLoading, setInsightLoading] = useState(false);
+  const [insightSaving, setInsightSaving] = useState(false);
+  const [insightDismissing, setInsightDismissing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -108,6 +183,106 @@ export function LongTermSummaryDashboard() {
 
     return () => controller.abort();
   }, [redirectForAccessError, selectedWindow]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void listLongTermInsightsRequest(controller.signal)
+      .then((result) => setInsights(result))
+      .catch((requestError: unknown) => {
+        if (
+          requestError instanceof LongTermSummaryApiError &&
+          redirectForAccessError(requestError)
+        ) {
+          return;
+        }
+      });
+
+    return () => controller.abort();
+  }, [redirectForAccessError]);
+
+  const handleGenerateInsight = async () => {
+    setInsightLoading(true);
+    setInsightError(null);
+    setInsightStatusMessage(null);
+
+    try {
+      const result = await generateLongTermInsightRequest(selectedWindow);
+
+      if (result.status === "generated" && result.insight) {
+        setActiveInsight(result.insight);
+        setInsights((current) => [
+          result.insight as LongTermInsightDraft,
+          ...current.filter((insight) => insight.id !== result.insight?.id),
+        ]);
+        setInsightStatusMessage(zhCN.longTerm.insights.generatedStatus);
+        return;
+      }
+
+      setActiveInsight(null);
+      setInsightStatusMessage(
+        result.status === "insufficient_data"
+          ? zhCN.longTerm.insights.insufficientData
+          : zhCN.longTerm.insights.fallback,
+      );
+    } catch (requestError) {
+      if (
+        requestError instanceof LongTermSummaryApiError &&
+        requestError.code === "AI_CONSENT_REQUIRED"
+      ) {
+        setInsightStatusMessage(zhCN.longTerm.insights.consentRequired);
+        return;
+      }
+
+      setInsightError(zhCN.longTerm.insights.errors.generic);
+    } finally {
+      setInsightLoading(false);
+    }
+  };
+
+  const handleSaveInsight = async () => {
+    if (!activeInsight) {
+      return;
+    }
+
+    setInsightSaving(true);
+    setInsightError(null);
+
+    try {
+      const insight = await saveLongTermInsightRequest(activeInsight.id);
+      setActiveInsight(insight);
+      setInsights((current) =>
+        current.map((item) => (item.id === insight.id ? insight : item)),
+      );
+      setInsightStatusMessage(zhCN.longTerm.insights.savedStatus);
+    } catch {
+      setInsightError(zhCN.longTerm.insights.errors.saveFailed);
+    } finally {
+      setInsightSaving(false);
+    }
+  };
+
+  const handleDismissInsight = async () => {
+    if (!activeInsight) {
+      return;
+    }
+
+    setInsightDismissing(true);
+    setInsightError(null);
+
+    try {
+      const insight = await dismissLongTermInsightRequest(activeInsight.id);
+      setActiveInsight(insight);
+      setInsights((current) =>
+        current.map((item) => (item.id === insight.id ? insight : item)),
+      );
+      setInsightStatusMessage(zhCN.longTerm.insights.dismissedStatus);
+    } catch {
+      setInsightError(zhCN.longTerm.insights.errors.dismissFailed);
+    } finally {
+      setInsightDismissing(false);
+    }
+  };
 
   return (
     <div className="long-term-dashboard">
@@ -284,6 +459,134 @@ export function LongTermSummaryDashboard() {
                 </tbody>
               </table>
             </div>
+          </section>
+
+          <section
+            aria-labelledby="long-term-insight-title"
+            className="long-term-insight-panel"
+          >
+            <div className="trend-summary">
+              <Sparkles aria-hidden="true" size={26} />
+              <div>
+                <h2 id="long-term-insight-title">
+                  {zhCN.longTerm.insights.title}
+                </h2>
+                <p>{zhCN.longTerm.insights.intro}</p>
+                <p className="trend-aggregation-note">
+                  {zhCN.longTerm.insights.disclaimer}
+                </p>
+                <p className="trend-aggregation-note">
+                  {zhCN.longTerm.insights.noAutoPlan}
+                </p>
+              </div>
+            </div>
+
+            <div className="plan-suggestion-controls">
+              <label className="field" htmlFor="long-term-insight-window">
+                <span>{zhCN.plans.suggestions.windowLabel}</span>
+                <select
+                  id="long-term-insight-window"
+                  onChange={(event) =>
+                    setSelectedWindow(
+                      Number(event.target.value) as LongTermSummaryWindow,
+                    )
+                  }
+                  value={selectedWindow}
+                >
+                  {LONG_TERM_SUMMARY_WINDOWS.map((window) => (
+                    <option key={window} value={window}>
+                      {zhCN.longTerm.windowLabel(window)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                className="primary-button"
+                disabled={insightLoading}
+                onClick={() => void handleGenerateInsight()}
+                type="button"
+              >
+                {insightLoading && (
+                  <LoaderCircle
+                    aria-hidden="true"
+                    className="button-spinner"
+                    size={18}
+                  />
+                )}
+                {insightLoading
+                  ? zhCN.longTerm.insights.generating
+                  : zhCN.longTerm.insights.generate}
+              </button>
+            </div>
+
+            {insightStatusMessage && (
+              <div className="ai-feedback-notice" role="status">
+                <CheckCircle2 aria-hidden="true" size={20} />
+                <p>{insightStatusMessage}</p>
+              </div>
+            )}
+
+            {insightError && (
+              <div className="ai-feedback-error" role="alert">
+                <XCircle aria-hidden="true" size={20} />
+                <p>{insightError}</p>
+              </div>
+            )}
+
+            {activeInsight && (
+              <>
+                {renderInsightSections(activeInsight)}
+                {activeInsight.status === "draft" && (
+                  <div className="form-actions">
+                    <button
+                      className="secondary-button"
+                      disabled={insightDismissing || insightSaving}
+                      onClick={() => void handleDismissInsight()}
+                      type="button"
+                    >
+                      {insightDismissing
+                        ? zhCN.longTerm.insights.dismissing
+                        : zhCN.longTerm.insights.dismiss}
+                    </button>
+                    <button
+                      className="primary-button"
+                      disabled={insightDismissing || insightSaving}
+                      onClick={() => void handleSaveInsight()}
+                      type="button"
+                    >
+                      {insightSaving
+                        ? zhCN.longTerm.insights.saving
+                        : zhCN.longTerm.insights.save}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
+            <section className="long-term-insight-history">
+              <h3>{zhCN.longTerm.insights.historyTitle}</h3>
+              {insights.length === 0 ? (
+                <p>{zhCN.longTerm.insights.emptyHistory}</p>
+              ) : (
+                <ul>
+                  {insights.map((insight) => (
+                    <li key={insight.id}>
+                      <button
+                        className="secondary-button"
+                        onClick={() => {
+                          setActiveInsight(insight);
+                          setInsightStatusMessage(null);
+                          setInsightError(null);
+                        }}
+                        type="button"
+                      >
+                        {insight.title} - {insight.status}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </section>
         </section>
       )}

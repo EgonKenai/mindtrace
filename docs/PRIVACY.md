@@ -226,3 +226,13 @@ Provider 输入只使用长期摘要中的低风险聚合字段：窗口、记�
 用户点击“保存为计划”前，AI 不会自动创建正式计划。确认保存后，服务端通过计划服务创建 `plans/{uid}/items/{planId}` 和行动项，并把草稿标记为 `accepted`。忽略草稿只把状态标记为 `dismissed`。
 
 未来 JSON 导出和账户删除必须覆盖 `analyses/{uid}/planSuggestions`。阶段 4B-1 本身不实现导出、账户删除、真实 Gemini 计划建议 smoke test、完整 AI 长报告、支付、部署或聊天陪伴。
+
+## 16. 阶段 4C-1 AI 长期洞察草稿隐私说明
+
+阶段 4C-1 的长期洞察草稿是可选 AI 功能。拒绝 AI 数据处理说明后，日记、历史、趋势、长期摘要和手动计划仍可使用；生成洞察前服务端会再次验证当前 AI 数据处理说明已接受。
+
+Provider 输入只使用长期摘要中的低风险聚合字段：`summaryWindow`、`startDate`、`endDate`、`entryCount`、五项平均值、常见标签、非识别性模式和缺失日期。服务端不会向 Provider 发送完整日记正文、完整历史记录、uid、email、Cookie、token、IP、Firestore 路径、完整账户资料、完整 prompt 或 Gemini 原始输出。
+
+通过本地 schema 与安全校验后的洞察草稿保存到 `analyses/{uid}/longTermInsights/{insightId}`。草稿不包含完整日记正文、完整 prompt、Provider 原始错误或未验证模型输出。保存洞察只改变草稿状态为 `saved`，不会自动创建行动计划。
+
+未来 JSON 导出和账户删除必须覆盖 `analyses/{uid}/longTermInsights`。阶段 4C-1 不实现导出、账户删除、真实 Gemini 长期洞察 smoke test、PDF 报告、付费、部署或聊天陪伴。

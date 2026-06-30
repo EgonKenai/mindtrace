@@ -13,6 +13,12 @@ import { recordConsent } from "@/server/services/consent-service";
 import { createJournalEntry } from "@/server/services/journal-service";
 import { getLongTermSummary } from "@/server/services/long-term-summary-service";
 import {
+  dismissLongTermInsight,
+  generateLongTermInsight,
+  listLongTermInsights,
+  saveLongTermInsight,
+} from "@/server/services/long-term-insight-service";
+import {
   acceptPlanSuggestion,
   dismissPlanSuggestion,
   generatePlanSuggestion,
@@ -27,6 +33,7 @@ import {
   updatePlanAction,
 } from "@/server/services/plan-service";
 import { FakeAiPlanSuggestionProvider } from "../fixtures/fake-ai-plan-suggestion-provider";
+import { FakeAiLongTermInsightProvider } from "../fixtures/fake-ai-long-term-insight-provider";
 
 const baseEntry = {
   energy: 6,
@@ -333,6 +340,138 @@ describe("long-term summary and plans with Firebase emulators", () => {
       reasonCodes: ["PROVIDER_OUTPUT_INVALID"],
       status: "safe_fallback",
       suggestion: null,
+    });
+    expect(JSON.stringify(result)).not.toContain("secret raw output");
+  });
+
+  it("generates an AI long-term insight draft with consent and minimized provider input", async () => {
+    const userId = uniqueUserId("long-term-insight");
+    await grantProductAccess(userId, true);
+    await createJournalEntry(userId, baseEntry);
+
+    const provider = new FakeAiLongTermInsightProvider();
+    const result = await generateLongTermInsight(
+      userId,
+      { summaryWindow: 7 },
+      { provider },
+    );
+
+    expect(result).toMatchObject({
+      reasonCodes: ["NORMAL_SUMMARY_CONTENT"],
+      status: "generated",
+    });
+    expect(result.insight?.status).toBe("draft");
+    expect(provider.calls).toHaveLength(1);
+    expect(JSON.stringify(provider.calls[0])).not.toContain(baseEntry.note);
+    expect(JSON.stringify(provider.calls[0])).not.toMatch(
+      /uid|email|Cookie|token|Firestore/i,
+    );
+  });
+
+  it("does not call the insight provider without AI consent or sufficient data", async () => {
+    const noAiConsentUser = uniqueUserId("long-term-insight-no-ai");
+    await grantProductAccess(noAiConsentUser, false);
+    await createJournalEntry(noAiConsentUser, baseEntry);
+    const consentProvider = new FakeAiLongTermInsightProvider();
+
+    await expect(
+      generateLongTermInsight(
+        noAiConsentUser,
+        { summaryWindow: 7 },
+        { provider: consentProvider },
+      ),
+    ).rejects.toBeInstanceOf(AiProcessingConsentRequiredError);
+    expect(consentProvider.calls).toHaveLength(0);
+
+    const emptyUser = uniqueUserId("long-term-insight-empty");
+    await grantProductAccess(emptyUser, true);
+    const emptyProvider = new FakeAiLongTermInsightProvider();
+
+    await expect(
+      generateLongTermInsight(
+        emptyUser,
+        { summaryWindow: 7 },
+        { provider: emptyProvider },
+      ),
+    ).resolves.toMatchObject({ status: "insufficient_data" });
+    expect(emptyProvider.calls).toHaveLength(0);
+  });
+
+  it("keeps insight drafts scoped to their owner", async () => {
+    const userA = uniqueUserId("long-term-insight-a");
+    const userB = uniqueUserId("long-term-insight-b");
+    await grantProductAccess(userA, true);
+    await grantProductAccess(userB, true);
+    await createJournalEntry(userB, baseEntry);
+
+    const resultB = await generateLongTermInsight(
+      userB,
+      { summaryWindow: 7 },
+      { provider: new FakeAiLongTermInsightProvider() },
+    );
+
+    expect(await listLongTermInsights(userA)).toHaveLength(0);
+    await expect(
+      saveLongTermInsight(userA, resultB.insight?.id ?? "missing"),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
+    await expect(
+      dismissLongTermInsight(userA, resultB.insight?.id ?? "missing"),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+
+  it("saves and dismisses insight drafts without creating plans", async () => {
+    const saveUser = uniqueUserId("long-term-insight-save");
+    await grantProductAccess(saveUser, true);
+    await createJournalEntry(saveUser, baseEntry);
+    const generated = await generateLongTermInsight(
+      saveUser,
+      { summaryWindow: 7 },
+      { provider: new FakeAiLongTermInsightProvider() },
+    );
+
+    const saved = await saveLongTermInsight(
+      saveUser,
+      generated.insight?.id ?? "",
+    );
+    expect(saved.status).toBe("saved");
+    expect(await listPlans(saveUser)).toHaveLength(0);
+    await expect(
+      saveLongTermInsight(saveUser, generated.insight?.id ?? ""),
+    ).rejects.toThrow("INVALID_REQUEST");
+
+    const dismissUser = uniqueUserId("long-term-insight-dismiss");
+    await grantProductAccess(dismissUser, true);
+    await createJournalEntry(dismissUser, baseEntry);
+    const dismissedGenerated = await generateLongTermInsight(
+      dismissUser,
+      { summaryWindow: 7 },
+      { provider: new FakeAiLongTermInsightProvider() },
+    );
+    const dismissed = await dismissLongTermInsight(
+      dismissUser,
+      dismissedGenerated.insight?.id ?? "",
+    );
+    expect(dismissed.status).toBe("dismissed");
+    await expect(
+      saveLongTermInsight(dismissUser, dismissedGenerated.insight?.id ?? ""),
+    ).rejects.toThrow("INVALID_REQUEST");
+  });
+
+  it("uses safe fallback for malformed insight provider output without exposing internals", async () => {
+    const userId = uniqueUserId("long-term-insight-provider-error");
+    await grantProductAccess(userId, true);
+    await createJournalEntry(userId, baseEntry);
+
+    const result = await generateLongTermInsight(
+      userId,
+      { summaryWindow: 7 },
+      { provider: new FakeAiLongTermInsightProvider("secret raw output") },
+    );
+
+    expect(result).toMatchObject({
+      insight: null,
+      reasonCodes: ["PROVIDER_OUTPUT_INVALID"],
+      status: "safe_fallback",
     });
     expect(JSON.stringify(result)).not.toContain("secret raw output");
   });
