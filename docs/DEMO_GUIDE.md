@@ -2,6 +2,8 @@
 
 This guide is for a local portfolio, hackathon, or submission demo. Use only fictional data. Do not use real journal content, real users, or real Gemini credentials during the standard demo.
 
+For the final run-of-show checklist, see `docs/FINAL_DEMO_CHECKLIST.md`. For concise submission copy, see `docs/SUBMISSION_SUMMARY.md`.
+
 ## Demo Setup
 
 Prerequisites:

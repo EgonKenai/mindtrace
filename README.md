@@ -9,7 +9,7 @@ MindTrace 不是医疗产品，不提供疾病诊断、治疗、心理咨询、�
 | 项目维度     | 说明                                                                                              |
 | ------------ | ------------------------------------------------------------------------------------------------- |
 | 产品定位     | 成人情绪、压力、睡眠和生活事件记录与自我反思辅助工具                                              |
-| 当前阶段     | 阶段 5B：演示材料、作品集说明和提交准备                                                           |
+| 当前阶段     | 阶段 5C：最终演示检查与提交包装                                                                   |
 | 核心体验     | 注册/登录、基础同意、日记 CRUD、历史、7 天趋势、长期摘要、手动计划、AI 反馈/计划建议/长期洞察入口 |
 | AI 边界      | 服务端调用、最小化输入、独立 AI 同意、严格 schema 和本地安全校验；自动化测试不调用真实 Gemini     |
 | 默认运行方式 | 本地 Next.js + Firebase Emulator + Fake Provider/SDK mock                                         |
@@ -54,12 +54,14 @@ MindTrace 不是医疗产品，不提供疾病诊断、治疗、心理咨询、�
 
 - [Project overview](docs/PROJECT_OVERVIEW.md): one-page product, architecture, safety, and roadmap summary.
 - [Demo guide](docs/DEMO_GUIDE.md): step-by-step local MVP walkthrough for portfolio, hackathon, or review demos.
+- [Final demo checklist](docs/FINAL_DEMO_CHECKLIST.md): run-of-show checklist for local demos, judging, and interviews.
+- [Submission summary](docs/SUBMISSION_SUMMARY.md): concise project summary for Hackathon, XPRIZE-style, GitHub, or portfolio submission forms.
 - [Portfolio notes](docs/PORTFOLIO_NOTES.md): resume bullets, interview talking points, and technical tradeoffs.
-- [Phase 5 review](docs/PHASE_5_REVIEW.md): Stage 5A/5B acceptance notes and remaining unverified items.
+- [Phase 5 review](docs/PHASE_5_REVIEW.md): Stage 5A/5B/5C acceptance notes and remaining unverified items.
 
 ## Current Status And Roadmap
 
-Completed in the current MVP: account/session onboarding, versioned consent, journal CRUD, history, 7-day trends, deterministic long-term summaries, manual plans, optional AI feedback, AI plan suggestion drafts, AI long-term insight drafts, and demo-ready documentation.
+Completed in the current MVP: account/session onboarding, versioned consent, journal CRUD, history, 7-day trends, deterministic long-term summaries, manual plans, optional AI feedback, AI plan suggestion drafts, AI long-term insight drafts, demo-ready documentation, final demo checklist, and submission summary.
 
 Still intentionally out of scope: production deployment, payment, PDF reports, data export, account deletion, email notifications, chat companionship, medical diagnosis, automatic crisis intervention, and automatic plan creation.
 
