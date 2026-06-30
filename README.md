@@ -221,3 +221,16 @@ git diff --check
 阶段 4B-1 不包含完整 AI 长报告、AI 自动创建计划、真实 Gemini 计划建议 smoke test、支付、部署、聊天陪伴、医疗诊断或阶段 4C/5/6 功能。
 
 AI 安全设计、第三方处理边界和阶段 3 验收见 `docs/AI_SAFETY.md` 与 `docs/PHASE_3_REVIEW.md`。
+
+## 阶段 4C-1：AI 长期洞察报告草稿
+
+阶段 4C-1 新增基于 7/14/30 天长期摘要的 AI 长期洞察草稿。它是可选自我反思草稿，不是医疗建议、诊断、治疗计划、PDF 报告或付费报告，也不会自动创建行动计划。
+
+- API：`POST /api/v1/long-term/insights`、`GET /api/v1/long-term/insights`、`GET /api/v1/long-term/insights/[insightId]`、`POST /api/v1/long-term/insights/[insightId]/save`、`POST /api/v1/long-term/insights/[insightId]/dismiss`
+- 数据路径：`analyses/{uid}/longTermInsights/{insightId}`
+- 页面：`/zh-CN/long-term` 的 AI 长期洞察草稿区域
+- Provider 输入只包含长期摘要聚合字段：窗口、日期范围、记录数、五项平均值、常见标签、非识别性模式和缺失日期；不包含完整日记正文、uid、email、Cookie、token、IP、Firestore 路径、完整历史记录、完整 prompt 或 Gemini 原始输出。
+- 自动化测试使用 Fake Provider 和浏览器 route mock，不调用真实 Gemini，不需要真实 API Key。
+- 真实 Gemini 长期洞察 smoke test 尚未执行，后续上线前需单独验证。
+
+阶段 4C-1 不包含完整 AI 长报告、30 天 PDF、付费订阅、部署、邮件通知、聊天陪伴、医疗诊断、自动危机干预、自动创建计划、阶段 5 或阶段 6。

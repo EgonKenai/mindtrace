@@ -70,6 +70,10 @@ describe("Firestore client security rules", () => {
       database,
       "analyses/fictional-user/planSuggestions/suggestion-1",
     );
+    const longTermInsightRef = doc(
+      database,
+      "analyses/fictional-user/longTermInsights/insight-1",
+    );
 
     await assertFails(getDoc(feedbackRef));
     await assertFails(
@@ -83,6 +87,13 @@ describe("Firestore client security rules", () => {
       setDoc(planSuggestionRef, {
         status: "accepted",
         title: "client forged suggestion",
+      }),
+    );
+    await assertFails(getDoc(longTermInsightRef));
+    await assertFails(
+      setDoc(longTermInsightRef, {
+        status: "saved",
+        title: "client forged insight",
       }),
     );
   });

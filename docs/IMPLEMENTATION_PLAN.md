@@ -436,3 +436,19 @@
 - `analyses/{uid}/planSuggestions/{suggestionId}`：保存通过本地 strict schema 和安全校验后的草稿，不保存完整日记正文、完整 prompt 或 Gemini 原始输出。
 
 Provider 输入最小化为长期摘要统计字段、常见标签、非识别性模式和缺失日期；不得包含 uid、email、Cookie、token、IP、Firestore 路径、完整日记正文或完整历史条目。Provider 输出必须使用低风险、非诊断性措辞；不合规输出整体丢弃并返回安全降级。
+
+### 阶段 4C-1：AI 长期洞察报告草稿
+
+阶段 4C-1 建立基于 7/14/30 天长期摘要的 AI 长期洞察草稿能力，但不实现完整 AI 长报告、PDF、付费、部署、聊天陪伴、医疗诊断、自动危机干预或自动创建计划。
+
+已实现：
+
+- `POST /api/v1/long-term/insights`：生成长期洞察草稿。服务端从 session 获取 uid，复用产品准入、AI 独立同意、长期摘要、Provider 超时、strict schema 和输出安全校验。数据不足、未 AI 同意或高风险安全路由均不会调用 Provider。
+- `GET /api/v1/long-term/insights`：列出当前用户自己的洞察草稿。
+- `GET /api/v1/long-term/insights/[insightId]`：读取当前用户自己的洞察草稿。
+- `POST /api/v1/long-term/insights/[insightId]/save`：只把 `draft` 洞察标记为 `saved`，不自动创建计划。
+- `POST /api/v1/long-term/insights/[insightId]/dismiss`：只把 `draft` 洞察标记为 `dismissed`。
+- `/zh-CN/long-term` 最小 UI：生成、AI 同意缺失、数据不足、安全降级、保存、忽略和历史列表。
+- `analyses/{uid}/longTermInsights/{insightId}`：保存通过本地校验后的草稿结构，不保存完整日记正文、完整 prompt、Gemini 原始输出或 Provider 原始错误。
+
+Provider 输入最小化为长期摘要聚合字段：窗口、日期范围、记录数、五项平均值、常见标签、非识别性模式和缺失日期；不得包含完整 note、完整历史记录、uid、email、Cookie、token、IP、Firestore 路径或完整账户资料。自动化测试仅使用 Fake Provider 和浏览器 mock，不运行真实 Gemini。

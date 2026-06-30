@@ -494,3 +494,15 @@ interface BillingProvider {
 `POST /api/v1/plans/suggestions/[suggestionId]/accept` 是唯一会创建正式计划的 AI 草稿入口。它要求草稿仍为 `draft`，然后通过服务端计划服务创建 `sourceType: "ai_suggested"` 的正式计划和行动项，并把草稿标记为 `accepted`。AI Provider 不能直接写入 `plans` 集合。
 
 `POST /api/v1/plans/suggestions/[suggestionId]/dismiss` 只把当前用户自己的草稿标记为 `dismissed`。所有 suggestion API 都从服务端 session 获取 uid，状态变更继续执行 Origin/CSRF 防护，跨用户或不存在的草稿使用统一安全错误。
+
+## 17. 阶段 4C-1 AI 长期洞察草稿
+
+阶段 4C-1 在分析域新增 `analyses/{uid}/longTermInsights/{insightId}`。洞察草稿只保存通过本地 strict schema 与安全校验后的结构化字段，不保存完整日记正文、完整 prompt、Gemini 原始输出、uid、email、Cookie、token、IP 或 Firestore 路径。
+
+草稿字段包括 `summaryWindow`、`startDate`、`endDate`、`sourceSummarySnapshot`、`title`、`overview`、`patterns`、`strengths`、`watchPoints`、`gentleSuggestions`、`planSuggestionRefs`、`safetyLabel`、`status`、`generatedAt`、`updatedAt` 和 `schemaVersion`。`patterns` 只允许 `low` 或 `medium` confidence；`gentleSuggestions` 的 `riskLevel` 固定为 `low`。
+
+`POST /api/v1/long-term/insights` 复用 4A 长期摘要服务。数据不足时返回 `insufficient_data` 且 Provider 调用数为 0；未接受当前 AI 数据处理说明时返回 `AI_CONSENT_REQUIRED` 且 Provider 调用数为 0；本地安全路由发现高风险信号时返回安全降级，不生成普通洞察。
+
+Provider 输入仅包含长期摘要低风险聚合字段：窗口、日期范围、记录数、五项平均值、常见标签、非识别性 notablePatterns 和缺失日期。它不包含完整 note、完整历史记录、账户资料、uid、email、Cookie、token、IP、Firestore 路径、完整 prompt 或 Gemini 原始输出。
+
+`POST /api/v1/long-term/insights/[insightId]/save` 只把 `draft` 洞察标记为 `saved`，不会自动创建计划；`dismiss` 只把 `draft` 标记为 `dismissed`。`saved` 或 `dismissed` 洞察不能重复保存。所有方法都从服务端 session 获取 uid，repository 路径固定在当前用户下，不泄露资源不存在还是属于其他用户。

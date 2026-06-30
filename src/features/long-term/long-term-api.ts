@@ -1,4 +1,6 @@
 import type {
+  LongTermInsightDraft,
+  LongTermInsightGenerationResult,
   LongTermSummary,
   LongTermSummaryApiErrorPayload,
   LongTermSummaryWindow,
@@ -7,6 +9,22 @@ import type {
 interface LongTermSummaryResponse {
   data: {
     summary: LongTermSummary;
+  };
+}
+
+interface LongTermInsightGenerationResponse {
+  data: LongTermInsightGenerationResult;
+}
+
+interface LongTermInsightListResponse {
+  data: {
+    insights: LongTermInsightDraft[];
+  };
+}
+
+interface LongTermInsightResponse {
+  data: {
+    insight: LongTermInsightDraft;
   };
 }
 
@@ -23,12 +41,13 @@ export class LongTermSummaryApiError extends Error {
   }
 }
 
-export async function getLongTermSummaryRequest(
-  window: LongTermSummaryWindow,
-  signal?: AbortSignal,
-): Promise<LongTermSummary> {
-  const response = await fetch(`/api/v1/long-term/summary?window=${window}`, {
-    signal,
+async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, {
+    ...init,
+    headers: {
+      ...(init?.body ? { "content-type": "application/json" } : {}),
+      ...init?.headers,
+    },
   });
 
   if (!response.ok) {
@@ -37,12 +56,69 @@ export async function getLongTermSummaryRequest(
     try {
       payload = (await response.json()) as LongTermSummaryApiErrorPayload;
     } catch {
-      // Keep the public error to a stable code.
+      // Stable code and HTTP status are enough for presentation.
     }
 
     throw new LongTermSummaryApiError(response.status, payload);
   }
 
-  const payload = (await response.json()) as LongTermSummaryResponse;
+  return (await response.json()) as T;
+}
+
+export async function getLongTermSummaryRequest(
+  window: LongTermSummaryWindow,
+  signal?: AbortSignal,
+): Promise<LongTermSummary> {
+  const payload = await requestJson<LongTermSummaryResponse>(
+    `/api/v1/long-term/summary?window=${window}`,
+    { signal },
+  );
   return payload.data.summary;
+}
+
+export async function listLongTermInsightsRequest(
+  signal?: AbortSignal,
+): Promise<LongTermInsightDraft[]> {
+  const response = await requestJson<LongTermInsightListResponse>(
+    "/api/v1/long-term/insights",
+    { signal },
+  );
+
+  return response.data.insights;
+}
+
+export async function generateLongTermInsightRequest(
+  summaryWindow: LongTermSummaryWindow,
+): Promise<LongTermInsightGenerationResult> {
+  const response = await requestJson<LongTermInsightGenerationResponse>(
+    "/api/v1/long-term/insights",
+    {
+      method: "POST",
+      body: JSON.stringify({ summaryWindow }),
+    },
+  );
+
+  return response.data;
+}
+
+export async function saveLongTermInsightRequest(
+  insightId: string,
+): Promise<LongTermInsightDraft> {
+  const response = await requestJson<LongTermInsightResponse>(
+    `/api/v1/long-term/insights/${encodeURIComponent(insightId)}/save`,
+    { method: "POST" },
+  );
+
+  return response.data.insight;
+}
+
+export async function dismissLongTermInsightRequest(
+  insightId: string,
+): Promise<LongTermInsightDraft> {
+  const response = await requestJson<LongTermInsightResponse>(
+    `/api/v1/long-term/insights/${encodeURIComponent(insightId)}/dismiss`,
+    { method: "POST" },
+  );
+
+  return response.data.insight;
 }

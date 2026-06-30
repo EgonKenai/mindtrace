@@ -1005,6 +1005,7 @@ button:disabled {
 }
 
 .summary-grid section,
+.long-term-insight-panel,
 .plan-suggestion-panel,
 .plan-create-form,
 .plan-card {
@@ -1065,6 +1066,65 @@ button:disabled {
 
 .plan-suggestion-draft h3 {
   font-size: 1.15rem;
+}
+
+.long-term-insight-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.long-term-insight-panel select {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px 11px;
+}
+
+.long-term-insight-draft {
+  display: grid;
+  gap: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+}
+
+.long-term-insight-draft h3,
+.long-term-insight-draft h4,
+.long-term-insight-draft p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.long-term-insight-draft h3 {
+  font-size: 1.15rem;
+}
+
+.long-term-insight-draft ul,
+.long-term-insight-history ul {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0 0;
+  padding-left: 22px;
+}
+
+.long-term-insight-draft li {
+  overflow-wrap: anywhere;
+}
+
+.long-term-insight-draft li strong,
+.long-term-insight-draft li span {
+  display: block;
+}
+
+.long-term-insight-history h3,
+.long-term-insight-history p {
+  margin: 0;
+}
+
+.long-term-insight-history button {
+  max-width: 100%;
+  white-space: normal;
 }
 
 .plan-create-form textarea {

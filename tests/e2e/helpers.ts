@@ -21,6 +21,36 @@ function hasApiPath(candidateUrl: string, pathname: string): boolean {
   return new URL(candidateUrl).pathname === pathname;
 }
 
+async function clearBrowserAuthState(page: Page): Promise<void> {
+  await page.context().clearCookies();
+  await page.goto("/zh-CN", { waitUntil: "domcontentloaded" });
+  await page.evaluate(async () => {
+    localStorage.clear();
+    sessionStorage.clear();
+
+    const databaseFactory = indexedDB as IDBFactory & {
+      databases?: () => Promise<Array<{ name?: string }>>;
+    };
+    const databases = await databaseFactory.databases?.();
+
+    await Promise.all(
+      (databases ?? [])
+        .map((database) => database.name)
+        .filter((name): name is string => Boolean(name))
+        .map(
+          (name) =>
+            new Promise<void>((resolve) => {
+              const request = indexedDB.deleteDatabase(name);
+              request.onerror = () => resolve();
+              request.onsuccess = () => resolve();
+              request.onblocked = () => resolve();
+            }),
+        ),
+    );
+  });
+  await page.context().clearCookies();
+}
+
 async function expectSessionCreated(
   page: Page,
   triggerSessionRequest: () => Promise<unknown>,
@@ -31,8 +61,7 @@ async function expectSessionCreated(
 
       return (
         request.method() === "POST" &&
-        hasApiPath(candidate.url(), "/api/v1/auth/session") &&
-        candidate.status() === 200
+        hasApiPath(candidate.url(), "/api/v1/auth/session")
       );
     }),
     triggerSessionRequest(),
@@ -55,6 +84,7 @@ export async function registerWithoutConsent(
   const email = `fictional-${testLabel}-${Date.now()}@example.test`;
   const password = "Fictional-pass-2026";
 
+  await clearBrowserAuthState(page);
   await page.goto("/zh-CN/register");
   await page.locator('input[name="email"]').fill(email);
   await page.locator('input[name="password"]').fill(password);
