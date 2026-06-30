@@ -9,7 +9,7 @@ MindTrace 不是医疗产品，不提供疾病诊断、治疗、心理咨询、�
 | 项目维度     | 说明                                                                                              |
 | ------------ | ------------------------------------------------------------------------------------------------- |
 | 产品定位     | 成人情绪、压力、睡眠和生活事件记录与自我反思辅助工具                                              |
-| 当前阶段     | 阶段 5C：最终演示检查与提交包装                                                                   |
+| 当前阶段     | 阶段 6A：Demo assets / 截图录屏素材准备                                                           |
 | 核心体验     | 注册/登录、基础同意、日记 CRUD、历史、7 天趋势、长期摘要、手动计划、AI 反馈/计划建议/长期洞察入口 |
 | AI 边界      | 服务端调用、最小化输入、独立 AI 同意、严格 schema 和本地安全校验；自动化测试不调用真实 Gemini     |
 | 默认运行方式 | 本地 Next.js + Firebase Emulator + Fake Provider/SDK mock                                         |
@@ -56,12 +56,30 @@ MindTrace 不是医疗产品，不提供疾病诊断、治疗、心理咨询、�
 - [Demo guide](docs/DEMO_GUIDE.md): step-by-step local MVP walkthrough for portfolio, hackathon, or review demos.
 - [Final demo checklist](docs/FINAL_DEMO_CHECKLIST.md): run-of-show checklist for local demos, judging, and interviews.
 - [Submission summary](docs/SUBMISSION_SUMMARY.md): concise project summary for Hackathon, XPRIZE-style, GitHub, or portfolio submission forms.
+- [Screenshot plan](docs/SCREENSHOT_PLAN.md): manual screenshot checklist, recommended filenames, viewport sizes, and privacy guardrails.
+- [Video script](docs/VIDEO_SCRIPT.md): 30-second, 90-second, and 3-minute recording scripts with Chinese and English voiceover copy.
+- [Hackathon submission draft](docs/HACKATHON_SUBMISSION_DRAFT.md): editable English-first submission copy with a short Chinese explanation.
 - [Portfolio notes](docs/PORTFOLIO_NOTES.md): resume bullets, interview talking points, and technical tradeoffs.
 - [Phase 5 review](docs/PHASE_5_REVIEW.md): Stage 5A/5B/5C acceptance notes and remaining unverified items.
+- [Phase 6 review](docs/PHASE_6_REVIEW.md): Stage 6A demo-asset preparation notes and unverified items.
+
+## Screenshot And Video Placeholders
+
+The repository intentionally does not include fake screenshots or recorded videos. Future manually captured assets should follow `docs/SCREENSHOT_PLAN.md` and can be placed under:
+
+- `assets/screenshots/home-overview.png`
+- `assets/screenshots/journal-entry.png`
+- `assets/screenshots/trends-dashboard.png`
+- `assets/screenshots/long-term-summary.png`
+- `assets/screenshots/plans-dashboard.png`
+- `assets/screenshots/ai-safety-boundary.png`
+- `assets/video/mindtrace-demo-90s.mp4`
+
+Use only fictional emulator data. Do not capture API keys, `.env.local`, cookies, tokens, complete prompts, raw Gemini output, real journal content, or real user data.
 
 ## Current Status And Roadmap
 
-Completed in the current MVP: account/session onboarding, versioned consent, journal CRUD, history, 7-day trends, deterministic long-term summaries, manual plans, optional AI feedback, AI plan suggestion drafts, AI long-term insight drafts, demo-ready documentation, final demo checklist, and submission summary.
+Completed in the current MVP: account/session onboarding, versioned consent, journal CRUD, history, 7-day trends, deterministic long-term summaries, manual plans, optional AI feedback, AI plan suggestion drafts, AI long-term insight drafts, demo-ready documentation, final demo checklist, submission summary, screenshot plan, video script, and hackathon submission draft.
 
 Still intentionally out of scope: production deployment, payment, PDF reports, data export, account deletion, email notifications, chat companionship, medical diagnosis, automatic crisis intervention, and automatic plan creation.
 

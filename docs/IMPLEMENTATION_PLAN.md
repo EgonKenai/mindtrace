@@ -260,6 +260,21 @@
 
 本阶段明确不做：部署、付费、PDF 报告、真实 Gemini 批量调用、账号删除、邮件通知、医疗诊断、自动危机干预、新的大功能开发或阶段 6。
 
+### 阶段 6A：Demo assets / 截图录屏素材准备
+
+阶段 6A 只准备展示素材计划和提交草稿，不新增业务功能、API、数据结构、付费、部署、真实 Gemini 调用或医疗能力。
+
+本阶段已定义的范围：
+
+- 新增 `docs/SCREENSHOT_PLAN.md`，列出登录/注册、onboarding、总览、今日记录、历史、趋势、长期摘要、手动计划、AI 入口、安全说明和 360px/768px/1280px 视口的手动截图建议、文件名、尺寸、测试数据需求与隐私注意事项。
+- 新增 `docs/VIDEO_SCRIPT.md`，提供 30 秒、90 秒和 3 分钟录屏脚本，中英文旁白稿，以及哪些 AI 功能只展示入口、不运行真实 Gemini。
+- 新增 `docs/HACKATHON_SUBMISSION_DRAFT.md`，提供英文为主的提交材料草稿，覆盖 problem、solution、target users、AI usage、privacy/safety、tech stack、testing、MVP status 和 roadmap。
+- 更新 `README.md`、`docs/PROJECT_OVERVIEW.md` 和 `docs/PORTFOLIO_NOTES.md`，加入截图/视频占位路径、demo assets 链接、作品集短句和面试回答要点。
+- 新增 `assets/README.md`、`assets/screenshots/README.md` 和 `assets/video/README.md`，说明这些目录仅用于后续手动放置经过隐私检查的真实截图和录屏。
+- 新增 `docs/PHASE_6_REVIEW.md`，记录阶段 6A 已完成项、尚未验证项和不适用范围。
+
+本阶段明确不做：部署、付费、PDF 报告、真实 Gemini 批量调用、账号删除、邮件通知、医疗诊断、自动危机干预、真实截图生成、真实视频录制、新的大功能开发或阶段 6B。
+
 ### 目标
 
 完成用户数据控制和可验证的账户生命周期。
