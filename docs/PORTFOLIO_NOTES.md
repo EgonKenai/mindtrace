@@ -12,6 +12,59 @@ It should be presented as a personal MVP or hackathon/portfolio project, not as 
 
 ## Copy-Ready Concise Versions
 
+### GitHub Project Short Description
+
+MindTrace is a local-demo-ready journaling MVP for adult mood, stress, sleep, and life-event reflection, with secure Firebase-backed data access and optional AI drafts behind strict safety boundaries.
+
+### Resume Project Name Suggestions
+
+- MindTrace: Privacy-Focused Journaling And Optional AI Reflection MVP
+- MindTrace: Full-Stack Mood Journal With AI Safety Boundaries
+- MindTrace: Next.js + Firebase Personal Reflection MVP
+
+### 中文作品集介绍
+
+MindTrace 是一个个人 MVP / Hackathon 项目，面向成年人记录情绪、压力、精力、睡眠和生活事件。它实现了账户、基础同意、日记 CRUD、历史分页、7 天趋势、长期摘要、手动行动计划，以及可选 AI 反馈、计划建议草稿和长期洞察草稿。项目重点不是“让 AI 替用户判断”，而是展示如何在服务端授权、输入最小化、独立 AI 同意、输出安全校验和完整自动化测试的约束下构建一个可本地演示的全栈产品。
+
+### English Portfolio Description
+
+MindTrace is a personal MVP / hackathon project for adult mood, stress, sleep, and life-event journaling. It includes account onboarding, journal CRUD, paginated history, seven-day trends, deterministic long-term summaries, manual action plans, and optional AI feedback, plan suggestion, and long-term insight drafts. The project focuses on secure server-side data access, AI input minimization, independent AI consent, strict output safety validation, Firebase Emulator testing, Playwright E2E, and honest local-demo readiness rather than medical claims or production launch claims.
+
+### Interview Follow-Up Questions And Answer Points
+
+**How would you explain the project status honestly?**
+
+It is a personal MVP / Hackathon project that is local-demo-ready, tested with emulators and fictional data, and not deployed or commercialized.
+
+**Why separate AI consent from product consent?**
+
+Core journaling should remain usable without third-party AI processing. Provider calls are blocked until the user explicitly accepts the current AI data processing notice.
+
+**What were the hardest technical parts?**
+
+AI safety validation, E2E reliability, Firestore owner isolation, local-date aggregation, input minimization, and user-confirmed AI draft workflows.
+
+**How do Firestore rules and service authorization work together?**
+
+Browser direct access to business collections is denied by default. Server APIs derive `uid` from the verified session and route all Firestore access through scoped repositories.
+
+**How do you avoid overclaiming AI value?**
+
+AI output is framed as low-risk reflection or draft suggestions. It is not diagnosis, treatment, medication advice, emergency response, or an automatic decision-maker.
+
+**What would you do next before public launch?**
+
+Implement export and account deletion, complete deployment readiness, perform legal/privacy and region-specific safety review, expand human-reviewed AI regression tests, and validate real Gemini behavior in a controlled pre-release environment.
+
+### Technical Difficulty Talking Points
+
+- **AI safety:** strict schemas, local validators, conservative prompts, safe fallbacks, and no raw output display.
+- **E2E reliability:** Firebase Emulator, fictional users, deterministic readiness checks, and Playwright coverage across core flows.
+- **Firestore rules:** deny-by-default browser access plus server-session scoped repositories.
+- **Input minimization:** Provider input excludes uid, email, cookies, tokens, IP, Firestore paths, full account profiles, and full history.
+- **User confirmation:** AI plan suggestions are drafts; they become plans only after explicit user action.
+- **Honest status:** local demo ready, not deployed, not commercialized, not a medical product.
+
 ### 中文 3 行版本
 
 MindTrace 是一个个人全栈 MVP，用于成年人的情绪、压力、睡眠和生活事件记录。

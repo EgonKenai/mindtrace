@@ -2,6 +2,8 @@
 
 Use this checklist before a local portfolio, hackathon, XPRIZE-style, or interview demo. The standard demo uses only fictional data, Firebase Emulator, and Fake Provider or mocked AI responses. Do not use real journal content, real users, real Firebase projects, or real Gemini credentials.
 
+For asset planning, use `docs/SCREENSHOT_PLAN.md` before taking screenshots and `docs/VIDEO_SCRIPT.md` before recording. Future manual assets should live under `assets/screenshots/` and `assets/video/` after privacy review.
+
 ## 1. Local Pre-Run Check
 
 - Confirm the branch and working tree are ready:

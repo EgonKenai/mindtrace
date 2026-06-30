@@ -90,6 +90,21 @@ The project includes:
 - AI plan suggestion and AI long-term insight draft entry points.
 - Product boundary and safety resource pages.
 - Final demo checklist, submission summary, and portfolio notes for local demos and project review.
+- Screenshot plan, video script, and hackathon submission draft for manual demo-asset preparation.
+
+## Demo Asset Placeholders
+
+Planned screenshot and recording paths:
+
+- `assets/screenshots/home-overview.png`
+- `assets/screenshots/journal-entry.png`
+- `assets/screenshots/trends-dashboard.png`
+- `assets/screenshots/long-term-summary.png`
+- `assets/screenshots/plans-dashboard.png`
+- `assets/screenshots/ai-safety-boundary.png`
+- `assets/video/mindtrace-demo-90s.mp4`
+
+These files are placeholders only. The repository does not include fake screenshots or videos. Future captures should use fictional emulator data and follow `docs/SCREENSHOT_PLAN.md` and `docs/VIDEO_SCRIPT.md`.
 
 ## Not Yet Complete
 
@@ -101,6 +116,7 @@ The project includes:
 - Chat companion features.
 - Medical diagnosis or treatment functionality.
 - Real Gemini batch validation in CI.
+- Real screenshot and demo video assets.
 
 ## Roadmap
 
@@ -108,3 +124,4 @@ The project includes:
 - Future phase: deployment checklist, production observability, and region/legal review.
 - Future phase: optional paid report or PDF flow, only after entitlement and privacy review.
 - Future phase: additional human-reviewed AI safety regression sets and real Gemini pre-release validation.
+- Future phase: manually capture approved screenshots and record demo videos after a privacy review of the demo data.
