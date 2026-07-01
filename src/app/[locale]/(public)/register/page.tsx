@@ -1,14 +1,27 @@
 import { redirect } from "next/navigation";
 
 import { AuthForm } from "@/features/auth/components/auth-form";
-import { defaultLocale } from "@/i18n/config";
+import {
+  defaultLocale,
+  isSupportedLocale,
+  type AppLocale,
+} from "@/i18n/config";
 import { getSessionUser } from "@/server/auth/session";
 
 export const dynamic = "force-dynamic";
 
-export default async function RegisterPage() {
+export default async function RegisterPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const appLocale: AppLocale = isSupportedLocale(locale)
+    ? locale
+    : defaultLocale;
+
   if (await getSessionUser()) {
-    redirect(`/${defaultLocale}`);
+    redirect(`/${appLocale}`);
   }
 
   return (

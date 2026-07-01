@@ -81,6 +81,22 @@ describe("AI feedback service orchestration", () => {
     });
   });
 
+  it("passes the requested English locale to the provider", async () => {
+    const provider = new FakeAiFeedbackProvider();
+
+    await generateEntryFeedback(
+      "fictional-user",
+      "entry-1",
+      {
+        provider,
+      },
+      "en",
+    );
+
+    expect(provider.calls).toHaveLength(1);
+    expect(provider.calls[0]?.locale).toBe("en");
+  });
+
   it.each([
     ["我现在要自杀。", "crisis_redirect"],
     ["我真的快要撑不住了。", "supportive_redirect"],

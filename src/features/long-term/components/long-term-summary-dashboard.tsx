@@ -29,15 +29,20 @@ import {
   formatLocalDateLong,
   formatTrendNumber,
 } from "@/features/trends/format";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import type { Messages } from "@/i18n/messages";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
-function renderAverage(value: number | null, unit = ""): string {
+function renderAverage(
+  value: number | null,
+  zhCN: Messages,
+  unit = "",
+): string {
   return value === null
     ? zhCN.longTerm.noData
     : `${formatTrendNumber(value)}${unit}`;
 }
 
-function renderInsightSections(insight: LongTermInsightDraft) {
+function renderInsightSections(insight: LongTermInsightDraft, zhCN: Messages) {
   return (
     <div className="long-term-insight-draft">
       <div>
@@ -91,6 +96,8 @@ function renderInsightSections(insight: LongTermInsightDraft) {
 }
 
 export function LongTermSummaryDashboard() {
+  const locale = useCurrentLocale();
+  const zhCN = useMessages();
   const router = useRouter();
   const [selectedWindow, setSelectedWindow] =
     useState<LongTermSummaryWindow>(7);
@@ -111,20 +118,20 @@ export function LongTermSummaryDashboard() {
   const redirectForAccessError = useCallback(
     (requestError: LongTermSummaryApiError): boolean => {
       if (requestError.code === "UNAUTHENTICATED") {
-        router.replace("/zh-CN/login");
+        router.replace(`/${locale}/login`);
         router.refresh();
         return true;
       }
 
       if (requestError.code === "CONSENT_REQUIRED") {
-        router.replace("/zh-CN/onboarding/consent");
+        router.replace(`/${locale}/onboarding/consent`);
         router.refresh();
         return true;
       }
 
       return false;
     },
-    [router],
+    [locale, router],
   );
 
   const loadSummary = useCallback(
@@ -207,7 +214,10 @@ export function LongTermSummaryDashboard() {
     setInsightStatusMessage(null);
 
     try {
-      const result = await generateLongTermInsightRequest(selectedWindow);
+      const result = await generateLongTermInsightRequest(
+        selectedWindow,
+        locale,
+      );
 
       if (result.status === "generated" && result.insight) {
         setActiveInsight(result.insight);
@@ -369,25 +379,31 @@ export function LongTermSummaryDashboard() {
           <div className="summary-metrics">
             <div>
               <span>{zhCN.trends.metrics.mood}</span>
-              <strong>{renderAverage(summary.moodAverage)}</strong>
+              <strong>{renderAverage(summary.moodAverage, zhCN)}</strong>
             </div>
             <div>
               <span>{zhCN.trends.metrics.stress}</span>
-              <strong>{renderAverage(summary.stressAverage)}</strong>
+              <strong>{renderAverage(summary.stressAverage, zhCN)}</strong>
             </div>
             <div>
               <span>{zhCN.trends.metrics.energy}</span>
-              <strong>{renderAverage(summary.energyAverage)}</strong>
+              <strong>{renderAverage(summary.energyAverage, zhCN)}</strong>
             </div>
             <div>
               <span>{zhCN.trends.metrics.sleepHours}</span>
               <strong>
-                {renderAverage(summary.sleepAverage, zhCN.trends.units.hours)}
+                {renderAverage(
+                  summary.sleepAverage,
+                  zhCN,
+                  zhCN.trends.units.hours,
+                )}
               </strong>
             </div>
             <div>
               <span>{zhCN.trends.metrics.sleepQuality}</span>
-              <strong>{renderAverage(summary.sleepQualityAverage)}</strong>
+              <strong>
+                {renderAverage(summary.sleepQualityAverage, zhCN)}
+              </strong>
             </div>
           </div>
 
@@ -535,7 +551,7 @@ export function LongTermSummaryDashboard() {
 
             {activeInsight && (
               <>
-                {renderInsightSections(activeInsight)}
+                {renderInsightSections(activeInsight, zhCN)}
                 {activeInsight.status === "draft" && (
                   <div className="form-actions">
                     <button

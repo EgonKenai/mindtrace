@@ -1,7 +1,7 @@
 import type { DecodedIdToken } from "firebase-admin/auth";
 import { redirect } from "next/navigation";
 
-import { defaultLocale } from "@/i18n/config";
+import { defaultLocale, type AppLocale } from "@/i18n/config";
 import { getSessionUser } from "@/server/auth/session";
 import {
   getAccount,
@@ -37,25 +37,29 @@ export async function getAccessState(userId: string): Promise<AccessState> {
   };
 }
 
-export async function requireSessionPage(): Promise<DecodedIdToken> {
+export async function requireSessionPage(
+  locale: AppLocale = defaultLocale,
+): Promise<DecodedIdToken> {
   const user = await getSessionUser();
 
   if (!user) {
-    redirect(`/${defaultLocale}/login`);
+    redirect(`/${locale}/login`);
   }
 
   return user;
 }
 
-export async function requireProductAccessPage(): Promise<{
+export async function requireProductAccessPage(
+  locale: AppLocale = defaultLocale,
+): Promise<{
   access: AccessState;
   user: DecodedIdToken;
 }> {
-  const user = await requireSessionPage();
+  const user = await requireSessionPage(locale);
   const access = await getAccessState(user.uid);
 
   if (!access.hasProductAccess) {
-    redirect(`/${defaultLocale}/onboarding/consent`);
+    redirect(`/${locale}/onboarding/consent`);
   }
 
   return { access, user };

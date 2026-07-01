@@ -1,7 +1,22 @@
 import { LongTermSummaryDashboard } from "@/features/long-term/components/long-term-summary-dashboard";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import {
+  defaultLocale,
+  isSupportedLocale,
+  type AppLocale,
+} from "@/i18n/config";
+import { getMessages } from "@/i18n/messages";
 
-export default function LongTermPage() {
+export default async function LongTermPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const appLocale: AppLocale = isSupportedLocale(locale)
+    ? locale
+    : defaultLocale;
+  const zhCN = getMessages(appLocale);
+
   return (
     <main className="page-shell trends-shell">
       <div className="content-heading">

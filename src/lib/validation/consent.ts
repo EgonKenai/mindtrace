@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { defaultLocale } from "@/i18n/config";
+import { supportedLocales } from "@/i18n/config";
 
 function isValidTimeZone(value: string): boolean {
   try {
@@ -16,14 +16,14 @@ export const consentSubmissionSchema = z.object({
   productBoundaryAccepted: z.literal(true),
   privacyAccepted: z.literal(true),
   aiProcessingAccepted: z.boolean(),
-  locale: z.literal(defaultLocale),
+  locale: z.enum(supportedLocales),
   timeZone: z.string().min(1).max(100).refine(isValidTimeZone),
 });
 
 export const aiProcessingConsentSchema = z
   .object({
     accepted: z.boolean(),
-    locale: z.literal(defaultLocale),
+    locale: z.enum(supportedLocales),
   })
   .strict();
 

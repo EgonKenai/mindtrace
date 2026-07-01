@@ -1,25 +1,31 @@
+"use client";
+
 import type { RecentTrends } from "@/features/trends/model";
 import {
   formatLocalDateLong,
   formatTrendNumber,
 } from "@/features/trends/format";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useMessages } from "@/i18n/use-messages";
 
-function renderValue(value: number | null, unit = ""): string {
-  return value === null
-    ? zhCN.trends.noData
-    : `${formatTrendNumber(value)}${unit}`;
+function renderValue(
+  value: number | null,
+  noDataLabel: string,
+  unit = "",
+): string {
+  return value === null ? noDataLabel : `${formatTrendNumber(value)}${unit}`;
 }
 
 export function TrendDataTable({ trends }: { trends: RecentTrends }) {
+  const messages = useMessages();
+
   return (
     <section className="trend-table-section">
       <div className="trend-section-heading">
-        <h2>{zhCN.trends.tableTitle}</h2>
-        <p>{zhCN.trends.tableIntro}</p>
+        <h2>{messages.trends.tableTitle}</h2>
+        <p>{messages.trends.tableIntro}</p>
       </div>
       <div
-        aria-label={zhCN.trends.tableRegionLabel}
+        aria-label={messages.trends.tableRegionLabel}
         className="trend-table-scroll"
         role="region"
         tabIndex={0}
@@ -27,13 +33,13 @@ export function TrendDataTable({ trends }: { trends: RecentTrends }) {
         <table className="trend-table">
           <thead>
             <tr>
-              <th scope="col">{zhCN.trends.table.date}</th>
-              <th scope="col">{zhCN.trends.metrics.mood}</th>
-              <th scope="col">{zhCN.trends.metrics.stress}</th>
-              <th scope="col">{zhCN.trends.metrics.energy}</th>
-              <th scope="col">{zhCN.trends.metrics.sleepHours}</th>
-              <th scope="col">{zhCN.trends.metrics.sleepQuality}</th>
-              <th scope="col">{zhCN.trends.table.entryCount}</th>
+              <th scope="col">{messages.trends.table.date}</th>
+              <th scope="col">{messages.trends.metrics.mood}</th>
+              <th scope="col">{messages.trends.metrics.stress}</th>
+              <th scope="col">{messages.trends.metrics.energy}</th>
+              <th scope="col">{messages.trends.metrics.sleepHours}</th>
+              <th scope="col">{messages.trends.metrics.sleepQuality}</th>
+              <th scope="col">{messages.trends.table.entryCount}</th>
             </tr>
           </thead>
           <tbody>
@@ -44,13 +50,19 @@ export function TrendDataTable({ trends }: { trends: RecentTrends }) {
                     {formatLocalDateLong(point.localDate)}
                   </time>
                 </th>
-                <td>{renderValue(point.mood)}</td>
-                <td>{renderValue(point.stress)}</td>
-                <td>{renderValue(point.energy)}</td>
+                <td>{renderValue(point.mood, messages.trends.noData)}</td>
+                <td>{renderValue(point.stress, messages.trends.noData)}</td>
+                <td>{renderValue(point.energy, messages.trends.noData)}</td>
                 <td>
-                  {renderValue(point.sleepHours, zhCN.trends.units.hours)}
+                  {renderValue(
+                    point.sleepHours,
+                    messages.trends.noData,
+                    messages.trends.units.hours,
+                  )}
                 </td>
-                <td>{renderValue(point.sleepQuality)}</td>
+                <td>
+                  {renderValue(point.sleepQuality, messages.trends.noData)}
+                </td>
                 <td>{point.entryCount}</td>
               </tr>
             ))}

@@ -24,7 +24,15 @@ const validOutput = {
 describe("AI plan suggestion schemas and output safety", () => {
   it("accepts a valid summary window and rejects unknown fields", () => {
     expect(planSuggestionRequestSchema.parse({ summaryWindow: "14" })).toEqual({
+      locale: "zh-CN",
       summaryWindow: 14,
+    });
+
+    expect(
+      planSuggestionRequestSchema.parse({ locale: "en", summaryWindow: 7 }),
+    ).toEqual({
+      locale: "en",
+      summaryWindow: 7,
     });
 
     expect(() =>

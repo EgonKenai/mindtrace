@@ -23,7 +23,8 @@ import {
   getFeedbackFallbackKind,
   isSafetyRedirect,
 } from "@/features/ai-feedback/presentation";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import type { Messages } from "@/i18n/messages";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 interface EntryAiFeedbackProps {
   entryId: string;
@@ -31,11 +32,18 @@ interface EntryAiFeedbackProps {
 
 type FeedbackRequestState = "idle" | "checking" | "generating";
 
-function getFallbackMessage(result: FeedbackResult): string {
-  return zhCN.aiFeedback.fallback[getFeedbackFallbackKind(result.reasonCodes)];
+function getFallbackMessage(
+  result: FeedbackResult,
+  messages: Messages,
+): string {
+  return messages.aiFeedback.fallback[
+    getFeedbackFallbackKind(result.reasonCodes)
+  ];
 }
 
 export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
+  const locale = useCurrentLocale();
+  const messages = useMessages();
   const router = useRouter();
   const requestInFlightRef = useRef(false);
   const [requestState, setRequestState] =
@@ -51,13 +59,13 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
 
   function handleAccessError(error: AiFeedbackApiError): boolean {
     if (error.code === "UNAUTHENTICATED") {
-      router.replace("/zh-CN/login");
+      router.replace(`/${locale}/login`);
       router.refresh();
       return true;
     }
 
     if (error.code === "CONSENT_REQUIRED") {
-      router.replace("/zh-CN/onboarding/consent");
+      router.replace(`/${locale}/onboarding/consent`);
       router.refresh();
       return true;
     }
@@ -76,7 +84,7 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
     setFeedback(null);
 
     try {
-      setFeedback(await generateEntryFeedbackRequest(entryId));
+      setFeedback(await generateEntryFeedbackRequest(entryId, locale));
     } catch (error) {
       if (error instanceof AiFeedbackApiError) {
         if (handleAccessError(error)) {
@@ -89,22 +97,22 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
         }
 
         if (error.code === "NOT_FOUND") {
-          setRequestError(zhCN.aiFeedback.errors.notFound);
+          setRequestError(messages.aiFeedback.errors.notFound);
           return;
         }
 
         if (error.code === "RATE_LIMITED") {
-          setRequestError(zhCN.aiFeedback.errors.rateLimited);
+          setRequestError(messages.aiFeedback.errors.rateLimited);
           return;
         }
 
         if (error.code === "TIMEOUT") {
-          setRequestError(zhCN.aiFeedback.errors.timeout);
+          setRequestError(messages.aiFeedback.errors.timeout);
           return;
         }
       }
 
-      setRequestError(zhCN.aiFeedback.errors.generic);
+      setRequestError(messages.aiFeedback.errors.generic);
     } finally {
       requestInFlightRef.current = false;
       setRequestState("idle");
@@ -133,7 +141,7 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
         return;
       }
 
-      setRequestError(zhCN.aiFeedback.errors.consentCheck);
+      setRequestError(messages.aiFeedback.errors.consentCheck);
       return;
     } finally {
       requestInFlightRef.current = false;
@@ -152,7 +160,7 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
     setConsentError(null);
 
     try {
-      await updateAiConsent(accepted);
+      await updateAiConsent(accepted, locale);
       setConsentOpen(false);
       setConsentDeclined(!accepted);
 
@@ -164,23 +172,25 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
         return;
       }
 
-      setConsentError(zhCN.aiFeedback.errors.consentSave);
+      setConsentError(messages.aiFeedback.errors.consentSave);
     } finally {
       setConsentSaving(false);
     }
   }
 
   const fallbackMessage =
-    feedback?.status === "safe_fallback" ? getFallbackMessage(feedback) : null;
+    feedback?.status === "safe_fallback"
+      ? getFallbackMessage(feedback, messages)
+      : null;
   const safetyRedirect = feedback ? isSafetyRedirect(feedback) : false;
 
   return (
     <section className="entry-detail-section ai-feedback-section">
       <div className="ai-feedback-heading">
         <div>
-          <p className="eyebrow">{zhCN.aiFeedback.eyebrow}</p>
-          <h2>{zhCN.aiFeedback.title}</h2>
-          <p>{zhCN.aiFeedback.intro}</p>
+          <p className="eyebrow">{messages.aiFeedback.eyebrow}</p>
+          <h2>{messages.aiFeedback.title}</h2>
+          <p>{messages.aiFeedback.intro}</p>
         </div>
         <button
           className="primary-button"
@@ -198,22 +208,22 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
             <Sparkles aria-hidden="true" size={18} />
           )}
           {requestState === "checking"
-            ? zhCN.aiFeedback.actions.checking
+            ? messages.aiFeedback.actions.checking
             : requestState === "generating"
-              ? zhCN.aiFeedback.actions.generating
-              : zhCN.aiFeedback.actions.generate}
+              ? messages.aiFeedback.actions.generating
+              : messages.aiFeedback.actions.generate}
         </button>
       </div>
 
       <div className="ai-feedback-disclaimer">
         <Info aria-hidden="true" size={18} />
-        <p>{zhCN.aiFeedback.disclaimer}</p>
+        <p>{messages.aiFeedback.disclaimer}</p>
       </div>
 
       {consentDeclined && (
         <div className="ai-feedback-notice" role="status">
           <CircleAlert aria-hidden="true" size={20} />
-          <p>{zhCN.aiFeedback.consent.declinedStatus}</p>
+          <p>{messages.aiFeedback.consent.declinedStatus}</p>
         </div>
       )}
 
@@ -239,12 +249,12 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
             )}
             <h3>
               {feedback.status === "crisis_redirect"
-                ? zhCN.aiFeedback.status.crisis
+                ? messages.aiFeedback.status.crisis
                 : feedback.status === "supportive_redirect"
-                  ? zhCN.aiFeedback.status.supportive
+                  ? messages.aiFeedback.status.supportive
                   : feedback.status === "safe_fallback"
-                    ? zhCN.aiFeedback.status.fallback
-                    : zhCN.aiFeedback.status.generated}
+                    ? messages.aiFeedback.status.fallback
+                    : messages.aiFeedback.status.generated}
             </h3>
           </div>
 
@@ -255,7 +265,7 @@ export function EntryAiFeedback({ entryId }: EntryAiFeedbackProps) {
 
           {feedback.suggestions.length > 0 && (
             <>
-              <h4>{zhCN.aiFeedback.suggestionsTitle}</h4>
+              <h4>{messages.aiFeedback.suggestionsTitle}</h4>
               <ul>
                 {feedback.suggestions.map((suggestion) => (
                   <li key={suggestion}>{suggestion}</li>

@@ -3,7 +3,7 @@
 import { Check, LoaderCircle, ShieldCheck, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useMessages } from "@/i18n/use-messages";
 
 interface AiConsentDialogProps {
   errorMessage: string | null;
@@ -20,6 +20,7 @@ export function AiConsentDialog({
   onAccept,
   onDecline,
 }: AiConsentDialogProps) {
+  const messages = useMessages();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -59,16 +60,16 @@ export function AiConsentDialog({
           <ShieldCheck size={22} />
         </div>
         <div>
-          <h2 id="ai-consent-title">{zhCN.aiFeedback.consent.title}</h2>
-          <p>{zhCN.aiFeedback.consent.body}</p>
+          <h2 id="ai-consent-title">{messages.aiFeedback.consent.title}</h2>
+          <p>{messages.aiFeedback.consent.body}</p>
           <p className="ai-consent-optional">
-            {zhCN.aiFeedback.consent.optional}
+            {messages.aiFeedback.consent.optional}
           </p>
         </div>
       </div>
 
       <ul className="ai-consent-data-list">
-        {zhCN.aiFeedback.consent.dataItems.map((item) => (
+        {messages.aiFeedback.consent.dataItems.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
@@ -87,7 +88,7 @@ export function AiConsentDialog({
           type="button"
         >
           <X aria-hidden="true" size={18} />
-          {zhCN.aiFeedback.consent.decline}
+          {messages.aiFeedback.consent.decline}
         </button>
         <button
           className="primary-button"
@@ -105,8 +106,8 @@ export function AiConsentDialog({
             <Check aria-hidden="true" size={18} />
           )}
           {saving
-            ? zhCN.aiFeedback.consent.saving
-            : zhCN.aiFeedback.consent.accept}
+            ? messages.aiFeedback.consent.saving
+            : messages.aiFeedback.consent.accept}
         </button>
       </div>
     </dialog>

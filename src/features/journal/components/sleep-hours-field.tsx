@@ -1,4 +1,6 @@
-import { zhCN } from "@/i18n/messages/zh-CN";
+"use client";
+
+import { useMessages } from "@/i18n/use-messages";
 
 interface SleepHoursFieldProps {
   error?: string;
@@ -17,6 +19,7 @@ export function SleepHoursField({
   onChange,
   value,
 }: SleepHoursFieldProps) {
+  const zhCN = useMessages();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
 

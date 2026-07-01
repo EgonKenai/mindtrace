@@ -3,6 +3,7 @@ import type {
   LongTermInsightReasonCode,
   LongTermInsightSummarySnapshot,
 } from "@/features/long-term/model";
+import type { AppLocale } from "@/i18n/config";
 import { longTermInsightRequestSchema } from "@/lib/validation/long-term-insights";
 import { validateLongTermInsightProviderOutput } from "@/server/ai/long-term-insight-output-validation";
 import {
@@ -116,9 +117,10 @@ function buildSummarySnapshot(
 
 function buildProviderInput(
   summary: Awaited<ReturnType<typeof getLongTermSummary>>,
+  locale: AppLocale,
 ): AiLongTermInsightProviderInput {
   return {
-    locale: "zh-CN",
+    locale,
     summary: buildSummarySnapshot(summary),
     system: {
       contractVersion: "long-term-insight-v1",
@@ -223,7 +225,7 @@ export async function generateLongTermInsight(
   try {
     rawOutput = await callProviderWithTimeout(
       provider,
-      buildProviderInput(summary),
+      buildProviderInput(summary, parsed.locale),
       dependencies.timeoutMs ?? getDefaultProviderTimeoutMs(),
     );
   } catch (error) {

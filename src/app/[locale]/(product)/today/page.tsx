@@ -1,7 +1,22 @@
 import { TodayJournal } from "@/features/journal/components/today-journal";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import {
+  defaultLocale,
+  isSupportedLocale,
+  type AppLocale,
+} from "@/i18n/config";
+import { getMessages } from "@/i18n/messages";
 
-export default function TodayPage() {
+export default async function TodayPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const appLocale: AppLocale = isSupportedLocale(locale)
+    ? locale
+    : defaultLocale;
+  const zhCN = getMessages(appLocale);
+
   return (
     <main className="page-shell journal-shell">
       <div className="content-heading">

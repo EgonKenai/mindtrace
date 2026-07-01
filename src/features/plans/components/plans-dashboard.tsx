@@ -31,7 +31,7 @@ import {
   updatePlanStatusRequest,
 } from "@/features/plans/plans-api";
 import type { CreatePlanActionInput } from "@/lib/validation/plans";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 function getTodayLocalDate(): string {
   return new Date().toISOString().slice(0, 10);
@@ -68,6 +68,8 @@ function replaceAction(
 }
 
 export function PlansDashboard() {
+  const locale = useCurrentLocale();
+  const zhCN = useMessages();
   const router = useRouter();
   const [plans, setPlans] = useState<ActionPlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,20 +95,20 @@ export function PlansDashboard() {
   const redirectForAccessError = useCallback(
     (requestError: PlansApiError): boolean => {
       if (requestError.code === "UNAUTHENTICATED") {
-        router.replace("/zh-CN/login");
+        router.replace(`/${locale}/login`);
         router.refresh();
         return true;
       }
 
       if (requestError.code === "CONSENT_REQUIRED") {
-        router.replace("/zh-CN/onboarding/consent");
+        router.replace(`/${locale}/onboarding/consent`);
         router.refresh();
         return true;
       }
 
       return false;
     },
-    [router],
+    [locale, router],
   );
 
   const loadPlans = useCallback(
@@ -212,7 +214,10 @@ export function PlansDashboard() {
     setSuggestionStatus(null);
 
     try {
-      const result = await generatePlanSuggestionRequest(suggestionWindow);
+      const result = await generatePlanSuggestionRequest(
+        suggestionWindow,
+        locale,
+      );
       setSuggestion(result.suggestion);
 
       if (result.status === "generated") {

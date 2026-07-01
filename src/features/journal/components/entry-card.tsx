@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -6,13 +8,15 @@ import {
   truncateJournalNote,
 } from "@/features/journal/display";
 import type { JournalEntry } from "@/features/journal/model";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 interface EntryCardProps {
   entry: JournalEntry;
 }
 
 export function EntryCard({ entry }: EntryCardProps) {
+  const locale = useCurrentLocale();
+  const zhCN = useMessages();
   const notePreview = truncateJournalNote(entry.note);
 
   return (
@@ -25,7 +29,7 @@ export function EntryCard({ entry }: EntryCardProps) {
         <Link
           aria-label={`${zhCN.journal.actions.viewEntry} ${formatJournalDateTime(entry)}`}
           className="entry-card-link"
-          href={`/zh-CN/entries/${entry.id}`}
+          href={`/${locale}/entries/${entry.id}`}
         >
           <span>{zhCN.journal.actions.viewEntry}</span>
           <ChevronRight aria-hidden="true" size={18} />

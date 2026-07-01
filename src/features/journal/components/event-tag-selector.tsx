@@ -1,9 +1,11 @@
+"use client";
+
 import {
   JOURNAL_EVENT_TAG_IDS,
   JOURNAL_MAX_EVENT_TAGS,
   type JournalEventTagId,
 } from "@/features/journal/model";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useMessages } from "@/i18n/use-messages";
 
 interface EventTagSelectorProps {
   error?: string;
@@ -16,6 +18,7 @@ export function EventTagSelector({
   onToggle,
   selectedTags,
 }: EventTagSelectorProps) {
+  const zhCN = useMessages();
   const atLimit = selectedTags.length >= JOURNAL_MAX_EVENT_TAGS;
   const errorId = "event-tags-error";
   const hintId = "event-tags-hint";

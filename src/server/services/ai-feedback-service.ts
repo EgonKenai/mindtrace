@@ -6,7 +6,9 @@ import {
   feedbackResultSchema,
   type FeedbackReasonCode,
 } from "@/lib/validation/ai-feedback";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import type { AppLocale } from "@/i18n/config";
+import { defaultLocale } from "@/i18n/config";
+import { getMessages } from "@/i18n/messages";
 import { buildAiFeedbackProviderInput } from "@/server/ai/input";
 import { validateProviderOutput } from "@/server/ai/output-validation";
 import {
@@ -140,6 +142,7 @@ export async function generateEntryFeedback(
   userId: string | null | undefined,
   entryId: string,
   dependencies: AiFeedbackServiceDependencies = {},
+  locale: AppLocale = defaultLocale,
 ): Promise<FeedbackResult> {
   const context = await requireProductDataAccess(userId);
   const entry = await getJournalEntryRecord(context.userId, entryId);
@@ -153,21 +156,21 @@ export async function generateEntryFeedback(
 
   if (policy.decision === "crisis_redirect") {
     return recordAndSerialize(
-      createCrisisRedirectFeedback(policy.reasonCodes),
+      createCrisisRedirectFeedback(policy.reasonCodes, locale),
       auditLogger,
     );
   }
 
   if (policy.decision === "supportive_redirect") {
     return recordAndSerialize(
-      createSupportiveRedirectFeedback(policy.reasonCodes),
+      createSupportiveRedirectFeedback(policy.reasonCodes, locale),
       auditLogger,
     );
   }
 
   if (policy.decision === "safe_fallback") {
     return recordAndSerialize(
-      createSafeFallbackFeedback(policy.reasonCodes),
+      createSafeFallbackFeedback(policy.reasonCodes, locale),
       auditLogger,
     );
   }
@@ -181,7 +184,7 @@ export async function generateEntryFeedback(
     await requireAiProcessingConsent(context.userId);
   }
 
-  const providerInput = buildAiFeedbackProviderInput(entry);
+  const providerInput = buildAiFeedbackProviderInput(entry, locale);
   let rawOutput: unknown;
 
   try {
@@ -192,7 +195,7 @@ export async function generateEntryFeedback(
     );
   } catch (error) {
     return recordAndSerialize(
-      createSafeFallbackFeedback([providerErrorReason(error)]),
+      createSafeFallbackFeedback([providerErrorReason(error)], locale),
       auditLogger,
     );
   }
@@ -201,14 +204,19 @@ export async function generateEntryFeedback(
 
   if (!validation.success) {
     return recordAndSerialize(
-      createSafeFallbackFeedback([
-        validation.reason === "invalid"
-          ? "PROVIDER_OUTPUT_INVALID"
-          : "PROVIDER_OUTPUT_UNSAFE",
-      ]),
+      createSafeFallbackFeedback(
+        [
+          validation.reason === "invalid"
+            ? "PROVIDER_OUTPUT_INVALID"
+            : "PROVIDER_OUTPUT_UNSAFE",
+        ],
+        locale,
+      ),
       auditLogger,
     );
   }
+
+  const messages = getMessages(locale);
 
   return recordAndSerialize(
     feedbackResultSchema.parse({
@@ -216,7 +224,7 @@ export async function generateEntryFeedback(
       status: "generated",
       reflection: validation.output.reflection,
       suggestions: validation.output.suggestions,
-      disclaimer: zhCN.aiFeedback.disclaimer,
+      disclaimer: messages.aiFeedback.disclaimer,
       policyDecision: "allow_generation",
       reasonCodes: policy.reasonCodes,
     }),

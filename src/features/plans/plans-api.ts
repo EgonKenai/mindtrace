@@ -12,6 +12,8 @@ import type {
   CreatePlanInput,
   UpdatePlanInput,
 } from "@/lib/validation/plans";
+import type { AppLocale } from "@/i18n/config";
+import { defaultLocale } from "@/i18n/config";
 
 interface PlanResponse {
   data: {
@@ -164,12 +166,13 @@ export async function completePlanActionRequest(
 
 export async function generatePlanSuggestionRequest(
   summaryWindow: 7 | 14 | 30,
+  locale: AppLocale = defaultLocale,
 ): Promise<PlanSuggestionGenerationResult> {
   const response = await requestJson<PlanSuggestionGenerationResponse>(
     "/api/v1/plans/suggestions",
     {
       method: "POST",
-      body: JSON.stringify({ summaryWindow }),
+      body: JSON.stringify({ locale, summaryWindow }),
     },
   );
 

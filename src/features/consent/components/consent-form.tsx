@@ -3,11 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 
-import { defaultLocale } from "@/i18n/config";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 export function ConsentForm() {
   const router = useRouter();
+  const locale = useCurrentLocale();
+  const zhCN = useMessages();
   const defaultTimeZone = useMemo(
     () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
     [],
@@ -26,7 +27,7 @@ export function ConsentForm() {
       productBoundaryAccepted: formData.get("productBoundaryAccepted") === "on",
       privacyAccepted: formData.get("privacyAccepted") === "on",
       aiProcessingAccepted: formData.get("aiProcessingAccepted") === "on",
-      locale: defaultLocale,
+      locale,
       timeZone: String(formData.get("timeZone") ?? ""),
     };
 
@@ -58,7 +59,7 @@ export function ConsentForm() {
         return;
       }
 
-      router.replace("/zh-CN/today");
+      router.replace(`/${locale}/today`);
       router.refresh();
     } catch {
       setErrorMessage(zhCN.consent.errors.saveFailed);
