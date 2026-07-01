@@ -546,4 +546,18 @@ export const zhCN = {
   },
 } as const;
 
-export type Messages = typeof zhCN;
+type WidenMessages<T> = T extends (...args: infer Args) => infer Return
+  ? (...args: Args) => WidenMessages<Return>
+  : T extends string
+    ? string
+    : T extends number
+      ? number
+      : T extends boolean
+        ? boolean
+        : T extends readonly (infer Item)[]
+          ? WidenMessages<Item>[]
+          : T extends object
+            ? { [Key in keyof T]: WidenMessages<T[Key]> }
+            : T;
+
+export type Messages = WidenMessages<typeof zhCN>;

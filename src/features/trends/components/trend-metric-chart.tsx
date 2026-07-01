@@ -1,8 +1,10 @@
+"use client";
+
 import type { CSSProperties } from "react";
 
 import type { DailyTrendPoint, TrendMetricId } from "@/features/trends/model";
 import { formatLocalDate, formatTrendNumber } from "@/features/trends/format";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useMessages } from "@/i18n/use-messages";
 
 interface TrendMetricChartProps {
   label: string;
@@ -21,21 +23,23 @@ export function TrendMetricChart({
   points,
   unit,
 }: TrendMetricChartProps) {
+  const messages = useMessages();
+
   return (
     <section
-      aria-label={zhCN.trends.chartAriaLabel(label)}
+      aria-label={messages.trends.chartAriaLabel(label)}
       className={`trend-metric-card trend-metric-${metric}`}
     >
       <div className="trend-metric-heading">
         <h2>{label}</h2>
-        <span>{zhCN.trends.scaleLabel(min, max, unit)}</span>
+        <span>{messages.trends.scaleLabel(min, max, unit)}</span>
       </div>
       <div className="trend-plot" role="list">
         {points.map((point) => {
           const value = point[metric];
           const valueText =
             value === null
-              ? zhCN.trends.noData
+              ? messages.trends.noData
               : `${formatTrendNumber(value)}${unit}`;
           const style = {
             "--trend-height": `${value === null ? 0 : (value / max) * 100}%`,
@@ -43,7 +47,7 @@ export function TrendMetricChart({
 
           return (
             <div
-              aria-label={zhCN.trends.pointAriaLabel(
+              aria-label={messages.trends.pointAriaLabel(
                 formatLocalDate(point.localDate),
                 valueText,
               )}

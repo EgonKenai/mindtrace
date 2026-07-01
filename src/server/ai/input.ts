@@ -1,3 +1,5 @@
+import type { AppLocale } from "@/i18n/config";
+import { defaultLocale } from "@/i18n/config";
 import type { AiFeedbackProviderInput } from "@/server/ai/provider";
 import type { JournalEntryRecord } from "@/server/repositories/journal-repository";
 
@@ -17,7 +19,7 @@ export function truncateUnicode(value: string, maximum: number): string {
 
 export function buildAiFeedbackProviderInput(
   entry: JournalEntryRecord,
-  locale: "zh-CN" = "zh-CN",
+  locale: AppLocale = defaultLocale,
 ): AiFeedbackProviderInput {
   return {
     system: {

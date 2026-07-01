@@ -1,6 +1,8 @@
+"use client";
+
 import { JOURNAL_NOTE_MAX_CHARACTERS } from "@/features/journal/model";
 import { countUnicodeCharacters } from "@/features/journal/form-state";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useMessages } from "@/i18n/use-messages";
 
 interface NoteFieldProps {
   error?: string;
@@ -9,6 +11,7 @@ interface NoteFieldProps {
 }
 
 export function NoteField({ error, onChange, value }: NoteFieldProps) {
+  const zhCN = useMessages();
   const hintId = "journal-note-hint";
   const countId = "journal-note-count";
   const errorId = "journal-note-error";

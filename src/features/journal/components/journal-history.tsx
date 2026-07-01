@@ -21,10 +21,12 @@ import {
   listJournalEntriesRequest,
 } from "@/features/journal/journal-api";
 import type { JournalEntry } from "@/features/journal/model";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 export function JournalHistory() {
   const router = useRouter();
+  const locale = useCurrentLocale();
+  const zhCN = useMessages();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,20 +37,20 @@ export function JournalHistory() {
   const redirectForAccessError = useCallback(
     (requestError: JournalApiError): boolean => {
       if (requestError.code === "UNAUTHENTICATED") {
-        router.replace("/zh-CN/login");
+        router.replace(`/${locale}/login`);
         router.refresh();
         return true;
       }
 
       if (requestError.code === "CONSENT_REQUIRED") {
-        router.replace("/zh-CN/onboarding/consent");
+        router.replace(`/${locale}/onboarding/consent`);
         router.refresh();
         return true;
       }
 
       return false;
     },
-    [router],
+    [locale, router],
   );
 
   const loadFirstPage = useCallback(
@@ -181,7 +183,7 @@ export function JournalHistory() {
         <History aria-hidden="true" size={30} />
         <h2>{zhCN.journal.history.emptyTitle}</h2>
         <p>{zhCN.journal.history.emptyBody}</p>
-        <Link className="primary-button button-link" href="/zh-CN/today">
+        <Link className="primary-button button-link" href={`/${locale}/today`}>
           <Plus aria-hidden="true" size={18} />
           {zhCN.journal.actions.submit}
         </Link>

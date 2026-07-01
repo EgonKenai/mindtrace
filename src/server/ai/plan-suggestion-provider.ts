@@ -2,6 +2,7 @@ import "server-only";
 
 import type { JournalEventTagId } from "@/features/journal/model";
 import type { LongTermSummaryWindow } from "@/features/long-term/model";
+import type { AppLocale } from "@/i18n/config";
 
 export interface AiPlanSuggestionProviderSummaryInput {
   energyAverage: number | null;
@@ -17,7 +18,7 @@ export interface AiPlanSuggestionProviderSummaryInput {
 }
 
 export interface AiPlanSuggestionProviderInput {
-  locale: "zh-CN";
+  locale: AppLocale;
   summary: AiPlanSuggestionProviderSummaryInput;
   system: {
     contractVersion: "plan-suggestion-v1";

@@ -12,53 +12,11 @@ import {
   TrendsApiError,
 } from "@/features/trends/trends-api";
 import { getTrendsViewState } from "@/features/trends/view-state";
-import { zhCN } from "@/i18n/messages/zh-CN";
-
-const metricCharts: Array<{
-  label: string;
-  max: number;
-  metric: TrendMetricId;
-  min: number;
-  unit: string;
-}> = [
-  {
-    label: zhCN.trends.metrics.mood,
-    max: 10,
-    metric: "mood",
-    min: 1,
-    unit: zhCN.trends.units.score,
-  },
-  {
-    label: zhCN.trends.metrics.stress,
-    max: 10,
-    metric: "stress",
-    min: 1,
-    unit: zhCN.trends.units.score,
-  },
-  {
-    label: zhCN.trends.metrics.energy,
-    max: 10,
-    metric: "energy",
-    min: 1,
-    unit: zhCN.trends.units.score,
-  },
-  {
-    label: zhCN.trends.metrics.sleepHours,
-    max: 24,
-    metric: "sleepHours",
-    min: 0,
-    unit: zhCN.trends.units.hours,
-  },
-  {
-    label: zhCN.trends.metrics.sleepQuality,
-    max: 10,
-    metric: "sleepQuality",
-    min: 1,
-    unit: zhCN.trends.units.score,
-  },
-];
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 export function TrendsDashboard() {
+  const locale = useCurrentLocale();
+  const messages = useMessages();
   const router = useRouter();
   const [trends, setTrends] = useState<RecentTrends | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,20 +25,20 @@ export function TrendsDashboard() {
   const redirectForAccessError = useCallback(
     (requestError: TrendsApiError): boolean => {
       if (requestError.code === "UNAUTHENTICATED") {
-        router.replace("/zh-CN/login");
+        router.replace(`/${locale}/login`);
         router.refresh();
         return true;
       }
 
       if (requestError.code === "CONSENT_REQUIRED") {
-        router.replace("/zh-CN/onboarding/consent");
+        router.replace(`/${locale}/onboarding/consent`);
         router.refresh();
         return true;
       }
 
       return false;
     },
-    [router],
+    [locale, router],
   );
 
   const loadTrends = useCallback(
@@ -141,12 +99,55 @@ export function TrendsDashboard() {
   }, [redirectForAccessError]);
 
   const viewState = getTrendsViewState({ error, loading, trends });
+  const metricCharts: Array<{
+    label: string;
+    max: number;
+    metric: TrendMetricId;
+    min: number;
+    unit: string;
+  }> = [
+    {
+      label: messages.trends.metrics.mood,
+      max: 10,
+      metric: "mood",
+      min: 1,
+      unit: messages.trends.units.score,
+    },
+    {
+      label: messages.trends.metrics.stress,
+      max: 10,
+      metric: "stress",
+      min: 1,
+      unit: messages.trends.units.score,
+    },
+    {
+      label: messages.trends.metrics.energy,
+      max: 10,
+      metric: "energy",
+      min: 1,
+      unit: messages.trends.units.score,
+    },
+    {
+      label: messages.trends.metrics.sleepHours,
+      max: 24,
+      metric: "sleepHours",
+      min: 0,
+      unit: messages.trends.units.hours,
+    },
+    {
+      label: messages.trends.metrics.sleepQuality,
+      max: 10,
+      metric: "sleepQuality",
+      min: 1,
+      unit: messages.trends.units.score,
+    },
+  ];
 
   if (viewState === "loading") {
     return (
       <div className="journal-status" role="status">
         <LoaderCircle aria-hidden="true" className="button-spinner" size={22} />
-        <p>{zhCN.trends.loading}</p>
+        <p>{messages.trends.loading}</p>
       </div>
     );
   }
@@ -155,15 +156,15 @@ export function TrendsDashboard() {
     return (
       <section className="journal-empty-state" role="alert">
         <RefreshCw aria-hidden="true" size={28} />
-        <h2>{zhCN.trends.errorTitle}</h2>
-        <p>{zhCN.trends.errorBody}</p>
+        <h2>{messages.trends.errorTitle}</h2>
+        <p>{messages.trends.errorBody}</p>
         <button
           className="secondary-button"
           onClick={() => void loadTrends()}
           type="button"
         >
           <RefreshCw aria-hidden="true" size={18} />
-          {zhCN.common.retryAction}
+          {messages.common.retryAction}
         </button>
       </section>
     );
@@ -179,19 +180,21 @@ export function TrendsDashboard() {
         <ChartNoAxesCombined aria-hidden="true" size={26} />
         <div>
           <h2 id="trend-summary-title">
-            {zhCN.trends.summaryTitle(recordedDays, trends.days)}
+            {messages.trends.summaryTitle(recordedDays, trends.days)}
           </h2>
-          <p>{zhCN.trends.summaryBody(trends.totalEntries, trends.timeZone)}</p>
+          <p>
+            {messages.trends.summaryBody(trends.totalEntries, trends.timeZone)}
+          </p>
           <p className="trend-aggregation-note">
-            {zhCN.trends.aggregationNote}
+            {messages.trends.aggregationNote}
           </p>
         </div>
       </section>
 
       {viewState === "empty" && (
         <section className="trend-empty-notice" role="status">
-          <h2>{zhCN.trends.emptyTitle}</h2>
-          <p>{zhCN.trends.emptyBody}</p>
+          <h2>{messages.trends.emptyTitle}</h2>
+          <p>{messages.trends.emptyBody}</p>
         </section>
       )}
 

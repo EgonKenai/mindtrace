@@ -1,11 +1,22 @@
 import Link from "next/link";
 
 import { LogoutButton } from "@/features/auth/components/logout-button";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import type { AppLocale } from "@/i18n/config";
+import { isSupportedLocale } from "@/i18n/config";
+import { getMessages } from "@/i18n/messages";
 import { getAccessState, requireSessionPage } from "@/server/auth/access";
 
-export default async function SettingsPage() {
-  const user = await requireSessionPage();
+interface SettingsPageProps {
+  params: Promise<{
+    locale: string;
+  }>;
+}
+
+export default async function SettingsPage({ params }: SettingsPageProps) {
+  const { locale } = await params;
+  const appLocale: AppLocale = isSupportedLocale(locale) ? locale : "zh-CN";
+  const zhCN = getMessages(appLocale);
+  const user = await requireSessionPage(appLocale);
   const access = await getAccessState(user.uid);
 
   return (
@@ -31,7 +42,7 @@ export default async function SettingsPage() {
         </div>
         {!access.hasProductAccess && (
           <p>
-            <Link href="/zh-CN/onboarding/consent">
+            <Link href={`/${appLocale}/onboarding/consent`}>
               {zhCN.settings.continueConsent}
             </Link>
           </p>

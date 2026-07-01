@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { defaultLocale, isSupportedLocale } from "@/i18n/config";
 import { getSessionUser } from "@/server/auth/session";
 import { assertSameOrigin } from "@/server/http/origin";
 import { apiErrorResponse } from "@/server/http/responses";
@@ -18,7 +19,19 @@ export async function POST(request: Request, context: FeedbackRouteContext) {
     assertSameOrigin(request);
     const user = await getSessionUser();
     const { entryId } = await context.params;
-    const feedback = await generateEntryFeedback(user?.uid, entryId);
+    const body = (await request.json().catch(() => ({}))) as {
+      locale?: unknown;
+    };
+    const locale =
+      typeof body.locale === "string" && isSupportedLocale(body.locale)
+        ? body.locale
+        : defaultLocale;
+    const feedback = await generateEntryFeedback(
+      user?.uid,
+      entryId,
+      {},
+      locale,
+    );
 
     return NextResponse.json({ data: { feedback } });
   } catch (error) {

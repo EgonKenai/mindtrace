@@ -1,0 +1,525 @@
+import { zhCN, type Messages } from "@/i18n/messages/zh-CN";
+
+export const en = {
+  ...zhCN,
+  metadata: {
+    title: "MindTrace",
+    description: "A private mood, stress, sleep, and life-event journal",
+  },
+  brand: {
+    name: "MindTrace",
+    shortDescription: "Private state journal",
+  },
+  navigation: {
+    ariaLabel: "Main navigation",
+    history: "History",
+    longTerm: "Long-term",
+    overview: "Overview",
+    plans: "Plans",
+    productBoundary: "Product boundary",
+    safety: "Safety resources",
+    settings: "Settings",
+    today: "Today",
+    trends: "Trends",
+  },
+  common: {
+    cancel: "Cancel",
+    loading: "Working...",
+    retryAction: "Retry",
+    retry: "Please try again later.",
+    required: "Required",
+  },
+  auth: {
+    loginTitle: "Log in",
+    loginIntro: "Continue to your private journal space.",
+    registerTitle: "Create account",
+    registerIntro: "Use email sign-in for your private MindTrace demo space.",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    passwordHint: "At least 8 characters.",
+    loginAction: "Log in",
+    registerAction: "Register",
+    logoutAction: "Log out",
+    noAccount: "No account yet?",
+    hasAccount: "Already have an account?",
+    goToRegister: "Create account",
+    goToLogin: "Back to login",
+    errors: {
+      invalidCredentials: "The email or password is not correct.",
+      emailInUse: "This email is already registered. Please log in.",
+      weakPassword: "The password must be at least 8 characters.",
+      invalidEmail: "Please enter a valid email address.",
+      sessionFailed: "Could not create a secure session. Please try again.",
+      unknown: "The action could not be completed. Please try again later.",
+    },
+  },
+  consent: {
+    eyebrow: "First use",
+    title: "Confirm product boundary and privacy",
+    intro:
+      "Complete these confirmations before using private journal features. Product boundary and safety resources remain available.",
+    adultTitle: "Adult confirmation",
+    adultBody:
+      "MindTrace is only for users who have reached the legal adult age in their region.",
+    adultCheckbox: "I confirm I am legally an adult in my region.",
+    boundaryTitle: "Product boundary",
+    boundaryBody:
+      "MindTrace is a personal journaling tool. It does not diagnose, treat, provide medication guidance, or replace professionals or emergency services.",
+    boundaryCheckbox: "I have read and understand the product boundary.",
+    privacyTitle: "Privacy notice",
+    privacyBody:
+      "Account email is managed by Firebase Authentication. App data is isolated by user, and full journal text is not written to ordinary application logs.",
+    privacyCheckbox: "I have read and accept the current privacy notice.",
+    aiTitle: "AI data processing notice",
+    aiBody:
+      "When optional AI features are used, the server sends minimized journal or aggregate content to a third-party AI provider. The provider may retain prompts and outputs for abuse monitoring. MindTrace does not send account identifiers, cookies, or tokens.",
+    aiCheckbox: "I accept the current third-party AI data processing notice.",
+    aiOptionalHint:
+      "This is optional. Declining does not affect journal, history, trends, long-term summaries, or manual plans.",
+    timeZoneLabel: "Your time zone",
+    timeZoneHint:
+      "Used to calculate each entry's local date. You can change it later in settings.",
+    submit: "Finish confirmation",
+    errors: {
+      incomplete: "Please complete all required confirmations.",
+      invalidTimeZone:
+        "Please enter a valid IANA time zone, such as America/New_York.",
+      saveFailed: "Could not save your confirmation. Please try again.",
+    },
+  },
+  home: {
+    eyebrow: "MVP demo path",
+    title: "Record once, see patterns, then choose the next step",
+    intro:
+      "MindTrace helps adults record mood, stress, energy, sleep, and life events, then review trends and long-term summaries. AI features are optional low-risk reflection or draft suggestions. They do not make decisions for you and are not medical diagnosis or treatment.",
+    actionsLabel: "Primary overview actions",
+    primaryAction: "Record today",
+    secondaryAction: "View history",
+    demoTitle: "Suggested demo flow",
+    demoIntro:
+      "If there is not enough data yet, record a few journal entries first. Missing days stay empty and are never fabricated as zero.",
+    demoSteps: [
+      {
+        title: "Record state",
+        body: "Save one daily entry with scores, sleep, tags, and optional text.",
+        href: "/en/today",
+      },
+      {
+        title: "Review history",
+        body: "View paginated entries in occurrence-time order with safe previews.",
+        href: "/en/history",
+      },
+      {
+        title: "See 7-day trends",
+        body: "Aggregate same-day entries by local date and keep missing days empty.",
+        href: "/en/trends",
+      },
+      {
+        title: "Review long-term summary",
+        body: "Switch 7, 14, and 30 day windows for non-diagnostic summaries.",
+        href: "/en/long-term",
+      },
+      {
+        title: "Create a manual plan",
+        body: "Plans are confirmed by the user. AI drafts never auto-save as plans.",
+        href: "/en/plans",
+      },
+    ],
+    infoAriaLabel: "MindTrace core feature summary",
+    infoCards: [
+      {
+        title: "Daily journal",
+        body: "Multiple entries per day are allowed. User ownership always comes from the verified server session.",
+      },
+      {
+        title: "Trends and summaries",
+        body: "Trends and summaries use the user's saved local dates and do not copy full journal text.",
+      },
+      {
+        title: "Optional AI drafts",
+        body: "AI feedback, plan suggestions, and long-term insights require separate AI consent and remain low-risk drafts.",
+      },
+    ],
+    aiBoundaryTitle: "AI is for reflection only",
+    aiBoundaryBody:
+      "MindTrace does not provide diagnosis, treatment, medication guidance, or emergency response. Real Gemini calls require manual server configuration and separate verification.",
+    safetyAction: "View safety resources",
+    boundaryAction: "View product boundary",
+  },
+  journal: {
+    ...zhCN.journal,
+    today: {
+      eyebrow: "State journal",
+      title: "Record how things feel right now",
+      intro:
+        "Track mood, stress, energy, sleep, and life events. You can save multiple entries on the same day.",
+    },
+    form: {
+      moodLabel: "Mood",
+      moodHint: "1 means very low, 10 means very good.",
+      stressLabel: "Stress",
+      stressHint: "1 means very low, 10 means very high.",
+      energyLabel: "Energy",
+      energyHint: "1 means very low, 10 means very high.",
+      sleepHoursLabel: "Sleep hours",
+      sleepHoursHint: "Enter 0 to 24 hours. Decimals are allowed.",
+      hoursUnit: "hours",
+      sleepQualityLabel: "Sleep quality",
+      sleepQualityHint: "1 means very poor, 10 means very good.",
+      eventTagsLabel: "Life events",
+      eventTagsHint: "Choose 1 to 5 relevant tags.",
+      noteLabel: "Journal note",
+      noteHint: "Optional. Avoid unnecessary identifying details.",
+      occurredAtLabel: "Occurred at",
+      occurredAtHint: "Defaults to now. You can adjust it to the actual time.",
+      characters: "characters",
+    },
+    actions: {
+      submit: "Save entry",
+      submitting: "Saving",
+      saveChanges: "Save changes",
+      savingChanges: "Saving",
+      edit: "Edit entry",
+      delete: "Delete entry",
+      viewEntry: "View this entry",
+      continueEntry: "Continue journaling",
+      viewHistory: "View history",
+      loadMore: "Load more",
+      loadingMore: "Loading",
+      backToHistory: "Back to history",
+    },
+    history: {
+      eyebrow: "Personal history",
+      title: "History",
+      intro:
+        "View entries from newest to oldest. Each page loads a limited batch.",
+      loading: "Loading history...",
+      emptyTitle: "No entries yet",
+      emptyBody:
+        "Save a state entry from Today first. It will appear here with a safe preview.",
+      errorTitle: "Could not load history",
+      noMore: "All entries are shown.",
+      noteEmpty: "No note",
+    },
+    detail: {
+      eyebrow: "Entry detail",
+      title: "Entry detail",
+      loading: "Loading entry...",
+      editTitle: "Edit entry",
+      fullNote: "Journal note",
+      createdAt: "Created at",
+      updatedAt: "Updated at",
+      revision: "Revision",
+      notFoundTitle: "Entry unavailable",
+      notFoundBody:
+        "This entry does not exist, or you do not have access to it.",
+    },
+    eventTags: {
+      work: "Work",
+      job_search: "Job search",
+      study: "Study",
+      sleep: "Sleep",
+      family: "Family",
+      relationship: "Relationship",
+      social: "Social",
+      finance: "Finance",
+      health_routine: "Health routine",
+      travel: "Travel",
+      other: "Other",
+    },
+  },
+  trends: {
+    ...zhCN.trends,
+    eyebrow: "Recent state",
+    title: "Recent 7-day trends",
+    intro:
+      "Review the latest seven local dates in your account time zone. Same-day entries are averaged; missing dates stay empty.",
+    loading: "Loading recent trends...",
+    errorTitle: "Could not load trends",
+    errorBody: "Trend data is temporarily unavailable. Please try again later.",
+    emptyTitle: "No entries in the latest 7 days",
+    emptyBody:
+      "Record a few journal entries first. Dates without entries stay empty and are not shown as zero.",
+    noData: "No entry",
+    summaryTitle: (recordedDays: number, totalDays: number) =>
+      `${recordedDays} of ${totalDays} days have entries`,
+    summaryBody: (totalEntries: number, timeZone: string) =>
+      `${totalEntries} entries summarized. Date boundaries use ${timeZone}.`,
+    aggregationNote:
+      "When a local date has multiple entries, numeric fields use the arithmetic average.",
+    tableTitle: "Accessible data table",
+    tableIntro:
+      "The table lists all seven local dates. Missing dates are marked empty.",
+    tableRegionLabel: "Recent 7-day trend data table, horizontally scrollable",
+    metrics: {
+      mood: "Mood",
+      stress: "Stress",
+      energy: "Energy",
+      sleepHours: "Sleep hours",
+      sleepQuality: "Sleep quality",
+    },
+    units: {
+      score: " pts",
+      hours: " h",
+    },
+    table: {
+      date: "Local date",
+      entryCount: "Entries",
+    },
+  },
+  longTerm: {
+    ...zhCN.longTerm,
+    eyebrow: "Long-term review",
+    title: "Long-term summary",
+    intro:
+      "Review 7, 14, or 30 day windows by saved local date. Deterministic summaries do not call Gemini and do not copy full journal text.",
+    loading: "Loading long-term summary...",
+    errorTitle: "Could not load long-term summary",
+    errorBody:
+      "Long-term summary is temporarily unavailable. Please try again.",
+    noData: "No entry",
+    windowLabel: (days: number) => `${days} days`,
+    summaryTitle: (days: number, startDate: string, endDate: string) =>
+      `Latest ${days} days: ${startDate} to ${endDate}`,
+    summaryBody: (entryCount: number, timeZone: string) =>
+      `${entryCount} entries summarized. Window boundaries use account time zone ${timeZone}; grouping uses each entry's saved local date.`,
+    aggregationNote:
+      "Numeric fields use arithmetic averages. Missing dates stay empty, not zero.",
+    insufficientTitle: "Not enough data yet",
+    insufficientBody:
+      "There are no entries to summarize in this window. Record a few days first.",
+    commonTagsTitle: "Common life events",
+    noTags: "No tags to summarize yet.",
+    patternsTitle: "Brief patterns",
+    noPatterns: "No displayable patterns yet.",
+    missingDaysTitle: "Missing dates",
+    missingDaysIntro:
+      "These local dates have no entries in the current window.",
+    missingDaysRegionLabel: "Long-term summary missing dates table",
+    missingState: "State",
+    noMissingDays: "No missing dates in this window.",
+    noEntryForDay: "No entry",
+    insights: {
+      ...zhCN.longTerm.insights,
+      title: "AI long-term insight draft",
+      intro:
+        "Optional: AI can draft a self-reflection insight from the long-term summary. It is for reflection only, not medical advice, and it never creates plans automatically.",
+      disclaimer:
+        "AI insights are for self-reflection only. They are not diagnosis, treatment, or medication guidance.",
+      noAutoPlan:
+        "Saving an insight only saves this draft. It does not create an action plan.",
+      generate: "Generate long-term insight draft",
+      generating: "Generating insight",
+      save: "Save insight",
+      saving: "Saving",
+      dismiss: "Dismiss insight",
+      dismissing: "Dismissing",
+      historyTitle: "Past insight drafts",
+      emptyHistory: "No long-term insight drafts yet.",
+      patternsTitle: "Possible patterns",
+      strengthsTitle: "Parts to keep",
+      watchPointsTitle: "Things to keep observing",
+      suggestionsTitle: "Gentle suggestions",
+      consentRequired:
+        "Accept the separate AI data processing notice before sending minimized summary data to an AI provider.",
+      insufficientData:
+        "There is not enough data in this window. The AI provider was not called.",
+      fallback:
+        "No usable insight was generated. The system stopped safely and did not show raw provider output.",
+      generatedStatus:
+        "Insight draft generated. Please review it before saving.",
+      savedStatus: "Insight saved.",
+      dismissedStatus: "Insight dismissed.",
+      errors: {
+        generic:
+          "Long-term insight is temporarily unavailable. Please try again.",
+        saveFailed: "Could not save the insight. Please try again.",
+        dismissFailed: "Could not dismiss the insight. Please try again.",
+      },
+    },
+  },
+  plans: {
+    ...zhCN.plans,
+    eyebrow: "Action plans",
+    title: "Plans",
+    intro:
+      "Create manual plans and simple action items. AI suggestions are optional drafts and must be confirmed by you before saving.",
+    loading: "Loading plans...",
+    emptyTitle: "No plans yet",
+    emptyBody:
+      "Create a manual plan first. AI plan suggestions are drafts and require confirmation.",
+    errorTitle: "Could not load plans",
+    errorBody: "Plans are temporarily unavailable. Please try again later.",
+    noDescription: "No description.",
+    actionsTitle: "Action items",
+    noActions: "No action items yet.",
+    meta: (status: string, frequency: string) =>
+      `Status: ${status}; check-in: ${frequency}`,
+    form: {
+      titleLabel: "Plan title",
+      descriptionLabel: "Plan description",
+      actionTitleLabel: "Action item title",
+    },
+    actions: {
+      create: "Create plan",
+      creating: "Creating",
+      delete: "Delete plan",
+      addAction: "Add action item",
+      completeAction: "Mark done",
+    },
+    suggestions: {
+      ...zhCN.plans.suggestions,
+      title: "AI plan suggestion draft",
+      intro:
+        "Optional: AI can draft plan ideas from a long-term summary. It never creates a plan automatically; you must confirm before saving.",
+      disclaimer:
+        "AI suggestions are for reflection only. They are not diagnosis, treatment, or medical advice.",
+      windowLabel: "Summary window",
+      generate: "Generate plan suggestion draft",
+      generating: "Generating draft",
+      save: "Save as plan",
+      saving: "Saving",
+      dismiss: "Dismiss suggestion",
+      dismissing: "Dismissing",
+      actionsTitle: "Suggested action items",
+      rationaleTitle: "Why this was suggested",
+      consentRequired:
+        "Accept the separate AI data processing notice before sending minimized summary data to an AI provider.",
+      insufficientData:
+        "There is not enough data in this window. The AI provider was not called.",
+      fallback:
+        "No usable draft was generated. The system stopped safely and did not show raw provider output.",
+      generatedStatus: "Draft generated. Please review it before saving.",
+      savedStatus: "Draft saved as a formal plan.",
+      dismissedStatus: "Draft dismissed.",
+      errors: {
+        generic:
+          "Plan suggestion is temporarily unavailable. Please try again.",
+        saveFailed: "Could not save the draft as a plan. Please try again.",
+        dismissFailed: "Could not dismiss the draft. Please try again.",
+      },
+    },
+  },
+  aiFeedback: {
+    ...zhCN.aiFeedback,
+    eyebrow: "Optional feature",
+    title: "AI supportive reflection",
+    intro:
+      "You can ask AI to generate a brief reflection and at most one low-risk suggestion for this entry.",
+    disclaimer:
+      "This is journaling support, not diagnosis, treatment, medication guidance, or a replacement for professionals or emergency services.",
+    actions: {
+      generate: "Generate AI feedback",
+      checking: "Checking consent",
+      generating: "Generating feedback",
+    },
+    consent: {
+      title: "AI data processing notice",
+      body: "To generate feedback, the server sends mood/stress/energy/sleep values, controlled tags, truncated note text, locale, and non-identifying trend summary to a third-party AI provider.",
+      optional:
+        "AI feedback is optional. Declining does not affect journal, history, trends, summaries, or plans.",
+      dataItems: [
+        "MindTrace does not send uid, email, cookies, tokens, IP, or Firestore paths.",
+        "The provider may retain prompts and outputs for abuse monitoring.",
+        "You may decline and continue using the core journal features.",
+      ],
+      decline: "Decline and close",
+      accept: "Accept and generate",
+      saving: "Saving choice",
+      declinedStatus:
+        "You declined AI data processing. This entry was not sent to an AI provider, and core journal features still work.",
+    },
+    status: {
+      generated: "Supportive reflection",
+      supportive: "Consider real-world support",
+      crisis: "Seek urgent support now",
+      fallback: "AI feedback unavailable",
+    },
+    suggestionsTitle: "You could consider",
+    fallback: {
+      "not-configured":
+        "AI provider is not configured. Your journal entry is still saved.",
+      timeout:
+        "AI provider timed out. No raw error or partial output is shown.",
+      "rate-limited": "AI provider is busy. Please try again later.",
+      unavailable: "AI provider is temporarily unavailable.",
+      blocked:
+        "The provider safety filter blocked the output. A safe fallback is used.",
+      invalid:
+        "Provider output failed local schema or safety validation and was discarded.",
+      generic:
+        "Feedback could not be safely generated. A safe fallback is used.",
+    },
+    errors: {
+      consentCheck: "Could not check AI consent. Please try again.",
+      consentSave: "Could not save your AI data processing choice.",
+      notFound: "Could not generate feedback for this entry.",
+      timeout: "Feedback request timed out. Please try again later.",
+      rateLimited: "Too many feedback requests. Please try again later.",
+      generic: "Feedback is temporarily unavailable. Please try again.",
+    },
+    generated: {
+      fallbackReflection:
+        "Your entry was saved. AI feedback is unavailable right now, but you can still review this record later.",
+    },
+    supportive: {
+      reflection:
+        "It sounds like things may feel very heavy right now. MindTrace cannot judge urgency or provide emergency help.",
+      suggestions: [
+        "Please consider contacting someone you trust or a professional support person and clearly saying you need help or company.",
+      ],
+    },
+    crisis: {
+      reflection:
+        "Your entry may describe immediate danger. MindTrace cannot provide emergency support.",
+      suggestions: [
+        "If danger is happening now, contact local emergency services or go to the nearest emergency department.",
+        "Please contact a trusted person now and tell them you need immediate company or help.",
+        "You can also open MindTrace safety resources for additional support options.",
+      ],
+    },
+  },
+  settings: {
+    title: "Settings",
+    accountSection: "Account status",
+    timeZoneLabel: "Time zone",
+    accessReady: "Personal features enabled",
+    accessPending: "Adult confirmation and current consent are not complete",
+    continueConsent: "Continue confirmation",
+  },
+  boundary: {
+    title: "Product boundary",
+    intro:
+      "MindTrace helps adults record mood, stress, energy, sleep, and life events, then observe possible patterns in their own records.",
+    notTherapyTitle: "Not therapy or diagnosis",
+    notTherapyBody:
+      "MindTrace does not diagnose any condition, provide medication advice, or replace doctors, therapists, or other professionals.",
+    uncertaintyTitle: "Patterns are cautious",
+    uncertaintyBody:
+      "AI feedback and summaries may describe possible associations, not causal claims.",
+    controlTitle: "You control your data",
+    controlBody:
+      "Personal features require login and server-side authorization. Future export and deletion flows must cover user data collections.",
+  },
+  safety: {
+    title: "Crisis and safety resources",
+    urgentTitle: "If danger is happening now",
+    urgentBody:
+      "If you or someone else may be in immediate danger, contact local emergency services or go to the nearest emergency department.",
+    contactTitle: "Contact someone now",
+    contactBody:
+      "Try not to stay alone. Contact someone you trust and directly say you need company or help.",
+    professionalTitle: "Seek professional support",
+    professionalBody:
+      "Contact local mental health professionals, crisis lines, or medical services. MindTrace cannot provide emergency response.",
+    availability: "This page is always free and does not require login.",
+  },
+  notFound: {
+    title: "Page not found",
+    action: "Back to MindTrace",
+  },
+  api: {
+    unauthorized: "Login required.",
+    consentRequired: "Adult confirmation and current consent are required.",
+  },
+} satisfies Messages;

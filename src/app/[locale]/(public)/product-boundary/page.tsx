@@ -1,6 +1,21 @@
-import { zhCN } from "@/i18n/messages/zh-CN";
+import {
+  defaultLocale,
+  isSupportedLocale,
+  type AppLocale,
+} from "@/i18n/config";
+import { getMessages } from "@/i18n/messages";
 
-export default function ProductBoundaryPage() {
+export default async function ProductBoundaryPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const appLocale: AppLocale = isSupportedLocale(locale)
+    ? locale
+    : defaultLocale;
+  const zhCN = getMessages(appLocale);
+
   return (
     <main className="page-shell">
       <div className="content-heading">

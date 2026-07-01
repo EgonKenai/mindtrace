@@ -1,3 +1,5 @@
+import type { AppLocale } from "@/i18n/config";
+
 export interface AiFeedbackProviderInput {
   journal: {
     energy: number;
@@ -8,7 +10,7 @@ export interface AiFeedbackProviderInput {
     sleepQuality: number;
     stress: number;
   };
-  locale: "zh-CN";
+  locale: AppLocale;
   system: {
     contractVersion: "1";
     userContentIsUntrusted: true;

@@ -1,9 +1,10 @@
 import "server-only";
 
 import type { LongTermInsightSummarySnapshot } from "@/features/long-term/model";
+import type { AppLocale } from "@/i18n/config";
 
 export interface AiLongTermInsightProviderInput {
-  locale: "zh-CN";
+  locale: AppLocale;
   summary: LongTermInsightSummarySnapshot;
   system: {
     contractVersion: "long-term-insight-v1";

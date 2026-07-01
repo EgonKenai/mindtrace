@@ -7,9 +7,11 @@ import { useState } from "react";
 import { JournalEntryForm } from "@/features/journal/components/journal-entry-form";
 import { createJournalEntryRequest } from "@/features/journal/journal-api";
 import type { JournalEntry } from "@/features/journal/model";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 export function TodayJournal() {
+  const locale = useCurrentLocale();
+  const zhCN = useMessages();
   const [createdEntry, setCreatedEntry] = useState<JournalEntry | null>(null);
   const [formKey, setFormKey] = useState(0);
 
@@ -23,7 +25,7 @@ export function TodayJournal() {
           <div className="success-actions">
             <Link
               className="primary-button button-link"
-              href={`/zh-CN/entries/${createdEntry.id}`}
+              href={`/${locale}/entries/${createdEntry.id}`}
             >
               {zhCN.journal.actions.viewEntry}
               <ArrowRight aria-hidden="true" size={18} />
@@ -41,7 +43,7 @@ export function TodayJournal() {
             </button>
             <Link
               className="secondary-button button-link"
-              href="/zh-CN/history"
+              href={`/${locale}/history`}
             >
               <History aria-hidden="true" size={18} />
               {zhCN.journal.actions.viewHistory}

@@ -4,9 +4,11 @@ import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 export function LogoutButton() {
+  const locale = useCurrentLocale();
+  const messages = useMessages();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
 
@@ -15,7 +17,7 @@ export function LogoutButton() {
 
     try {
       await fetch("/api/v1/auth/session", { method: "DELETE" });
-      router.replace("/zh-CN/login");
+      router.replace(`/${locale}/login`);
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -30,7 +32,7 @@ export function LogoutButton() {
       type="button"
     >
       <LogOut aria-hidden="true" size={17} />
-      {submitting ? zhCN.common.loading : zhCN.auth.logoutAction}
+      {submitting ? messages.common.loading : messages.auth.logoutAction}
     </button>
   );
 }

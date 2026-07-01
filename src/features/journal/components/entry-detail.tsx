@@ -23,7 +23,7 @@ import {
   updateJournalEntryRequest,
 } from "@/features/journal/journal-api";
 import type { JournalEntry } from "@/features/journal/model";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 interface EntryDetailProps {
   entryId: string;
@@ -31,8 +31,12 @@ interface EntryDetailProps {
 
 type DetailError = "not-found" | "generic" | null;
 
-function formatMetadataDate(value: string, timeZone: string): string {
-  return new Intl.DateTimeFormat("zh-CN", {
+function formatMetadataDate(
+  value: string,
+  timeZone: string,
+  locale: string,
+): string {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone,
@@ -40,6 +44,8 @@ function formatMetadataDate(value: string, timeZone: string): string {
 }
 
 export function EntryDetail({ entryId }: EntryDetailProps) {
+  const locale = useCurrentLocale();
+  const messages = useMessages();
   const router = useRouter();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,13 +70,13 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
 
         if (requestError instanceof JournalApiError) {
           if (requestError.code === "UNAUTHENTICATED") {
-            router.replace("/zh-CN/login");
+            router.replace(`/${locale}/login`);
             router.refresh();
             return;
           }
 
           if (requestError.code === "CONSENT_REQUIRED") {
-            router.replace("/zh-CN/onboarding/consent");
+            router.replace(`/${locale}/onboarding/consent`);
             router.refresh();
             return;
           }
@@ -91,13 +97,13 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
 
     void loadEntry();
     return () => controller.abort();
-  }, [entryId, router]);
+  }, [entryId, locale, router]);
 
   if (loading) {
     return (
       <div className="journal-status" role="status">
         <LoaderCircle aria-hidden="true" className="button-spinner" size={22} />
-        <p>{zhCN.journal.detail.loading}</p>
+        <p>{messages.journal.detail.loading}</p>
       </div>
     );
   }
@@ -110,17 +116,20 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
         <RefreshCw aria-hidden="true" size={28} />
         <h1>
           {notFound
-            ? zhCN.journal.detail.notFoundTitle
-            : zhCN.journal.history.errorTitle}
+            ? messages.journal.detail.notFoundTitle
+            : messages.journal.history.errorTitle}
         </h1>
         <p>
           {notFound
-            ? zhCN.journal.detail.notFoundBody
-            : zhCN.journal.errors.loadFailed}
+            ? messages.journal.detail.notFoundBody
+            : messages.journal.errors.loadFailed}
         </p>
-        <Link className="secondary-button button-link" href="/zh-CN/history">
+        <Link
+          className="secondary-button button-link"
+          href={`/${locale}/history`}
+        >
           <ArrowLeft aria-hidden="true" size={18} />
-          {zhCN.journal.actions.backToHistory}
+          {messages.journal.actions.backToHistory}
         </Link>
       </section>
     );
@@ -130,8 +139,8 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
     return (
       <>
         <div className="content-heading">
-          <p className="eyebrow">{zhCN.journal.detail.eyebrow}</p>
-          <h1>{zhCN.journal.detail.editTitle}</h1>
+          <p className="eyebrow">{messages.journal.detail.eyebrow}</p>
+          <h1>{messages.journal.detail.editTitle}</h1>
         </div>
         <JournalEntryForm
           initialValues={journalEntryToFormValues(entry)}
@@ -151,14 +160,14 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
 
   return (
     <>
-      <Link className="back-link" href="/zh-CN/history">
+      <Link className="back-link" href={`/${locale}/history`}>
         <ArrowLeft aria-hidden="true" size={17} />
-        {zhCN.journal.actions.backToHistory}
+        {messages.journal.actions.backToHistory}
       </Link>
 
       <div className="detail-heading">
         <div>
-          <p className="eyebrow">{zhCN.journal.detail.eyebrow}</p>
+          <p className="eyebrow">{messages.journal.detail.eyebrow}</p>
           <h1>{formatJournalDateTime(entry)}</h1>
           <p>{entry.timeZone}</p>
         </div>
@@ -172,24 +181,24 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
             type="button"
           >
             <Pencil aria-hidden="true" size={18} />
-            {zhCN.journal.actions.edit}
+            {messages.journal.actions.edit}
           </button>
           <DeleteEntryDialog
             onConfirm={async () => {
               try {
                 await deleteJournalEntryRequest(entry.id);
-                router.replace("/zh-CN/history");
+                router.replace(`/${locale}/history`);
                 router.refresh();
               } catch (requestError) {
                 if (requestError instanceof JournalApiError) {
                   if (requestError.code === "UNAUTHENTICATED") {
-                    router.replace("/zh-CN/login");
+                    router.replace(`/${locale}/login`);
                     router.refresh();
                     return;
                   }
 
                   if (requestError.code === "CONSENT_REQUIRED") {
-                    router.replace("/zh-CN/onboarding/consent");
+                    router.replace(`/${locale}/onboarding/consent`);
                     router.refresh();
                     return;
                   }
@@ -206,8 +215,8 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
         <div className="inline-success" role="status">
           <CheckCircle2 aria-hidden="true" size={20} />
           <div>
-            <strong>{zhCN.journal.success.updatedTitle}</strong>
-            <span>{zhCN.journal.success.updatedBody}</span>
+            <strong>{messages.journal.success.updatedTitle}</strong>
+            <span>{messages.journal.success.updatedBody}</span>
           </div>
         </div>
       )}
@@ -215,48 +224,48 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
       <section className="entry-detail-section">
         <dl className="detail-metrics">
           <div>
-            <dt>{zhCN.journal.form.moodLabel}</dt>
+            <dt>{messages.journal.form.moodLabel}</dt>
             <dd>{entry.mood}</dd>
           </div>
           <div>
-            <dt>{zhCN.journal.form.stressLabel}</dt>
+            <dt>{messages.journal.form.stressLabel}</dt>
             <dd>{entry.stress}</dd>
           </div>
           <div>
-            <dt>{zhCN.journal.form.energyLabel}</dt>
+            <dt>{messages.journal.form.energyLabel}</dt>
             <dd>{entry.energy}</dd>
           </div>
           <div>
-            <dt>{zhCN.journal.form.sleepHoursLabel}</dt>
+            <dt>{messages.journal.form.sleepHoursLabel}</dt>
             <dd>
-              {entry.sleepHours} {zhCN.journal.form.hoursUnit}
+              {entry.sleepHours} {messages.journal.form.hoursUnit}
             </dd>
           </div>
           <div>
-            <dt>{zhCN.journal.form.sleepQualityLabel}</dt>
+            <dt>{messages.journal.form.sleepQualityLabel}</dt>
             <dd>{entry.sleepQuality}</dd>
           </div>
         </dl>
       </section>
 
       <section className="entry-detail-section">
-        <h2>{zhCN.journal.form.eventTagsLabel}</h2>
+        <h2>{messages.journal.form.eventTagsLabel}</h2>
         <div
           className="entry-tags"
-          aria-label={zhCN.journal.form.eventTagsLabel}
+          aria-label={messages.journal.form.eventTagsLabel}
         >
           {entry.eventTags.map((tag) => (
             <span className="entry-tag" key={tag}>
-              {zhCN.journal.eventTags[tag]}
+              {messages.journal.eventTags[tag]}
             </span>
           ))}
         </div>
       </section>
 
       <section className="entry-detail-section">
-        <h2>{zhCN.journal.detail.fullNote}</h2>
+        <h2>{messages.journal.detail.fullNote}</h2>
         <p className="entry-note-full">
-          {entry.note || zhCN.journal.history.noteEmpty}
+          {entry.note || messages.journal.history.noteEmpty}
         </p>
       </section>
 
@@ -264,19 +273,23 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
 
       <section
         className="entry-metadata"
-        aria-label={zhCN.journal.detail.title}
+        aria-label={messages.journal.detail.title}
       >
         <dl>
           <div>
-            <dt>{zhCN.journal.detail.createdAt}</dt>
-            <dd>{formatMetadataDate(entry.createdAt, entry.timeZone)}</dd>
+            <dt>{messages.journal.detail.createdAt}</dt>
+            <dd>
+              {formatMetadataDate(entry.createdAt, entry.timeZone, locale)}
+            </dd>
           </div>
           <div>
-            <dt>{zhCN.journal.detail.updatedAt}</dt>
-            <dd>{formatMetadataDate(entry.updatedAt, entry.timeZone)}</dd>
+            <dt>{messages.journal.detail.updatedAt}</dt>
+            <dd>
+              {formatMetadataDate(entry.updatedAt, entry.timeZone, locale)}
+            </dd>
           </div>
           <div>
-            <dt>{zhCN.journal.detail.revision}</dt>
+            <dt>{messages.journal.detail.revision}</dt>
             <dd>{entry.revision}</dd>
           </div>
         </dl>

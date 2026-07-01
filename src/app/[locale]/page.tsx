@@ -1,26 +1,39 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { defaultLocale } from "@/i18n/config";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import {
+  defaultLocale,
+  isSupportedLocale,
+  type AppLocale,
+} from "@/i18n/config";
+import { getMessages } from "@/i18n/messages";
 import { getAccessState } from "@/server/auth/access";
 import { getSessionUser } from "@/server/auth/session";
 
 export const dynamic = "force-dynamic";
 
-export default async function LocaleHomePage() {
+export default async function LocaleHomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const appLocale: AppLocale = isSupportedLocale(locale)
+    ? locale
+    : defaultLocale;
   const user = await getSessionUser();
 
   if (!user) {
-    redirect(`/${defaultLocale}/login`);
+    redirect(`/${appLocale}/login`);
   }
 
   const access = await getAccessState(user.uid);
 
   if (!access.hasProductAccess) {
-    redirect(`/${defaultLocale}/onboarding/consent`);
+    redirect(`/${appLocale}/onboarding/consent`);
   }
 
+  const zhCN = getMessages(appLocale);
   const home = zhCN.home;
 
   return (
@@ -30,10 +43,10 @@ export default async function LocaleHomePage() {
         <h1 id="home-title">{home.title}</h1>
         <p>{home.intro}</p>
         <div className="home-actions" aria-label={home.actionsLabel}>
-          <Link className="primary-button" href={`/${defaultLocale}/today`}>
+          <Link className="primary-button" href={`/${appLocale}/today`}>
             {home.primaryAction}
           </Link>
-          <Link className="secondary-button" href={`/${defaultLocale}/history`}>
+          <Link className="secondary-button" href={`/${appLocale}/history`}>
             {home.secondaryAction}
           </Link>
         </div>
@@ -70,12 +83,12 @@ export default async function LocaleHomePage() {
           <p>{home.aiBoundaryBody}</p>
         </div>
         <div className="home-safety-actions">
-          <Link className="secondary-button" href={`/${defaultLocale}/safety`}>
+          <Link className="secondary-button" href={`/${appLocale}/safety`}>
             {home.safetyAction}
           </Link>
           <Link
             className="secondary-button"
-            href={`/${defaultLocale}/product-boundary`}
+            href={`/${appLocale}/product-boundary`}
           >
             {home.boundaryAction}
           </Link>

@@ -1,34 +1,43 @@
 import Link from "next/link";
 
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import type { AppLocale } from "@/i18n/config";
+import { getMessages } from "@/i18n/messages";
 import { getSessionUser } from "@/server/auth/session";
 
-export async function SiteHeader() {
+export async function SiteHeader({ locale }: { locale: AppLocale }) {
   const user = await getSessionUser();
+  const zhCN = getMessages(locale);
+  const prefix = `/${locale}`;
 
   return (
     <header className="site-header">
       <div className="site-header-inner">
-        <Link className="brand-link" href="/zh-CN">
+        <Link className="brand-link" href={prefix}>
           <span>{zhCN.brand.name}</span>
           <small>{zhCN.brand.shortDescription}</small>
         </Link>
         <nav aria-label={zhCN.navigation.ariaLabel} className="site-nav">
           {user && (
             <>
-              <Link href="/zh-CN">{zhCN.navigation.overview}</Link>
-              <Link href="/zh-CN/today">{zhCN.navigation.today}</Link>
-              <Link href="/zh-CN/history">{zhCN.navigation.history}</Link>
-              <Link href="/zh-CN/trends">{zhCN.navigation.trends}</Link>
-              <Link href="/zh-CN/long-term">{zhCN.navigation.longTerm}</Link>
-              <Link href="/zh-CN/plans">{zhCN.navigation.plans}</Link>
-              <Link href="/zh-CN/settings">{zhCN.navigation.settings}</Link>
+              <Link href={prefix}>{zhCN.navigation.overview}</Link>
+              <Link href={`${prefix}/today`}>{zhCN.navigation.today}</Link>
+              <Link href={`${prefix}/history`}>{zhCN.navigation.history}</Link>
+              <Link href={`${prefix}/trends`}>{zhCN.navigation.trends}</Link>
+              <Link href={`${prefix}/long-term`}>
+                {zhCN.navigation.longTerm}
+              </Link>
+              <Link href={`${prefix}/plans`}>{zhCN.navigation.plans}</Link>
+              <Link href={`${prefix}/settings`}>
+                {zhCN.navigation.settings}
+              </Link>
             </>
           )}
-          <Link href="/zh-CN/product-boundary">
+          <Link href={`${prefix}/product-boundary`}>
             {zhCN.navigation.productBoundary}
           </Link>
-          <Link href="/zh-CN/safety">{zhCN.navigation.safety}</Link>
+          <Link href={`${prefix}/safety`}>{zhCN.navigation.safety}</Link>
+          <LanguageSwitcher />
         </nav>
       </div>
     </header>

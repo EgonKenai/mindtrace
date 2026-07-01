@@ -63,6 +63,8 @@ describe("POST entry feedback route", () => {
     expect(generateEntryFeedbackMock).toHaveBeenCalledWith(
       "verified-session-user",
       "entry-1",
+      {},
+      "zh-CN",
     );
     expect(body).toEqual({
       data: {

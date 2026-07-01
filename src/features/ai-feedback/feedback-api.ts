@@ -1,4 +1,5 @@
 import type { FeedbackResult } from "@/features/ai-feedback/model";
+import type { AppLocale } from "@/i18n/config";
 import { defaultLocale } from "@/i18n/config";
 
 interface ApiErrorPayload {
@@ -75,12 +76,15 @@ export async function getAiConsentStatus(
   return response.data.hasAiProcessingConsent;
 }
 
-export async function updateAiConsent(accepted: boolean): Promise<boolean> {
+export async function updateAiConsent(
+  accepted: boolean,
+  locale: AppLocale = defaultLocale,
+): Promise<boolean> {
   const response = await requestJson<AiConsentResponse>(
     "/api/v1/account/ai-consent",
     {
       method: "POST",
-      body: JSON.stringify({ accepted, locale: defaultLocale }),
+      body: JSON.stringify({ accepted, locale }),
     },
   );
 
@@ -89,10 +93,14 @@ export async function updateAiConsent(accepted: boolean): Promise<boolean> {
 
 export async function generateEntryFeedbackRequest(
   entryId: string,
+  locale: AppLocale = defaultLocale,
 ): Promise<FeedbackResult> {
   const response = await requestJson<FeedbackResponse>(
     `/api/v1/entries/${encodeURIComponent(entryId)}/feedback`,
-    { method: "POST" },
+    {
+      method: "POST",
+      body: JSON.stringify({ locale }),
+    },
   );
 
   return response.data.feedback;

@@ -6,6 +6,7 @@ import {
 } from "@/features/journal/model";
 import { LONG_TERM_SUMMARY_WINDOWS } from "@/features/long-term/model";
 import { PLAN_SUGGESTION_STATUSES } from "@/features/plans/model";
+import { defaultLocale, supportedLocales } from "@/i18n/config";
 
 const linkedTagsSchema = z
   .array(z.enum(JOURNAL_EVENT_TAG_IDS))
@@ -14,12 +15,14 @@ const linkedTagsSchema = z
 
 export const planSuggestionRequestSchema = z
   .object({
+    locale: z.enum(supportedLocales).default(defaultLocale),
     summaryWindow: z
       .union([z.literal(7), z.literal(14), z.literal(30)])
       .or(z.enum(["7", "14", "30"]).transform((value) => Number(value))),
   })
   .strict()
   .transform((value) => ({
+    locale: value.locale,
     summaryWindow:
       value.summaryWindow as (typeof LONG_TERM_SUMMARY_WINDOWS)[number],
   }));

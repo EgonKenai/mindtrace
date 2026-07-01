@@ -23,7 +23,8 @@ import type {
   JournalFieldErrors,
   JournalFieldName,
 } from "@/features/journal/model";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import type { Messages } from "@/i18n/messages";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 import type { CreateJournalEntryInput } from "@/lib/validation/journal";
 
 interface JournalEntryFormProps {
@@ -34,18 +35,21 @@ interface JournalEntryFormProps {
   onSuccess: (entry: JournalEntry) => void;
 }
 
-const fieldErrorMessages: Record<JournalFieldName, string> = {
-  mood: zhCN.journal.errors.mood,
-  stress: zhCN.journal.errors.stress,
-  energy: zhCN.journal.errors.energy,
-  sleepHours: zhCN.journal.errors.sleepHours,
-  sleepQuality: zhCN.journal.errors.sleepQuality,
-  eventTags: zhCN.journal.errors.eventTags,
-  note: zhCN.journal.errors.note,
-  occurredAt: zhCN.journal.errors.occurredAt,
-};
+function getVisibleFieldErrors(
+  errors: JournalFieldErrors,
+  messages: Messages,
+): JournalFieldErrors {
+  const fieldErrorMessages: Record<JournalFieldName, string> = {
+    mood: messages.journal.errors.mood,
+    stress: messages.journal.errors.stress,
+    energy: messages.journal.errors.energy,
+    sleepHours: messages.journal.errors.sleepHours,
+    sleepQuality: messages.journal.errors.sleepQuality,
+    eventTags: messages.journal.errors.eventTags,
+    note: messages.journal.errors.note,
+    occurredAt: messages.journal.errors.occurredAt,
+  };
 
-function getVisibleFieldErrors(errors: JournalFieldErrors): JournalFieldErrors {
   return Object.fromEntries(
     Object.keys(errors).map((field) => [
       field,
@@ -62,6 +66,8 @@ export function JournalEntryForm({
   onSuccess,
 }: JournalEntryFormProps) {
   const router = useRouter();
+  const locale = useCurrentLocale();
+  const zhCN = useMessages();
   const [values, setValues] = useState<JournalEntryFormValues>(
     () => initialValues ?? createDefaultJournalFormValues(),
   );
@@ -97,7 +103,7 @@ export function JournalEntryForm({
     const parsed = parseJournalFormValues(values);
 
     if (!parsed.success) {
-      setFieldErrors(getVisibleFieldErrors(parsed.fieldErrors));
+      setFieldErrors(getVisibleFieldErrors(parsed.fieldErrors, zhCN));
       finishSubmission(submissionLock);
       return;
     }
@@ -110,13 +116,13 @@ export function JournalEntryForm({
     } catch (error) {
       if (error instanceof JournalApiError) {
         if (error.code === "UNAUTHENTICATED") {
-          router.replace("/zh-CN/login");
+          router.replace(`/${locale}/login`);
           router.refresh();
           return;
         }
 
         if (error.code === "CONSENT_REQUIRED") {
-          router.replace("/zh-CN/onboarding/consent");
+          router.replace(`/${locale}/onboarding/consent`);
           router.refresh();
           return;
         }
@@ -126,7 +132,7 @@ export function JournalEntryForm({
         });
 
         if (Object.keys(apiFieldErrors).length > 0) {
-          setFieldErrors(getVisibleFieldErrors(apiFieldErrors));
+          setFieldErrors(getVisibleFieldErrors(apiFieldErrors, zhCN));
           setFormError(zhCN.journal.errors.invalidRequest);
         } else {
           setFormError(zhCN.journal.errors.saveFailed);

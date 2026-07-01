@@ -5,6 +5,8 @@ import type {
   LongTermSummaryApiErrorPayload,
   LongTermSummaryWindow,
 } from "@/features/long-term/model";
+import type { AppLocale } from "@/i18n/config";
+import { defaultLocale } from "@/i18n/config";
 
 interface LongTermSummaryResponse {
   data: {
@@ -89,12 +91,13 @@ export async function listLongTermInsightsRequest(
 
 export async function generateLongTermInsightRequest(
   summaryWindow: LongTermSummaryWindow,
+  locale: AppLocale = defaultLocale,
 ): Promise<LongTermInsightGenerationResult> {
   const response = await requestJson<LongTermInsightGenerationResponse>(
     "/api/v1/long-term/insights",
     {
       method: "POST",
-      body: JSON.stringify({ summaryWindow }),
+      body: JSON.stringify({ locale, summaryWindow }),
     },
   );
 

@@ -10,7 +10,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
-import { zhCN } from "@/i18n/messages/zh-CN";
+import type { Messages } from "@/i18n/messages";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 import { firebaseAuth, prepareFirebaseAuth } from "@/lib/firebase/client";
 
 type AuthMode = "login" | "register";
@@ -19,29 +20,31 @@ interface AuthFormProps {
   mode: AuthMode;
 }
 
-function mapFirebaseError(error: unknown): string {
+function mapFirebaseError(error: unknown, messages: Messages): string {
   if (!(error instanceof FirebaseError)) {
-    return zhCN.auth.errors.unknown;
+    return messages.auth.errors.unknown;
   }
 
   switch (error.code) {
     case "auth/email-already-in-use":
-      return zhCN.auth.errors.emailInUse;
+      return messages.auth.errors.emailInUse;
     case "auth/invalid-email":
-      return zhCN.auth.errors.invalidEmail;
+      return messages.auth.errors.invalidEmail;
     case "auth/invalid-credential":
     case "auth/user-not-found":
     case "auth/wrong-password":
-      return zhCN.auth.errors.invalidCredentials;
+      return messages.auth.errors.invalidCredentials;
     case "auth/weak-password":
-      return zhCN.auth.errors.weakPassword;
+      return messages.auth.errors.weakPassword;
     default:
-      return zhCN.auth.errors.unknown;
+      return messages.auth.errors.unknown;
   }
 }
 
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
+  const locale = useCurrentLocale();
+  const zhCN = useMessages();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const isLogin = mode === "login";
@@ -76,10 +79,10 @@ export function AuthForm({ mode }: AuthFormProps) {
       }
 
       await signOut(firebaseAuth);
-      router.replace("/zh-CN");
+      router.replace(`/${locale}`);
       router.refresh();
     } catch (error) {
-      setErrorMessage(mapFirebaseError(error));
+      setErrorMessage(mapFirebaseError(error, zhCN));
     } finally {
       setSubmitting(false);
     }
@@ -136,7 +139,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
       <p className="auth-switch">
         {isLogin ? zhCN.auth.noAccount : zhCN.auth.hasAccount}{" "}
-        <Link href={isLogin ? "/zh-CN/register" : "/zh-CN/login"}>
+        <Link href={isLogin ? `/${locale}/register` : `/${locale}/login`}>
           {isLogin ? zhCN.auth.goToRegister : zhCN.auth.goToLogin}
         </Link>
       </p>

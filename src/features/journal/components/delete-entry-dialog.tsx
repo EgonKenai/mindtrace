@@ -4,13 +4,14 @@ import { LoaderCircle, Trash2, X } from "lucide-react";
 import { useEffect, useReducer, useRef, useState } from "react";
 
 import { deleteDialogReducer } from "@/features/journal/form-state";
-import { zhCN } from "@/i18n/messages/zh-CN";
+import { useMessages } from "@/i18n/use-messages";
 
 interface DeleteEntryDialogProps {
   onConfirm: () => Promise<void>;
 }
 
 export function DeleteEntryDialog({ onConfirm }: DeleteEntryDialogProps) {
+  const messages = useMessages();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [state, dispatch] = useReducer(deleteDialogReducer, {
     open: false,
@@ -44,7 +45,7 @@ export function DeleteEntryDialog({ onConfirm }: DeleteEntryDialogProps) {
       await onConfirm();
       dispatch({ type: "finish" });
     } catch {
-      setErrorMessage(zhCN.journal.errors.deleteFailed);
+      setErrorMessage(messages.journal.errors.deleteFailed);
       dispatch({ type: "failure" });
     }
   }
@@ -60,7 +61,7 @@ export function DeleteEntryDialog({ onConfirm }: DeleteEntryDialogProps) {
         type="button"
       >
         <Trash2 aria-hidden="true" size={18} />
-        {zhCN.journal.actions.delete}
+        {messages.journal.actions.delete}
       </button>
 
       <dialog
@@ -83,8 +84,10 @@ export function DeleteEntryDialog({ onConfirm }: DeleteEntryDialogProps) {
             <Trash2 size={22} />
           </div>
           <div>
-            <h2 id="delete-entry-title">{zhCN.journal.deleteDialog.title}</h2>
-            <p>{zhCN.journal.deleteDialog.body}</p>
+            <h2 id="delete-entry-title">
+              {messages.journal.deleteDialog.title}
+            </h2>
+            <p>{messages.journal.deleteDialog.body}</p>
           </div>
         </div>
 
@@ -102,7 +105,7 @@ export function DeleteEntryDialog({ onConfirm }: DeleteEntryDialogProps) {
             type="button"
           >
             <X aria-hidden="true" size={18} />
-            {zhCN.common.cancel}
+            {messages.common.cancel}
           </button>
           <button
             className="danger-button"
@@ -120,8 +123,8 @@ export function DeleteEntryDialog({ onConfirm }: DeleteEntryDialogProps) {
               <Trash2 aria-hidden="true" size={18} />
             )}
             {state.deleting
-              ? zhCN.journal.deleteDialog.deleting
-              : zhCN.journal.deleteDialog.confirm}
+              ? messages.journal.deleteDialog.deleting
+              : messages.journal.deleteDialog.confirm}
           </button>
         </div>
       </dialog>

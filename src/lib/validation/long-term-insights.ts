@@ -9,6 +9,7 @@ import {
   LONG_TERM_INSIGHT_STATUSES,
   LONG_TERM_SUMMARY_WINDOWS,
 } from "@/features/long-term/model";
+import { defaultLocale, supportedLocales } from "@/i18n/config";
 
 const linkedTagsSchema = z
   .array(z.enum(JOURNAL_EVENT_TAG_IDS))
@@ -22,6 +23,7 @@ const summaryWindowSchema = z
 
 export const longTermInsightRequestSchema = z
   .object({
+    locale: z.enum(supportedLocales).default(defaultLocale),
     summaryWindow: summaryWindowSchema,
   })
   .strict();

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { SiteHeader } from "@/components/site-header";
-import { isSupportedLocale } from "@/i18n/config";
+import { isSupportedLocale, type AppLocale } from "@/i18n/config";
 
 export default async function LocaleLayout({
   children,
@@ -17,9 +17,11 @@ export default async function LocaleLayout({
     notFound();
   }
 
+  const appLocale: AppLocale = locale;
+
   return (
     <>
-      <SiteHeader />
+      <SiteHeader locale={appLocale} />
       {children}
     </>
   );

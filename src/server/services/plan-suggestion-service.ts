@@ -1,5 +1,6 @@
 import type { ActionPlan, PlanSuggestionDraft } from "@/features/plans/model";
 import type { PlanSuggestionReasonCode } from "@/features/plans/model";
+import type { AppLocale } from "@/i18n/config";
 import { planSuggestionRequestSchema } from "@/lib/validation/plan-suggestions";
 import { validatePlanSuggestionProviderOutput } from "@/server/ai/plan-suggestion-output-validation";
 import {
@@ -84,9 +85,10 @@ function serializeSuggestion(
 
 function buildProviderInput(
   summary: Awaited<ReturnType<typeof getLongTermSummary>>,
+  locale: AppLocale,
 ): AiPlanSuggestionProviderInput {
   return {
-    locale: "zh-CN",
+    locale,
     summary: {
       energyAverage: summary.energyAverage,
       entryCount: summary.entryCount,
@@ -210,7 +212,7 @@ export async function generatePlanSuggestion(
   try {
     rawOutput = await callProviderWithTimeout(
       provider,
-      buildProviderInput(summary),
+      buildProviderInput(summary, parsed.locale),
       dependencies.timeoutMs ?? getDefaultProviderTimeoutMs(),
     );
   } catch (error) {
