@@ -21,13 +21,16 @@ import {
   type PlanSuggestionRecord,
 } from "@/server/repositories/plan-suggestion-repository";
 import { createSuggestedPlanFromDraft } from "@/server/services/plan-service";
+import { getServerEnv } from "@/server/env";
 import {
   requireAiProcessingConsent,
   requireProductDataAccess,
 } from "@/server/services/product-access-service";
 import { getLongTermSummary } from "@/server/services/long-term-summary-service";
 
-const DEFAULT_PROVIDER_TIMEOUT_MS = 3_000;
+function getDefaultProviderTimeoutMs(): number {
+  return getServerEnv().GEMINI_PROVIDER_TIMEOUT_MS;
+}
 
 class ProviderTimeoutError extends Error {
   constructor() {
@@ -49,7 +52,9 @@ export interface PlanSuggestionServiceDependencies {
 }
 
 async function createDefaultProvider(): Promise<AiPlanSuggestionProvider | null> {
-  return null;
+  const { createConfiguredAiPlanSuggestionProvider } =
+    await import("@/server/ai/gemini-provider");
+  return createConfiguredAiPlanSuggestionProvider();
 }
 
 function serializeSuggestion(
@@ -206,7 +211,7 @@ export async function generatePlanSuggestion(
     rawOutput = await callProviderWithTimeout(
       provider,
       buildProviderInput(summary),
-      dependencies.timeoutMs ?? DEFAULT_PROVIDER_TIMEOUT_MS,
+      dependencies.timeoutMs ?? getDefaultProviderTimeoutMs(),
     );
   } catch (error) {
     return {

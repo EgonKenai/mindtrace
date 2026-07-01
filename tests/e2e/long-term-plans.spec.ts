@@ -7,12 +7,17 @@ test("user creates journal entries and views the long-term summary", async ({
   page,
 }) => {
   await registerAndConsent(page, "long-term-summary");
+  const currentWindowEntryTime = new Date();
+  const earlierEntryTime = new Date(
+    currentWindowEntryTime.getTime() - 60 * 60 * 1000,
+  );
+
   await createEntryViaApi(page, {
     energy: 6,
     eventTags: ["study", "sleep"],
     mood: 6,
     note: "完全虚构的长期摘要端到端测试记录一。",
-    occurredAt: "2026-06-23T15:30:00.000Z",
+    occurredAt: earlierEntryTime.toISOString(),
     sleepHours: 6.5,
     sleepQuality: 6,
     stress: 5,
@@ -22,7 +27,7 @@ test("user creates journal entries and views the long-term summary", async ({
     eventTags: ["study"],
     mood: 8,
     note: "完全虚构的长期摘要端到端测试记录二。",
-    occurredAt: "2026-06-24T10:30:00.000Z",
+    occurredAt: currentWindowEntryTime.toISOString(),
     sleepHours: 8,
     sleepQuality: 8,
     stress: 3,

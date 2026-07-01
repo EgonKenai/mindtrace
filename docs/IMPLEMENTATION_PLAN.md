@@ -153,7 +153,7 @@
 - 中文与基础英文的确定性规则组合、否定/历史/引用语境处理，以及 fail-closed 路由；
 - 固定、本地化的危机、支持和 Provider 降级响应；
 - 最多 1,200 个 Unicode 字符的 note Provider 输入，且不含任何账户或资源标识；
-- `AiFeedbackProvider` 抽象、AbortSignal、3 秒默认超时和测试专用 Fake Provider；
+- `AiFeedbackProvider` 抽象、AbortSignal、可配置有限超时和测试专用 Fake Provider；
 - 本地输出 schema 与诊断、药物、因果、依赖、绝对保证、电话号码、HTML、敏感原文复现校验；
 - `POST /api/v1/entries/[entryId]/feedback`，复用会话、当前同意、用户路径、Origin 和安全错误处理；
 - `AiFeedbackRepository` 持久化接口与安全数据形状，但本阶段不写入反馈副本。
@@ -166,7 +166,8 @@
 
 - 官方 `@google/genai` 2.10.0，仅由 `server-only` Gemini adapter 导入；
 - 服务端 `GEMINI_API_KEY` 和 `GEMINI_MODEL` 配置，缺一时继续安全降级；
-- 无状态 `models.generateContent`、AbortSignal、3 秒 service 超时和 429/502/503 一次有界重试；
+- AI feedback、AI plan suggestion 和 AI long-term insight 共用同一 server-only Gemini adapter 和服务端环境配置；
+- 无状态 `models.generateContent`、AbortSignal、默认 30 秒且可有限配置的 service 超时和 429/502/503 一次有界重试；
 - 严格 JSON response schema、保守生成参数和四类 `BLOCK_LOW_AND_ABOVE` safety settings；
 - blocked、空候选、malformed JSON、SDK 异常及本地 schema/content policy 失败的统一安全降级；
 - AI 第三方处理同意版本 `2026-06-25-v2`，与日记基础准入分离；

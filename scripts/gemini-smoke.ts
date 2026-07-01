@@ -24,7 +24,7 @@ type SmokeFailureKind =
 interface SmokeReport {
   fallbackUsed: boolean;
   failureKind: SmokeFailureKind | null;
-  latencyRange: "<1s" | "1-3s" | "3-10s" | ">10s";
+  latencyRange: "<1s" | "1-3s" | "3-10s" | "10-30s" | ">30s";
   policyDecision: FeedbackPolicyDecision;
   providerCalled: boolean;
   reasonCodes: string[];
@@ -41,7 +41,6 @@ const requiredEnvironmentVariables = [
   "GEMINI_API_KEY",
   "GEMINI_MODEL",
 ] as const;
-const providerTimeoutMs = 10_000;
 const fictionalSmokeNote = "今天完成了学习任务，下午有点累，晚上准备早点休息。";
 
 registerHooks({
@@ -92,7 +91,11 @@ function latencyRange(startedAt: number): SmokeReport["latencyRange"] {
     return "3-10s";
   }
 
-  return ">10s";
+  if (elapsedMs < 30_000) {
+    return "10-30s";
+  }
+
+  return ">30s";
 }
 
 function printReport(report: SmokeReport): void {
@@ -188,6 +191,7 @@ async function runSmoke(): Promise<void> {
       feedbackValidationModule,
       feedbackModelModule,
       messagesModule,
+      envModule,
     ] = await Promise.all([
       import("firebase-admin/firestore"),
       importProjectModule<typeof import("../src/server/ai/input")>(
@@ -211,7 +215,12 @@ async function runSmoke(): Promise<void> {
       importProjectModule<typeof import("../src/i18n/messages/zh-CN")>(
         "src/i18n/messages/zh-CN.ts",
       ),
+      importProjectModule<typeof import("../src/server/env")>(
+        "src/server/env.ts",
+      ),
     ]);
+    const providerTimeoutMs =
+      envModule.getServerEnv().GEMINI_PROVIDER_TIMEOUT_MS;
 
     const timestamp = firestoreModule.Timestamp.fromDate(
       new Date("2026-06-25T12:00:00.000Z"),

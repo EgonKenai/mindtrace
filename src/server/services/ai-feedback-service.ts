@@ -26,8 +26,11 @@ import {
   requireAiProcessingConsent,
   requireProductDataAccess,
 } from "@/server/services/product-access-service";
+import { getServerEnv } from "@/server/env";
 
-const DEFAULT_PROVIDER_TIMEOUT_MS = 3_000;
+function getDefaultProviderTimeoutMs(): number {
+  return getServerEnv().GEMINI_PROVIDER_TIMEOUT_MS;
+}
 
 export interface FeedbackAuditEvent {
   decision: FeedbackResult["policyDecision"];
@@ -185,7 +188,7 @@ export async function generateEntryFeedback(
     rawOutput = await callProviderWithTimeout(
       provider,
       providerInput,
-      dependencies.timeoutMs ?? DEFAULT_PROVIDER_TIMEOUT_MS,
+      dependencies.timeoutMs ?? getDefaultProviderTimeoutMs(),
     );
   } catch (error) {
     return recordAndSerialize(

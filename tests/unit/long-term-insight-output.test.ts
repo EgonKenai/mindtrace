@@ -70,6 +70,32 @@ describe("long-term insight output validation", () => {
       reason: "invalid",
       success: false,
     });
+    const missingCoreField: Partial<typeof validOutput> = { ...validOutput };
+    delete missingCoreField.overview;
+
+    expect(
+      validateLongTermInsightProviderOutput(missingCoreField),
+    ).toMatchObject({
+      reason: "invalid",
+      reasonCodes: ["schema_validation_failed"],
+      success: false,
+    });
+  });
+
+  it("normalizes lightly missing non-core arrays without inventing core insight text", () => {
+    const output: Partial<typeof validOutput> = { ...validOutput };
+    delete output.planSuggestionRefs;
+    delete output.strengths;
+    delete output.watchPoints;
+
+    expect(validateLongTermInsightProviderOutput(output)).toMatchObject({
+      output: {
+        planSuggestionRefs: [],
+        strengths: [],
+        watchPoints: [],
+      },
+      success: true,
+    });
   });
 
   it("rejects diagnosis, medication, treatment promises, absolute language, and HTML", () => {
