@@ -28,8 +28,11 @@ import {
   requireAiProcessingConsent,
   requireProductDataAccess,
 } from "@/server/services/product-access-service";
+import { getServerEnv } from "@/server/env";
 
-const DEFAULT_PROVIDER_TIMEOUT_MS = 3_000;
+function getDefaultProviderTimeoutMs(): number {
+  return getServerEnv().GEMINI_PROVIDER_TIMEOUT_MS;
+}
 
 class ProviderTimeoutError extends Error {
   constructor() {
@@ -51,7 +54,9 @@ export interface LongTermInsightServiceDependencies {
 }
 
 async function createDefaultProvider(): Promise<AiLongTermInsightProvider | null> {
-  return null;
+  const { createConfiguredAiLongTermInsightProvider } =
+    await import("@/server/ai/gemini-provider");
+  return createConfiguredAiLongTermInsightProvider();
 }
 
 function serializeInsight(
@@ -219,7 +224,7 @@ export async function generateLongTermInsight(
     rawOutput = await callProviderWithTimeout(
       provider,
       buildProviderInput(summary),
-      dependencies.timeoutMs ?? DEFAULT_PROVIDER_TIMEOUT_MS,
+      dependencies.timeoutMs ?? getDefaultProviderTimeoutMs(),
     );
   } catch (error) {
     return {

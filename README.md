@@ -141,9 +141,10 @@ Copy-Item .env.example .env.local
 ```text
 GEMINI_API_KEY=
 GEMINI_MODEL=
+GEMINI_PROVIDER_TIMEOUT_MS=30000
 ```
 
-两个值缺一不可。不要使用 `NEXT_PUBLIC_` 前缀。本阶段验证不需要也不会使用真实值。
+`GEMINI_API_KEY` 和 `GEMINI_MODEL` 两个值缺一不可；timeout 可保留默认值。不要使用 `NEXT_PUBLIC_` 前缀。本阶段验证不需要也不会使用真实值。
 
 ## 本地 Gemini 冒烟测试
 
@@ -155,7 +156,7 @@ GEMINI_MODEL=
 pnpm smoke:gemini
 ```
 
-如果缺少任一变量，脚本会安全跳过并提示缺少变量，不发送请求。配置齐全时，输出仅包含 `requestSucceeded`、`providerCalled`、`policyDecision`、`schemaPassed`、`safetyPassed`、`fallbackUsed` 和延迟区间。脚本不会打印 API Key、完整 Prompt、完整 Gemini 原始输出、用户 ID、邮箱、Cookie、token、Firestore 路径或真实日记内容。
+如果缺少任一变量，脚本会安全跳过并提示缺少变量，不发送请求。配置齐全时，输出仅包含 `requestSucceeded`、`providerCalled`、`policyDecision`、`schemaPassed`、`safetyPassed`、`fallbackUsed` 和延迟区间。真实 Gemini 演示默认等待约 30 秒，可用服务端 `GEMINI_PROVIDER_TIMEOUT_MS` 在有限范围内覆盖；超时仍返回安全降级。脚本不会打印 API Key、完整 Prompt、完整 Gemini 原始输出、用户 ID、邮箱、Cookie、token、Firestore 路径或真实日记内容。
 
 该命令不属于 CI 流程；GitHub Actions 不设置真实 Gemini Key，也不运行真实 Gemini 请求。
 

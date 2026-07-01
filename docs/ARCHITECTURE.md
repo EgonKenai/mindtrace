@@ -407,9 +407,10 @@ interface BillingProvider {
 
 - `src/server/ai/gemini-provider.ts` 是唯一导入 `@google/genai` 的模块，并使用 `server-only` 编译哨兵。
 - `GEMINI_API_KEY` 与 `GEMINI_MODEL` 只由服务端环境 schema 读取；缺一时 Provider factory 返回未配置状态。
+- AI feedback、AI plan suggestion 和 AI long-term insight 都通过同一 Gemini adapter 读取 `GEMINI_API_KEY`、`GEMINI_MODEL` 和 `GEMINI_PROVIDER_TIMEOUT_MS`；不得在各功能中复制独立 Gemini 配置。
 - 调用 API 为无状态 `models.generateContent`，不使用 Interactions、chat、previous interaction ID、background、tools、search 或 cache。`generateContent` 不提供 `store` 字段，因此不会创建 interaction；内部状态策略显式记录 `store: false`。
 - 请求把系统指令与序列化的最小用户数据分开，使用 JSON response schema，并显式启用四类 `BLOCK_LOW_AND_ABOVE` 安全过滤。
-- SDK client 接收 service 的 AbortSignal；service 以 3 秒超时中止等待。429、502、503 最多额外尝试一次。
+- SDK client 接收 service 的 AbortSignal；阶段 6B 起 service 默认以 30 秒超时中止等待，并可通过服务端 `GEMINI_PROVIDER_TIMEOUT_MS` 在有限范围内调整。429、502、503 最多额外尝试一次。
 - prompt safety block、candidate safety finish、空候选、malformed JSON、schema 失败及内容策略失败全部进入固定降级。
 - `accounts/{uid}/consents/ai-processing-2026-06-25-v2` 单独保存 AI 处理接受/拒绝决定。产品基础 consent 不再要求 AI 接受；只有即将调用配置 Provider 时才校验该文档。
 

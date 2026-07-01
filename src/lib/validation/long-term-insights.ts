@@ -53,9 +53,9 @@ export const providerLongTermInsightOutputSchema = z
     overview: z.string().min(1).max(1_000),
     patterns: z.array(longTermInsightPatternSchema).min(1).max(5),
     planSuggestionRefs: z.array(z.string().min(1).max(128)).max(5).default([]),
-    strengths: z.array(z.string().min(1).max(300)).min(1).max(5),
+    strengths: z.array(z.string().min(1).max(300)).max(5).default([]),
     title: z.string().min(1).max(140),
-    watchPoints: z.array(z.string().min(1).max(300)).min(1).max(5),
+    watchPoints: z.array(z.string().min(1).max(300)).max(5).default([]),
   })
   .strict();
 

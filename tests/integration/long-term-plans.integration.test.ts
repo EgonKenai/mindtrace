@@ -40,7 +40,7 @@ const baseEntry = {
   eventTags: ["study", "sleep"],
   mood: 5,
   note: "完全虚构的长期摘要集成测试记录。",
-  occurredAt: "2026-06-23T15:30:00.000Z",
+  occurredAt: new Date().toISOString(),
   sleepHours: 7.5,
   sleepQuality: 8,
   stress: 4,
@@ -104,11 +104,13 @@ describe("long-term summary and plans with Firebase emulators", () => {
     await createJournalEntry(userA, {
       ...baseEntry,
       mood: 4,
+      occurredAt: "2026-06-23T15:30:00.000Z",
       stress: 6,
     });
     await createJournalEntry(userB, {
       ...baseEntry,
       mood: 10,
+      occurredAt: "2026-06-23T15:30:00.000Z",
       stress: 10,
     });
 

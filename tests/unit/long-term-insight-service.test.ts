@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { AiLongTermInsightProviderError } from "@/server/ai/long-term-insight-provider";
 import { AiProcessingConsentRequiredError } from "@/server/http/responses";
 import { FakeAiLongTermInsightProvider } from "../fixtures/fake-ai-long-term-insight-provider";
 
@@ -192,6 +193,26 @@ describe("AI long-term insight service", () => {
       ),
     ).resolves.toMatchObject({
       reasonCodes: ["PROVIDER_TIMEOUT"],
+      status: "safe_fallback",
+    });
+  });
+
+  it("returns safe fallback when the provider is unavailable", async () => {
+    await expect(
+      generateLongTermInsight(
+        "server-user",
+        { summaryWindow: 7 },
+        {
+          provider: {
+            providerType: "unavailable",
+            generateLongTermInsight: () => {
+              throw new AiLongTermInsightProviderError("unavailable");
+            },
+          },
+        },
+      ),
+    ).resolves.toMatchObject({
+      reasonCodes: ["PROVIDER_UNAVAILABLE"],
       status: "safe_fallback",
     });
   });

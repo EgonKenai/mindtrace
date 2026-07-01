@@ -42,9 +42,11 @@ MindTrace 的 AI 反馈只用于简短情绪反思和低风险自我照顾建议
 - `reasonCodes: ["PROVIDER_NOT_CONFIGURED"]`
 - 本地化固定降级文案
 
+阶段 6B-2 起，AI feedback、AI plan suggestion 和 AI long-term insight 均通过同一个 server-only Gemini adapter 读取 `GEMINI_API_KEY`、`GEMINI_MODEL` 和 `GEMINI_PROVIDER_TIMEOUT_MS`。计划建议和长期洞察仍使用各自的最小化聚合输入、结构化 JSON schema、本地 strict schema 校验和输出安全校验；不得保存完整 prompt 或 Gemini 原始输出。
+
 测试使用 `tests/fixtures/fake-ai-feedback-provider.ts`。Fake Provider 不进入生产业务代码。
 
-Provider 调用使用 `AbortSignal` 和 3 秒 service 超时。只有 429、502、503 可进行一次额外尝试；其余错误不重试。blocked、empty candidate、malformed JSON、unavailable、rate limited、timeout 和未知异常只映射为稳定 reason code 或本地 strict validation 失败，不回显供应商错误。
+Provider 调用使用 `AbortSignal` 和有限 service 超时。阶段 6B 为本地真实 Gemini 演示将默认值调整为 30 秒，并可通过服务端 `GEMINI_PROVIDER_TIMEOUT_MS` 在 1 到 60 秒内覆盖；超时仍返回 `PROVIDER_TIMEOUT` 安全降级。只有 429、502、503 可进行一次额外尝试；其余错误不重试。blocked、empty candidate、malformed JSON、unavailable、rate limited、timeout 和未知异常只映射为稳定 reason code 或本地 strict validation 失败，不回显供应商错误。
 
 Gemini 请求显式设置：
 
