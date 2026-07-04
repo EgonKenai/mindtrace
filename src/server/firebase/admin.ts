@@ -1,5 +1,6 @@
 import {
   applicationDefault,
+  cert,
   getApp,
   getApps,
   initializeApp,
@@ -8,6 +9,21 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { getServerEnv } from "@/server/env";
+
+function getProductionCredential(projectId: string) {
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+  if (clientEmail && privateKey) {
+    return cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    });
+  }
+
+  return applicationDefault();
+}
 
 function getAdminApp() {
   if (getApps().length > 0) {
@@ -21,7 +37,9 @@ function getAdminApp() {
 
   return initializeApp({
     projectId: FIREBASE_PROJECT_ID,
-    ...(usingEmulator ? {} : { credential: applicationDefault() }),
+    ...(usingEmulator
+      ? {}
+      : { credential: getProductionCredential(FIREBASE_PROJECT_ID) }),
   });
 }
 
