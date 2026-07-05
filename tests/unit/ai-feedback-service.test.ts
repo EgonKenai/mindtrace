@@ -66,9 +66,14 @@ beforeEach(() => {
 describe("AI feedback service orchestration", () => {
   it("calls a fake provider once for ordinary journal content", async () => {
     const provider = new FakeAiFeedbackProvider();
-    const result = await generateEntryFeedback("fictional-user", "entry-1", {
-      provider,
-    });
+    const result = await generateEntryFeedback(
+      "fictional-user",
+      "entry-1",
+      {
+        provider,
+      },
+      "zh-CN",
+    );
 
     expect(provider.calls).toHaveLength(1);
     expect(requireAiProcessingConsentMock).toHaveBeenCalledWith(
@@ -103,9 +108,14 @@ describe("AI feedback service orchestration", () => {
   ])("never calls the provider for a redirect", async (note, status) => {
     getJournalEntryRecordMock.mockResolvedValue(createEntry(note));
     const provider = new FakeAiFeedbackProvider();
-    const result = await generateEntryFeedback("fictional-user", "entry-1", {
-      provider,
-    });
+    const result = await generateEntryFeedback(
+      "fictional-user",
+      "entry-1",
+      {
+        provider,
+      },
+      "zh-CN",
+    );
 
     expect(provider.calls).toHaveLength(0);
     expect(requireAiProcessingConsentMock).not.toHaveBeenCalled();
@@ -119,9 +129,14 @@ describe("AI feedback service orchestration", () => {
       suggestions: [],
     });
 
-    const result = await generateEntryFeedback("fictional-user", "entry-1", {
-      provider,
-    });
+    const result = await generateEntryFeedback(
+      "fictional-user",
+      "entry-1",
+      {
+        provider,
+      },
+      "zh-CN",
+    );
 
     expect(provider.calls).toHaveLength(0);
     expect(result.reflection).toBe(zhCN.aiFeedback.crisis.reflection);

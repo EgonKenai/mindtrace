@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import type { AppLocale } from "@/i18n/config";
-import { isSupportedLocale } from "@/i18n/config";
+import { defaultLocale, isSupportedLocale } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 import { getAccessState, requireSessionPage } from "@/server/auth/access";
 
@@ -14,7 +14,9 @@ interface SettingsPageProps {
 
 export default async function SettingsPage({ params }: SettingsPageProps) {
   const { locale } = await params;
-  const appLocale: AppLocale = isSupportedLocale(locale) ? locale : "zh-CN";
+  const appLocale: AppLocale = isSupportedLocale(locale)
+    ? locale
+    : defaultLocale;
   const zhCN = getMessages(appLocale);
   const user = await requireSessionPage(appLocale);
   const access = await getAccessState(user.uid);

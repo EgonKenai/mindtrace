@@ -51,7 +51,7 @@ describe("authentication and consent with Firebase emulators", () => {
     const accountBeforeConsent = await getAccount(decodedToken.uid);
 
     expect(accountBeforeConsent).toMatchObject({
-      locale: "zh-CN",
+      locale: "en",
       status: "active",
       timeZone: "UTC",
     });

@@ -118,7 +118,7 @@ describe("AI long-term insight service", () => {
     expect(result.status).toBe("generated");
     expect(provider.calls).toHaveLength(1);
     expect(provider.calls[0]).toMatchObject({
-      locale: "zh-CN",
+      locale: "en",
       summary: {
         entryCount: 3,
         summaryWindow: 7,

@@ -64,7 +64,7 @@ describe("POST entry feedback route", () => {
       "verified-session-user",
       "entry-1",
       {},
-      "zh-CN",
+      "en",
     );
     expect(body).toEqual({
       data: {
