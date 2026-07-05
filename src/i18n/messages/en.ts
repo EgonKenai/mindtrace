@@ -127,7 +127,7 @@ export const en = {
       },
       {
         title: "Create a manual plan",
-        body: "Plans are confirmed by the user. AI drafts never auto-save as plans.",
+        body: "Create plans manually, or ask AI to draft plan suggestions that require your confirmation.",
         href: "/en/plans",
       },
     ],
@@ -135,11 +135,11 @@ export const en = {
     infoCards: [
       {
         title: "Daily journal",
-        body: "Multiple entries per day are allowed. User ownership always comes from the verified server session.",
+        body: "Records are saved to your personal account so you can review history and generate trends.",
       },
       {
         title: "Trends and summaries",
-        body: "Trends and summaries use the user's saved local dates and do not copy full journal text.",
+        body: "Trends and summaries are organized by the local date when each record was saved.",
       },
       {
         title: "Optional AI drafts",
@@ -148,7 +148,7 @@ export const en = {
     ],
     aiBoundaryTitle: "AI is for reflection only",
     aiBoundaryBody:
-      "MindTrace does not provide diagnosis, treatment, medication guidance, or emergency response. Real Gemini calls require manual server configuration and separate verification.",
+      "AI-generated content is for reflection only and does not provide diagnosis, treatment, medication, or emergency-response advice.",
     safetyAction: "View safety resources",
     boundaryAction: "View product boundary",
   },
@@ -278,7 +278,7 @@ export const en = {
     eyebrow: "Long-term review",
     title: "Long-term summary",
     intro:
-      "Review 7, 14, or 30 day windows by saved local date. Deterministic summaries do not call Gemini and do not copy full journal text.",
+      "Review the last 7, 14, or 30 days using your local dates. Summaries are generated from structured record data, do not call Gemini, and do not copy full journal text.",
     loading: "Loading long-term summary...",
     errorTitle: "Could not load long-term summary",
     errorBody:
@@ -349,7 +349,7 @@ export const en = {
     eyebrow: "Action plans",
     title: "Plans",
     intro:
-      "Create manual plans and simple action items. AI suggestions are optional drafts and must be confirmed by you before saving.",
+      "Create plans manually, or ask AI to draft plan suggestions that require your confirmation.",
     loading: "Loading plans...",
     emptyTitle: "No plans yet",
     emptyBody:
