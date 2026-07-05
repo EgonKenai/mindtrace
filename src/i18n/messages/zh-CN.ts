@@ -72,6 +72,10 @@ export const zhCN = {
     aiCheckbox: "我同意当前版本的第三方 AI 数据处理说明。",
     aiOptionalHint:
       "此项可选。不同意不会影响日记、历史或趋势；系统不会调用第三方 AI Provider。",
+    languageTitle: "显示语言",
+    languageBody: "选择完成确认后进入 MindTrace 时使用的界面语言。",
+    languageLabel: "语言",
+    languageHint: "只影响界面语言；你之后仍可在页头切换。",
     timeZoneLabel: "你的时区",
     timeZoneHint: "用于确定记录所属的本地日期，可稍后在设置中修改。",
     submit: "完成确认",

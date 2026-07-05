@@ -122,12 +122,13 @@ test("user handles AI plan suggestion consent, save, and dismiss flow", async ({
 }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await registerAndConsent(page, "plan-suggestion-ui");
+  const currentWindowEntryTime = new Date();
   await createEntryViaApi(page, {
     energy: 6,
     eventTags: ["study", "sleep"],
     mood: 6,
     note: "完全虚构的计划建议端到端测试记录。",
-    occurredAt: "2026-06-24T15:30:00.000Z",
+    occurredAt: currentWindowEntryTime.toISOString(),
     sleepHours: 6.5,
     sleepQuality: 6,
     stress: 5,
@@ -320,12 +321,13 @@ test("user handles AI long-term insight consent, save, dismiss, and fallback flo
 }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await registerAndConsent(page, "long-term-insight-ui");
+  const currentWindowEntryTime = new Date();
   await createEntryViaApi(page, {
     energy: 6,
     eventTags: ["study", "sleep"],
     mood: 6,
     note: "完全虚构的长期洞察端到端测试记录。",
-    occurredAt: "2026-06-24T15:30:00.000Z",
+    occurredAt: currentWindowEntryTime.toISOString(),
     sleepHours: 6.5,
     sleepQuality: 6,
     stress: 5,
