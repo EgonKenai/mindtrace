@@ -76,6 +76,12 @@ export const en = {
     aiCheckbox: "I accept the current third-party AI data processing notice.",
     aiOptionalHint:
       "This is optional. Declining does not affect journal, history, trends, long-term summaries, or manual plans.",
+    languageTitle: "Display language",
+    languageBody:
+      "Choose the interface language to use after you finish confirmation.",
+    languageLabel: "Language",
+    languageHint:
+      "This only changes the interface language. You can still switch in the header later.",
     timeZoneLabel: "Your time zone",
     timeZoneHint:
       "Used to calculate each entry's local date. You can change it later in settings.",

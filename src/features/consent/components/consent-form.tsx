@@ -3,12 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 
+import type { AppLocale } from "@/i18n/config";
+import { localeLabels, supportedLocales } from "@/i18n/config";
 import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 export function ConsentForm() {
   const router = useRouter();
   const locale = useCurrentLocale();
   const zhCN = useMessages();
+  const [selectedLocale, setSelectedLocale] = useState<AppLocale>(locale);
   const defaultTimeZone = useMemo(
     () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
     [],
@@ -27,7 +30,7 @@ export function ConsentForm() {
       productBoundaryAccepted: formData.get("productBoundaryAccepted") === "on",
       privacyAccepted: formData.get("privacyAccepted") === "on",
       aiProcessingAccepted: formData.get("aiProcessingAccepted") === "on",
-      locale,
+      locale: selectedLocale,
       timeZone: String(formData.get("timeZone") ?? ""),
     };
 
@@ -59,7 +62,7 @@ export function ConsentForm() {
         return;
       }
 
-      router.replace(`/${locale}/today`);
+      router.replace(`/${selectedLocale}/today`);
       router.refresh();
     } catch {
       setErrorMessage(zhCN.consent.errors.saveFailed);
@@ -105,6 +108,28 @@ export function ConsentForm() {
           <span>{zhCN.consent.aiCheckbox}</span>
         </label>
         <small className="field-hint">{zhCN.consent.aiOptionalHint}</small>
+      </section>
+
+      <section className="consent-section">
+        <h2>{zhCN.consent.languageTitle}</h2>
+        <p>{zhCN.consent.languageBody}</p>
+        <label className="field">
+          <span>{zhCN.consent.languageLabel}</span>
+          <select
+            name="locale"
+            onChange={(event) =>
+              setSelectedLocale(event.currentTarget.value as AppLocale)
+            }
+            value={selectedLocale}
+          >
+            {supportedLocales.map((supportedLocale) => (
+              <option key={supportedLocale} value={supportedLocale}>
+                {localeLabels[supportedLocale]}
+              </option>
+            ))}
+          </select>
+          <small className="field-hint">{zhCN.consent.languageHint}</small>
+        </label>
       </section>
 
       <label className="field">
