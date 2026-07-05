@@ -119,7 +119,7 @@ export const zhCN = {
       },
       {
         title: "创建手动计划",
-        body: "先由用户创建和确认行动计划，AI 草稿不会自动保存为计划。",
+        body: "创建手动计划，或让 AI 生成需要你确认的计划建议草稿。",
         href: "/zh-CN/plans",
       },
     ],
@@ -127,11 +127,11 @@ export const zhCN = {
     infoCards: [
       {
         title: "每日记录",
-        body: "同一天可以记录多次，系统使用服务端会话识别用户，不接受客户端传入的 ownerId。",
+        body: "记录会保存到你的个人账户中，用于查看历史和生成趋势。",
       },
       {
         title: "趋势与摘要",
-        body: "趋势、长期摘要和计划都基于自己的记录生成，日期边界使用保存时的本地日期。",
+        body: "趋势和摘要会按照你保存记录时的本地日期整理。",
       },
       {
         title: "AI 低风险草稿",
@@ -140,7 +140,7 @@ export const zhCN = {
     ],
     aiBoundaryTitle: "AI 仅供反思参考",
     aiBoundaryBody:
-      "MindTrace 不提供诊断、治疗、用药或紧急响应。AI 功能默认使用测试配置；真实 Gemini 需要手动配置并单独验证。",
+      "AI 相关内容仅供反思参考，不提供诊断、治疗、用药或紧急响应建议。",
     safetyAction: "查看安全资源",
     boundaryAction: "查看产品边界",
   },
@@ -294,7 +294,7 @@ export const zhCN = {
     eyebrow: "长期回顾",
     title: "长期摘要",
     intro:
-      "按用户本地日期回顾最近 7、14 或 30 天的记录。摘要由确定性算法生成，不调用 Gemini，也不复制完整日记正文。",
+      "按你的本地日期回顾最近 7、14 或 30 天的记录。摘要基于记录中的结构化信息生成，不调用 Gemini，也不会复制完整日记正文。",
     loading: "正在加载长期摘要…",
     errorTitle: "无法加载长期摘要",
     errorBody: "长期摘要暂时不可用，请稍后重试。",
@@ -356,8 +356,7 @@ export const zhCN = {
   plans: {
     eyebrow: "行动计划",
     title: "长期计划",
-    intro:
-      "创建手动计划和简单行动项。阶段 4A 不会让 AI 自动创建计划，未来 AI 建议也必须由用户确认后才保存。",
+    intro: "创建手动计划，或让 AI 生成需要你确认的计划建议草稿。",
     loading: "正在加载计划…",
     emptyTitle: "还没有计划",
     emptyBody:

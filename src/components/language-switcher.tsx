@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -27,14 +28,16 @@ export function LanguageSwitcher() {
 
   return (
     <nav aria-label="Language" className="language-switcher">
-      {supportedLocales.map((locale) => (
-        <Link
-          aria-current={currentLocale === locale ? "page" : undefined}
-          href={switchLocale(pathname, locale)}
-          key={locale}
-        >
-          {localeLabels[locale]}
-        </Link>
+      {supportedLocales.map((locale, index) => (
+        <Fragment key={locale}>
+          {index > 0 ? <span aria-hidden="true"> / </span> : null}
+          <Link
+            aria-current={currentLocale === locale ? "page" : undefined}
+            href={switchLocale(pathname, locale)}
+          >
+            {localeLabels[locale]}
+          </Link>
+        </Fragment>
       ))}
     </nav>
   );
