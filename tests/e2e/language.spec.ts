@@ -47,6 +47,18 @@ async function completeOnboardingWithLanguage(
 }
 
 test.describe("language switcher", () => {
+  test("root path defaults to English", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/en(?:\/login)?$/);
+
+    await page.goto("/en");
+    await expect(
+      page.getByRole("heading", {
+        name: /Record once, see patterns|Log in/,
+      }),
+    ).toBeVisible();
+  });
+
   test("preserves the semantic path between Chinese and English", async ({
     page,
   }) => {
