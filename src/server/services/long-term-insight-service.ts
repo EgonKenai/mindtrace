@@ -192,6 +192,7 @@ export async function generateLongTermInsight(
   const context = await requireProductDataAccess(userId);
   const parsed = longTermInsightRequestSchema.parse(input);
   const summary = await getLongTermSummary(context.userId, {
+    locale: parsed.locale,
     window: parsed.summaryWindow,
   });
 

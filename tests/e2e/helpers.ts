@@ -23,7 +23,7 @@ function hasApiPath(candidateUrl: string, pathname: string): boolean {
 
 async function clearBrowserAuthState(page: Page): Promise<void> {
   await page.context().clearCookies();
-  await page.goto("/zh-CN", { waitUntil: "domcontentloaded" });
+  await page.goto("/zh-CN/login", { waitUntil: "domcontentloaded" });
   await page.evaluate(async () => {
     localStorage.clear();
     sessionStorage.clear();

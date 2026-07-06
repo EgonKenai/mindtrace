@@ -133,6 +133,7 @@ describe("AI long-term insight service", () => {
       /uid|email|Cookie|token|Firestore|entryId|note|client-user/i,
     );
     expect(mocks.getLongTermSummary).toHaveBeenCalledWith("server-user", {
+      locale: "en",
       window: 7,
     });
   });

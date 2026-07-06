@@ -1,5 +1,28 @@
 import { expect, test } from "@playwright/test";
 
+import { en } from "@/i18n/messages/en";
+import { zhCN } from "@/i18n/messages/zh-CN";
+
+interface TodayJournalCopy {
+  journal: {
+    actions: {
+      submit: string;
+    };
+    errors: {
+      eventTags: string;
+    };
+    eventTags: {
+      study: string;
+    };
+    success: {
+      body: string;
+      title: string;
+    };
+  };
+}
+
+const chineseTextPattern = /[\u3400-\u9fff]/;
+
 async function registerForLocale(
   page: import("@playwright/test").Page,
   locale: "zh-CN" | "en",
@@ -44,6 +67,40 @@ async function completeOnboardingWithLanguage(
 
   expect(response.status()).toBe(201);
   await expect(page).toHaveURL(new RegExp(`/${locale}/today$`));
+}
+
+async function expectTodayValidationAndSuccess(
+  page: import("@playwright/test").Page,
+  messages: TodayJournalCopy,
+  tagName: string,
+): Promise<void> {
+  await page
+    .getByRole("button", { name: messages.journal.actions.submit })
+    .click();
+  await expect(page.getByText(messages.journal.errors.eventTags)).toBeVisible();
+
+  await page.getByLabel(tagName, { exact: true }).check();
+  const createResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname === "/api/v1/entries",
+  );
+  await page
+    .getByRole("button", { name: messages.journal.actions.submit })
+    .click();
+  expect((await createResponse).status()).toBe(201);
+
+  await expect(
+    page.getByRole("heading", { name: messages.journal.success.title }),
+  ).toBeVisible();
+  await expect(page.getByText(messages.journal.success.body)).toBeVisible();
+}
+
+async function expectMainHasNoChineseText(
+  page: import("@playwright/test").Page,
+): Promise<void> {
+  const mainText = await page.locator("main").innerText();
+  expect(mainText).not.toMatch(chineseTextPattern);
 }
 
 test.describe("language switcher", () => {
@@ -115,5 +172,77 @@ test.describe("language switcher", () => {
     await expect(
       page.getByRole("heading", { name: "Record how things feel right now" }),
     ).toBeVisible();
+  });
+
+  test("English today page shows English validation and success copy", async ({
+    page,
+  }) => {
+    await registerForLocale(page, "en");
+    await completeOnboardingWithLanguage(page, "en");
+
+    await expectTodayValidationAndSuccess(page, en, en.journal.eventTags.study);
+    await expectMainHasNoChineseText(page);
+  });
+
+  test("English journal, trend, and long-term pages use English copy and dates", async ({
+    page,
+  }) => {
+    await registerForLocale(page, "en");
+    await completeOnboardingWithLanguage(page, "en");
+    await expectTodayValidationAndSuccess(page, en, en.journal.eventTags.study);
+
+    await page
+      .getByRole("link", { name: en.journal.actions.viewHistory })
+      .click();
+    await expect(page).toHaveURL(/\/en\/history$/);
+    await expectMainHasNoChineseText(page);
+    await expect(page.locator(".entry-local-date").first()).not.toContainText(
+      "年",
+    );
+
+    await page
+      .getByRole("link", { name: en.journal.actions.viewEntry })
+      .click();
+    await expect(page).toHaveURL(/\/en\/entries\/[^/]+$/);
+    await expectMainHasNoChineseText(page);
+    await page.getByRole("button", { name: en.journal.actions.delete }).click();
+    await expect(
+      page.getByRole("heading", { name: en.journal.deleteDialog.title }),
+    ).toBeVisible();
+    await expect(page.getByText(en.journal.deleteDialog.body)).toBeVisible();
+    const deleteDialog = page.getByRole("dialog", {
+      name: en.journal.deleteDialog.title,
+    });
+    await expect(
+      deleteDialog.getByRole("button", {
+        name: en.journal.deleteDialog.confirm,
+      }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    await page.goto("/en/trends");
+    await expect(page.getByText("Range 1–10 pts").first()).toBeVisible();
+    await expectMainHasNoChineseText(page);
+
+    await page.goto("/en/long-term");
+    await expect(
+      page.getByText(
+        "This window has many missing dates, so the summary is best used as a very rough review.",
+      ),
+    ).toBeVisible();
+    await expectMainHasNoChineseText(page);
+  });
+
+  test("Chinese today page keeps Chinese validation and success copy", async ({
+    page,
+  }) => {
+    await registerForLocale(page, "zh-CN");
+    await completeOnboardingWithLanguage(page, "zh-CN");
+
+    await expectTodayValidationAndSuccess(
+      page,
+      zhCN,
+      zhCN.journal.eventTags.study,
+    );
   });
 });

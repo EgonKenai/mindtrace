@@ -35,11 +35,12 @@ import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 function renderAverage(
   value: number | null,
   zhCN: Messages,
+  locale: string,
   unit = "",
 ): string {
   return value === null
     ? zhCN.longTerm.noData
-    : `${formatTrendNumber(value)}${unit}`;
+    : `${formatTrendNumber(value, locale)}${unit}`;
 }
 
 function renderInsightSections(insight: LongTermInsightDraft, zhCN: Messages) {
@@ -140,7 +141,7 @@ export function LongTermSummaryDashboard() {
       setError(false);
 
       try {
-        setSummary(await getLongTermSummaryRequest(window, signal));
+        setSummary(await getLongTermSummaryRequest(window, locale, signal));
       } catch (requestError) {
         if (signal?.aborted) {
           return;
@@ -160,13 +161,13 @@ export function LongTermSummaryDashboard() {
         }
       }
     },
-    [redirectForAccessError],
+    [locale, redirectForAccessError],
   );
 
   useEffect(() => {
     const controller = new AbortController();
 
-    void getLongTermSummaryRequest(selectedWindow, controller.signal)
+    void getLongTermSummaryRequest(selectedWindow, locale, controller.signal)
       .then((result) => setSummary(result))
       .catch((requestError: unknown) => {
         if (controller.signal.aborted) {
@@ -189,7 +190,7 @@ export function LongTermSummaryDashboard() {
       });
 
     return () => controller.abort();
-  }, [redirectForAccessError, selectedWindow]);
+  }, [locale, redirectForAccessError, selectedWindow]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -379,15 +380,21 @@ export function LongTermSummaryDashboard() {
           <div className="summary-metrics">
             <div>
               <span>{zhCN.trends.metrics.mood}</span>
-              <strong>{renderAverage(summary.moodAverage, zhCN)}</strong>
+              <strong>
+                {renderAverage(summary.moodAverage, zhCN, locale)}
+              </strong>
             </div>
             <div>
               <span>{zhCN.trends.metrics.stress}</span>
-              <strong>{renderAverage(summary.stressAverage, zhCN)}</strong>
+              <strong>
+                {renderAverage(summary.stressAverage, zhCN, locale)}
+              </strong>
             </div>
             <div>
               <span>{zhCN.trends.metrics.energy}</span>
-              <strong>{renderAverage(summary.energyAverage, zhCN)}</strong>
+              <strong>
+                {renderAverage(summary.energyAverage, zhCN, locale)}
+              </strong>
             </div>
             <div>
               <span>{zhCN.trends.metrics.sleepHours}</span>
@@ -395,6 +402,7 @@ export function LongTermSummaryDashboard() {
                 {renderAverage(
                   summary.sleepAverage,
                   zhCN,
+                  locale,
                   zhCN.trends.units.hours,
                 )}
               </strong>
@@ -402,7 +410,7 @@ export function LongTermSummaryDashboard() {
             <div>
               <span>{zhCN.trends.metrics.sleepQuality}</span>
               <strong>
-                {renderAverage(summary.sleepQualityAverage, zhCN)}
+                {renderAverage(summary.sleepQualityAverage, zhCN, locale)}
               </strong>
             </div>
           </div>
@@ -465,7 +473,7 @@ export function LongTermSummaryDashboard() {
                       <tr key={localDate}>
                         <th scope="row">
                           <time dateTime={localDate}>
-                            {formatLocalDateLong(localDate)}
+                            {formatLocalDateLong(localDate, locale)}
                           </time>
                         </th>
                         <td>{zhCN.longTerm.noEntryForDay}</td>

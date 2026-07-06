@@ -168,7 +168,7 @@ export function EntryDetail({ entryId }: EntryDetailProps) {
       <div className="detail-heading">
         <div>
           <p className="eyebrow">{messages.journal.detail.eyebrow}</p>
-          <h1>{formatJournalDateTime(entry)}</h1>
+          <h1>{formatJournalDateTime(entry, locale)}</h1>
           <p>{entry.timeZone}</p>
         </div>
         <div className="detail-actions">

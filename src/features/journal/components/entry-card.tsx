@@ -23,11 +23,13 @@ export function EntryCard({ entry }: EntryCardProps) {
     <article className="entry-card">
       <div className="entry-card-header">
         <div>
-          <p className="entry-local-date">{formatJournalDateTime(entry)}</p>
+          <p className="entry-local-date">
+            {formatJournalDateTime(entry, locale)}
+          </p>
           <p className="entry-time-zone">{entry.timeZone}</p>
         </div>
         <Link
-          aria-label={`${zhCN.journal.actions.viewEntry} ${formatJournalDateTime(entry)}`}
+          aria-label={`${zhCN.journal.actions.viewEntry} ${formatJournalDateTime(entry, locale)}`}
           className="entry-card-link"
           href={`/${locale}/entries/${entry.id}`}
         >

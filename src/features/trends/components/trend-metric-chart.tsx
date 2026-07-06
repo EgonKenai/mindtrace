@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 
 import type { DailyTrendPoint, TrendMetricId } from "@/features/trends/model";
 import { formatLocalDate, formatTrendNumber } from "@/features/trends/format";
-import { useMessages } from "@/i18n/use-messages";
+import { useCurrentLocale, useMessages } from "@/i18n/use-messages";
 
 interface TrendMetricChartProps {
   label: string;
@@ -23,6 +23,7 @@ export function TrendMetricChart({
   points,
   unit,
 }: TrendMetricChartProps) {
+  const locale = useCurrentLocale();
   const messages = useMessages();
 
   return (
@@ -40,7 +41,7 @@ export function TrendMetricChart({
           const valueText =
             value === null
               ? messages.trends.noData
-              : `${formatTrendNumber(value)}${unit}`;
+              : `${formatTrendNumber(value, locale)}${unit}`;
           const style = {
             "--trend-height": `${value === null ? 0 : (value / max) * 100}%`,
           } as CSSProperties;
@@ -48,7 +49,7 @@ export function TrendMetricChart({
           return (
             <div
               aria-label={messages.trends.pointAriaLabel(
-                formatLocalDate(point.localDate),
+                formatLocalDate(point.localDate, locale),
                 valueText,
               )}
               className="trend-column"
@@ -60,7 +61,7 @@ export function TrendMetricChart({
                 {value !== null && <span className="trend-bar" style={style} />}
               </div>
               <time dateTime={point.localDate}>
-                {formatLocalDate(point.localDate)}
+                {formatLocalDate(point.localDate, locale)}
               </time>
             </div>
           );
