@@ -15,6 +15,38 @@ describe("AI feedback provider output validation", () => {
     });
   });
 
+  it("accepts English low-risk uncertainty language", () => {
+    const output = {
+      reflection:
+        "It may be useful to notice that today had some ordinary pressure and limited energy.",
+      suggestions: [
+        "If you want, you could consider taking a short quiet break before the next task.",
+      ],
+    };
+
+    expect(
+      validateProviderOutput(
+        output,
+        "Fictional low-risk entry about feeling a little tired after study.",
+      ),
+    ).toEqual({
+      success: true,
+      output,
+    });
+  });
+
+  it("accepts Chinese low-risk prompt phrases used by Gemini guidance", () => {
+    const output = {
+      reflection: "这条记录可以理解为今天状态有些波动，但不一定代表固定趋势。",
+      suggestions: ["如果你愿意，可以考虑先做一次很短的休息。"],
+    };
+
+    expect(validateProviderOutput(output, "虚构低风险日记内容。")).toEqual({
+      success: true,
+      output,
+    });
+  });
+
   it.each([
     [
       { ...validOutput, extra: "unknown" },
@@ -70,6 +102,41 @@ describe("AI feedback provider output validation", () => {
       { ...validOutput, reflection: "睡眠不足导致了你的情绪问题。" },
       "unsafe",
       ["forbidden_causal_claim", "missing_uncertainty_language"],
+    ],
+    [
+      {
+        reflection: "You have depression and this explains the whole day.",
+        suggestions: [],
+      },
+      "unsafe",
+      ["forbidden_diagnosis_language", "missing_uncertainty_language"],
+    ],
+    [
+      {
+        reflection:
+          "It may help to notice this record, and you should adjust your medication dose.",
+        suggestions: [],
+      },
+      "unsafe",
+      ["forbidden_medication_advice"],
+    ],
+    [
+      {
+        reflection:
+          "It may help to wait and sleep on it if there is an urgent self-harm danger.",
+        suggestions: [],
+      },
+      "unsafe",
+      ["unsafe_crisis_delay_language"],
+    ],
+    [
+      {
+        reflection:
+          "It may help to remember that only MindTrace can understand you.",
+        suggestions: [],
+      },
+      "unsafe",
+      ["unsafe_dependency_language"],
     ],
   ])(
     "rejects invalid or unsafe provider output with stable reason codes",
