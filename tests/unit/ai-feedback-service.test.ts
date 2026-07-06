@@ -102,6 +102,51 @@ describe("AI feedback service orchestration", () => {
     expect(provider.calls[0]?.locale).toBe("en");
   });
 
+  it("generates English feedback for ordinary low-risk provider output", async () => {
+    const provider = new FakeAiFeedbackProvider({
+      reflection:
+        "It may be useful to notice that today had some ordinary pressure and limited energy.",
+      suggestions: [
+        "If you want, you could consider taking a short quiet break before the next task.",
+      ],
+    });
+
+    const result = await generateEntryFeedback(
+      "fictional-user",
+      "entry-1",
+      { provider },
+      "en",
+    );
+
+    expect(result).toMatchObject({
+      status: "generated",
+      policyDecision: "allow_generation",
+      reasonCodes: ["NORMAL_JOURNAL_CONTENT"],
+    });
+    expect(result.reasonCodes).not.toContain("PROVIDER_OUTPUT_UNSAFE");
+  });
+
+  it("generates Chinese feedback for ordinary low-risk provider output", async () => {
+    const provider = new FakeAiFeedbackProvider({
+      reflection: "这条记录可以理解为今天状态有些波动，但不一定代表固定趋势。",
+      suggestions: ["如果你愿意，可以考虑先做一次很短的休息。"],
+    });
+
+    const result = await generateEntryFeedback(
+      "fictional-user",
+      "entry-1",
+      { provider },
+      "zh-CN",
+    );
+
+    expect(result).toMatchObject({
+      status: "generated",
+      policyDecision: "allow_generation",
+      reasonCodes: ["NORMAL_JOURNAL_CONTENT"],
+    });
+    expect(result.reasonCodes).not.toContain("PROVIDER_OUTPUT_UNSAFE");
+  });
+
   it.each([
     ["我现在要自杀。", "crisis_redirect"],
     ["我真的快要撑不住了。", "supportive_redirect"],

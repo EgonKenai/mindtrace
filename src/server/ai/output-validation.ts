@@ -63,8 +63,45 @@ const forbiddenPatterns: ForbiddenPattern[] = [
     code: "unsafe_unreviewed_contact_information",
     pattern: /(?:\+?\d[\d\s()-]{6,}\d)/u,
   },
+  {
+    code: "forbidden_diagnosis_language",
+    pattern:
+      /(depression|anxiety disorder|bipolar|panic disorder|post[- ]traumatic stress|PTSD|ADHD|OCD|you (?:have|are suffering from|are dealing with).{0,20}(?:depression|anxiety|bipolar|PTSD|ADHD|OCD))/iu,
+  },
+  {
+    code: "forbidden_medication_advice",
+    pattern:
+      /((start|stop|increase|decrease|adjust|change|take|use).{0,16}(medication|medicine|drug|dose|dosage|prescription|antidepressant|sedative|SSRI|benzodiazepine))/iu,
+  },
+  {
+    code: "unsafe_crisis_delay_language",
+    pattern:
+      /((wait|sleep on it|calm down first|deal with it later).{0,24}(suicide|self-harm|danger|emergency|urgent))|((suicide|self-harm|danger|emergency|urgent).{0,24}(wait|sleep on it|calm down first|deal with it later))/iu,
+  },
+  {
+    code: "forbidden_treatment_promise",
+    pattern:
+      /(guarantee|definitely|certainly).{0,16}(cure|recover|work|fix|heal|feel better)/iu,
+  },
+  {
+    code: "unsafe_dependency_language",
+    pattern:
+      /(only (?:I|this app|MindTrace).{0,16}(understand|can help)|do not tell anyone|don't tell anyone|you only need (?:me|this app|MindTrace))/iu,
+  },
+  {
+    code: "unsafe_absolute_language",
+    pattern:
+      /(you (?:definitely|certainly|must|always|never)|the only way|absolutely)/iu,
+  },
+  {
+    code: "forbidden_causal_claim",
+    pattern:
+      /(caused|causes|proves|means).{0,24}(depression|anxiety|stress|mood|insomnia|problem)/iu,
+  },
 ];
 const uncertaintyPattern = /(可能|也许|似乎|看起来|记录(?:中)?显示|从记录看)/u;
+const additionalUncertaintyPattern =
+  /(可以理解为|你可以考虑|可以考虑|不一定|如果你愿意|may|might|could|consider|it may help|seems|looks like|appears|perhaps|maybe|it sounds like)/iu;
 
 function normalizeForComparison(value: string): string {
   return value.normalize("NFKC").replace(/\s+/gu, "");
@@ -105,7 +142,10 @@ function getUnsafeReasonCodes(
     .filter(({ pattern }) => pattern.test(combinedOutput))
     .map(({ code }) => code);
 
-  if (!uncertaintyPattern.test(reflection)) {
+  if (
+    !uncertaintyPattern.test(reflection) &&
+    !additionalUncertaintyPattern.test(reflection)
+  ) {
     reasonCodes.push("missing_uncertainty_language");
   }
 
