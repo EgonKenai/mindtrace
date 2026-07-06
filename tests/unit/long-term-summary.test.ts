@@ -167,6 +167,42 @@ describe("long-term summary service", () => {
     ]);
   });
 
+  it("returns notable pattern copy in the requested locale", async () => {
+    mocks.listJournalSummaryRecords.mockResolvedValue([
+      summaryRecord("2026-06-18"),
+      summaryRecord("2026-06-19"),
+      summaryRecord("2026-06-20"),
+      summaryRecord("2026-06-21"),
+      summaryRecord("2026-06-22"),
+      summaryRecord("2026-06-23"),
+      summaryRecord("2026-06-24"),
+    ]);
+
+    await expect(
+      getLongTermSummary(
+        "server-user",
+        { locale: "en", window: "7" },
+        new Date("2026-06-24T12:00:00.000Z"),
+      ),
+    ).resolves.toMatchObject({
+      notablePatterns: [
+        "This summary does not show a clear concentrated pattern yet. You can use it as a low-risk reflection reference.",
+      ],
+    });
+
+    await expect(
+      getLongTermSummary(
+        "server-user",
+        { locale: "zh-CN", window: "7" },
+        new Date("2026-06-24T12:00:00.000Z"),
+      ),
+    ).resolves.toMatchObject({
+      notablePatterns: [
+        "当前摘要没有显示明显集中趋势，可以把它作为低风险回顾参考。",
+      ],
+    });
+  });
+
   it("does not include complete journal text and only uses server-scoped uid", async () => {
     const fictionalNote = "fictional note text that must never be copied";
     mocks.listJournalSummaryRecords.mockResolvedValue([

@@ -194,6 +194,34 @@ export const en = {
       loadingMore: "Loading",
       backToHistory: "Back to history",
     },
+    errors: {
+      mood: "Please enter an integer from 1 to 10.",
+      stress: "Please enter an integer from 1 to 10.",
+      energy: "Please enter an integer from 1 to 10.",
+      sleepHours: "Please enter a number from 0 to 24.",
+      sleepQuality: "Please enter an integer from 1 to 10.",
+      eventTags: "Please choose 1 to 5 unique life event tags.",
+      note: "Journal note cannot exceed 5000 Unicode characters.",
+      occurredAt: "Please choose a valid occurrence time.",
+      invalidRequest:
+        "Some fields do not meet the requirements. Please check the highlighted fields.",
+      loadFailed: "Entries could not be loaded. Please try again later.",
+      saveFailed: "Entry could not be saved. Please try again later.",
+      deleteFailed: "Entry could not be deleted. Please try again later.",
+      notFound: "This entry could not be found.",
+    },
+    success: {
+      title: "Entry saved",
+      body: "This entry has been safely saved to your personal history.",
+      updatedTitle: "Changes saved",
+      updatedBody: "The detail view has been refreshed to the latest version.",
+    },
+    deleteDialog: {
+      title: "Delete this entry?",
+      body: "After deletion, this entry will be removed from your current data. This action cannot be undone from this page.",
+      confirm: "Delete entry",
+      deleting: "Deleting",
+    },
     history: {
       eyebrow: "Personal history",
       title: "History",
@@ -247,6 +275,10 @@ export const en = {
     emptyBody:
       "Record a few journal entries first. Dates without entries stay empty and are not shown as zero.",
     noData: "No entry",
+    chartAriaLabel: (metric: string) => `${metric} over the recent 7 days`,
+    pointAriaLabel: (date: string, value: string) => `${date}: ${value}`,
+    scaleLabel: (min: number, max: number, unit: string) =>
+      `Range ${min}–${max}${unit}`,
     summaryTitle: (recordedDays: number, totalDays: number) =>
       `${recordedDays} of ${totalDays} days have entries`,
     summaryBody: (totalEntries: number, timeZone: string) =>

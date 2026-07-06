@@ -179,6 +179,7 @@ export async function generatePlanSuggestion(
   const context = await requireProductDataAccess(userId);
   const parsed = planSuggestionRequestSchema.parse(input);
   const summary = await getLongTermSummary(context.userId, {
+    locale: parsed.locale,
     window: parsed.summaryWindow,
   });
 

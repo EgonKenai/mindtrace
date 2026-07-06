@@ -1,7 +1,10 @@
 import type { JournalEntry } from "@/features/journal/model";
 
-export function formatJournalDateTime(entry: JournalEntry): string {
-  return new Intl.DateTimeFormat("zh-CN", {
+export function formatJournalDateTime(
+  entry: JournalEntry,
+  locale: string,
+): string {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: entry.timeZone,

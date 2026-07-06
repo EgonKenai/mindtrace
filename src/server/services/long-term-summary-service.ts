@@ -4,6 +4,7 @@ import type {
   LongTermSummaryWindow,
 } from "@/features/long-term/model";
 import type { JournalEventTagId } from "@/features/journal/model";
+import type { AppLocale } from "@/i18n/config";
 import { longTermSummaryQuerySchema } from "@/lib/validation/long-term";
 import {
   listJournalSummaryRecords,
@@ -14,6 +15,37 @@ import { buildRecentLocalDates } from "@/server/trends/aggregation";
 
 const SUMMARY_SCHEMA_VERSION = 1;
 const MAX_COMMON_TAGS = 5;
+const NOTABLE_PATTERN_MESSAGES: Record<
+  AppLocale,
+  {
+    default: string;
+    highMood: string;
+    highStress: string;
+    manyMissingDays: string;
+    shortSleep: string;
+  }
+> = {
+  "zh-CN": {
+    default: "当前摘要没有显示明显集中趋势，可以把它作为低风险回顾参考。",
+    highMood: "最近记录里的心情评分整体可能比较稳定或偏高。",
+    highStress: "最近记录里的压力评分看起来偏高，可以作为后续观察的信号。",
+    manyMissingDays: "这个窗口内缺失日期较多，摘要只适合作为很粗略的回顾。",
+    shortSleep:
+      "最近记录里的睡眠时长可能偏短，可以继续观察它和白天状态的关系。",
+  },
+  en: {
+    default:
+      "This summary does not show a clear concentrated pattern yet. You can use it as a low-risk reflection reference.",
+    highMood:
+      "Recent mood scores may look relatively stable or on the higher side.",
+    highStress:
+      "Recent stress scores may look on the higher side. You can keep observing this as a signal.",
+    manyMissingDays:
+      "This window has many missing dates, so the summary is best used as a very rough review.",
+    shortSleep:
+      "Recent sleep duration may be on the shorter side. You can keep observing how it relates to daytime state.",
+  },
+};
 
 function roundAverage(total: number, count: number): number {
   return Math.round((total / count) * 100) / 100;
@@ -66,6 +98,7 @@ function getMostCommonTags(
 
 function buildNotablePatterns(input: {
   entryCount: number;
+  locale: AppLocale;
   missingDays: string[];
   moodAverage: number | null;
   sleepAverage: number | null;
@@ -76,28 +109,27 @@ function buildNotablePatterns(input: {
     return [];
   }
 
+  const messages = NOTABLE_PATTERN_MESSAGES[input.locale];
   const patterns: string[] = [];
 
   if (input.stressAverage !== null && input.stressAverage >= 7) {
-    patterns.push("最近记录里的压力评分看起来偏高，可以作为后续观察的信号。");
+    patterns.push(messages.highStress);
   }
 
   if (input.moodAverage !== null && input.moodAverage >= 7) {
-    patterns.push("最近记录里的心情评分整体可能比较稳定或偏高。");
+    patterns.push(messages.highMood);
   }
 
   if (input.sleepAverage !== null && input.sleepAverage < 6) {
-    patterns.push(
-      "最近记录里的睡眠时长可能偏短，可以继续观察它和白天状态的关系。",
-    );
+    patterns.push(messages.shortSleep);
   }
 
   if (input.missingDays.length > Math.floor(input.summaryWindow / 2)) {
-    patterns.push("这个窗口内缺失日期较多，摘要只适合作为很粗略的回顾。");
+    patterns.push(messages.manyMissingDays);
   }
 
   if (patterns.length === 0) {
-    patterns.push("当前摘要没有显示明显集中趋势，可以把它作为低风险回顾参考。");
+    patterns.push(messages.default);
   }
 
   return patterns;
@@ -140,6 +172,7 @@ export async function getLongTermSummary(
     mostCommonTags: getMostCommonTags(records),
     notablePatterns: buildNotablePatterns({
       entryCount,
+      locale: parsed.locale,
       missingDays,
       moodAverage,
       sleepAverage,

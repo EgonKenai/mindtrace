@@ -69,10 +69,11 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
 
 export async function getLongTermSummaryRequest(
   window: LongTermSummaryWindow,
+  locale: AppLocale = defaultLocale,
   signal?: AbortSignal,
 ): Promise<LongTermSummary> {
   const payload = await requestJson<LongTermSummaryResponse>(
-    `/api/v1/long-term/summary?window=${window}`,
+    `/api/v1/long-term/summary?window=${window}&locale=${encodeURIComponent(locale)}`,
     { signal },
   );
   return payload.data.summary;
