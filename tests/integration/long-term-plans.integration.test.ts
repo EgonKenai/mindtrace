@@ -217,7 +217,7 @@ describe("long-term summary and plans with Firebase emulators", () => {
     const provider = new FakeAiPlanSuggestionProvider();
     const result = await generatePlanSuggestion(
       userId,
-      { summaryWindow: 7 },
+      { locale: "zh-CN", summaryWindow: 7 },
       { provider },
     );
 
@@ -271,7 +271,7 @@ describe("long-term summary and plans with Firebase emulators", () => {
 
     const resultB = await generatePlanSuggestion(
       userB,
-      { summaryWindow: 7 },
+      { locale: "zh-CN", summaryWindow: 7 },
       { provider: new FakeAiPlanSuggestionProvider() },
     );
 
@@ -288,7 +288,7 @@ describe("long-term summary and plans with Firebase emulators", () => {
 
     const generated = await generatePlanSuggestion(
       userId,
-      { summaryWindow: 7 },
+      { locale: "zh-CN", summaryWindow: 7 },
       { provider: new FakeAiPlanSuggestionProvider() },
     );
     const suggestionId = generated.suggestion?.id;
@@ -312,7 +312,7 @@ describe("long-term summary and plans with Firebase emulators", () => {
     await createJournalEntry(userId, baseEntry);
     const generated = await generatePlanSuggestion(
       userId,
-      { summaryWindow: 7 },
+      { locale: "zh-CN", summaryWindow: 7 },
       { provider: new FakeAiPlanSuggestionProvider() },
     );
 

@@ -61,6 +61,15 @@ const planSuggestionInput = {
   },
 };
 
+const englishPlanSuggestionInput = {
+  ...planSuggestionInput,
+  locale: "en" as const,
+  summary: {
+    ...planSuggestionInput.summary,
+    notablePatterns: ["Recent study and sleep tags may be common."],
+  },
+};
+
 const longTermInsightInput = {
   locale: "zh-CN" as const,
   summary: {
@@ -416,6 +425,9 @@ describe("GeminiAiFeedbackProvider", () => {
     expect(String(request.config?.systemInstruction)).toMatch(
       /draft|not diagnosis|user must explicitly confirm/i,
     );
+    expect(String(request.config?.systemInstruction)).toContain(
+      "所有用户可见字段使用简体中文。",
+    );
 
     const userText = (
       request.contents as Array<{ parts: Array<{ text: string }> }>
@@ -426,6 +438,55 @@ describe("GeminiAiFeedbackProvider", () => {
       /uid|email|entryId|cookie|token|firestore|note/i,
     );
     expect(serializedPayload).not.toContain("fictional-test-key");
+  });
+
+  it("asks Gemini for English-only plan suggestion user-facing fields", async () => {
+    const client = createClient(async () =>
+      responseWithText(
+        JSON.stringify({
+          title: "Consider a study rest draft",
+          description:
+            "You could consider a small study and rest rhythm draft.",
+          linkedTags: ["study"],
+          rationale:
+            "The aggregate summary may show study as a common recent theme.",
+          suggestedActions: [
+            {
+              title: "Consider one small study wrap-up",
+              description:
+                "If you want, you could organize one small study task before resting.",
+              linkedTags: ["study"],
+              suggestedDueInDays: 1,
+            },
+          ],
+        }),
+      ),
+    );
+
+    await expect(
+      createPlanProvider(client).generatePlanSuggestion(
+        englishPlanSuggestionInput,
+        {
+          signal: new AbortController().signal,
+        },
+      ),
+    ).resolves.toMatchObject({
+      title: "Consider a study rest draft",
+    });
+
+    const request = client.generateContent.mock.calls[0][0];
+    expect(String(request.config?.systemInstruction)).toContain(
+      "Write all user-facing fields in English only.",
+    );
+    expect(String(request.config?.systemInstruction)).toContain(
+      "Do not use Chinese characters",
+    );
+
+    const userText = (
+      request.contents as Array<{ parts: Array<{ text: string }> }>
+    )[0].parts[0].text;
+    const userPayload = JSON.parse(userText) as { locale: string };
+    expect(userPayload.locale).toBe("en");
   });
 
   it("uses the same Gemini client boundary for long-term insight drafts", async () => {

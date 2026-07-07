@@ -84,6 +84,23 @@ const suggestionRecord = {
   updatedAt: timestamp,
 };
 
+const englishProviderResponse = {
+  description:
+    "You could consider a low-pressure study and rest draft for the next few days.",
+  linkedTags: ["study"],
+  rationale: "The aggregate summary may show study as a common recent theme.",
+  suggestedActions: [
+    {
+      description:
+        "If you want, you could spend ten minutes organizing one small study task.",
+      linkedTags: ["study"],
+      suggestedDueInDays: 2,
+      title: "Consider one small study wrap-up",
+    },
+  ],
+  title: "Consider a study rest draft",
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.requireProductDataAccess.mockResolvedValue({
@@ -108,7 +125,7 @@ beforeEach(() => {
 
 describe("AI plan suggestion service", () => {
   it("calls a fake provider with minimized summary input", async () => {
-    const provider = new FakeAiPlanSuggestionProvider();
+    const provider = new FakeAiPlanSuggestionProvider(englishProviderResponse);
     const result = await generatePlanSuggestion(
       "client-user-should-not-win",
       { summaryWindow: 7 },
@@ -135,6 +152,42 @@ describe("AI plan suggestion service", () => {
     expect(mocks.getLongTermSummary).toHaveBeenCalledWith("server-user", {
       locale: "en",
       window: 7,
+    });
+    expect(mocks.createPlanSuggestionRecord).toHaveBeenCalledWith(
+      "server-user",
+      expect.objectContaining({
+        title: englishProviderResponse.title,
+      }),
+    );
+  });
+
+  it("keeps Chinese plan suggestion drafts valid for zh-CN requests", async () => {
+    const provider = new FakeAiPlanSuggestionProvider();
+    const result = await generatePlanSuggestion(
+      "server-user",
+      { locale: "zh-CN", summaryWindow: 7 },
+      { provider },
+    );
+
+    expect(result.status).toBe("generated");
+    expect(provider.calls[0]?.locale).toBe("zh-CN");
+    expect(mocks.getLongTermSummary).toHaveBeenCalledWith("server-user", {
+      locale: "zh-CN",
+      window: 7,
+    });
+  });
+
+  it("does not accept Chinese plan suggestion drafts for English requests", async () => {
+    await expect(
+      generatePlanSuggestion(
+        "server-user",
+        { locale: "en", summaryWindow: 7 },
+        { provider: new FakeAiPlanSuggestionProvider() },
+      ),
+    ).resolves.toMatchObject({
+      reasonCodes: ["PROVIDER_OUTPUT_UNSAFE"],
+      status: "safe_fallback",
+      suggestion: null,
     });
   });
 
