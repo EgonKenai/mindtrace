@@ -233,6 +233,94 @@ test.describe("language switcher", () => {
     await expectMainHasNoChineseText(page);
   });
 
+  test("English plans page shows English plan and action status labels", async ({
+    page,
+  }) => {
+    await registerForLocale(page, "en");
+    await completeOnboardingWithLanguage(page, "en");
+
+    await page.goto("/en/plans");
+    await page
+      .getByLabel(en.plans.form.titleLabel)
+      .fill("Fictional English plan");
+    await page
+      .getByLabel(en.plans.form.descriptionLabel)
+      .fill("A fictional plan used only for English status labels.");
+
+    const createPlanResponse = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname === "/api/v1/plans",
+    );
+    await page.getByRole("button", { name: en.plans.actions.create }).click();
+    expect((await createPlanResponse).status()).toBe(201);
+
+    await expect(
+      page.getByRole("heading", { name: "Fictional English plan" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        en.plans.meta(en.plans.statuses.active, en.plans.frequencies.none),
+      ),
+    ).toBeVisible();
+    await expect(page.locator("main")).not.toContainText(
+      /进行中|已暂停|已完成|已放弃|待完成|已跳过|不提醒|每日|每周/,
+    );
+
+    const updatePlanResponse = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PATCH" &&
+        /\/api\/v1\/plans\/[^/]+$/.test(new URL(response.url()).pathname),
+    );
+    await page.getByRole("button", { name: en.plans.statuses.paused }).click();
+    expect((await updatePlanResponse).status()).toBe(200);
+    await expect(
+      page.getByText(
+        en.plans.meta(en.plans.statuses.paused, en.plans.frequencies.none),
+      ),
+    ).toBeVisible();
+
+    await page
+      .getByLabel(en.plans.form.actionTitleLabel)
+      .fill("Fictional English action");
+    const createActionResponse = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        /\/api\/v1\/plans\/[^/]+\/actions$/.test(
+          new URL(response.url()).pathname,
+        ),
+    );
+    await page
+      .getByRole("button", { name: en.plans.actions.addAction })
+      .click();
+    expect((await createActionResponse).status()).toBe(201);
+    await expect(
+      page.getByText(
+        `Fictional English action - ${en.plans.actionStatuses.todo}`,
+      ),
+    ).toBeVisible();
+
+    const completeActionResponse = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PATCH" &&
+        /\/api\/v1\/plans\/[^/]+\/actions\/[^/]+$/.test(
+          new URL(response.url()).pathname,
+        ),
+    );
+    await page
+      .getByRole("button", { name: en.plans.actions.completeAction })
+      .click();
+    expect((await completeActionResponse).status()).toBe(200);
+    await expect(
+      page.getByText(
+        `Fictional English action - ${en.plans.actionStatuses.done}`,
+      ),
+    ).toBeVisible();
+    await expect(page.locator("main")).not.toContainText(
+      /进行中|已暂停|已完成|已放弃|待完成|已跳过|不提醒|每日|每周/,
+    );
+  });
+
   test("Chinese today page keeps Chinese validation and success copy", async ({
     page,
   }) => {

@@ -405,6 +405,22 @@ export const en = {
       addAction: "Add action item",
       completeAction: "Mark done",
     },
+    statuses: {
+      active: "In progress",
+      completed: "Completed",
+      paused: "Paused",
+      abandoned: "Abandoned",
+    },
+    actionStatuses: {
+      todo: "Pending",
+      done: "Completed",
+      skipped: "Skipped",
+    },
+    frequencies: {
+      none: "No reminders",
+      daily: "Daily",
+      weekly: "Weekly",
+    },
     suggestions: {
       ...zhCN.plans.suggestions,
       title: "AI plan suggestion draft",
