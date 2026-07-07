@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import { en } from "@/i18n/messages/en";
 import { zhCN } from "@/i18n/messages/zh-CN";
 import { createEntryViaApi, registerAndConsent } from "./helpers";
 
@@ -115,6 +116,71 @@ test("user creates a manual plan and completes an action item on mobile", async 
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+});
+
+test("English plans page requests and renders an English AI plan suggestion draft", async ({
+  page,
+}) => {
+  await registerAndConsent(page, "plan-suggestion-en-locale");
+
+  let requestLocale: unknown;
+  await page.route("**/api/v1/plans/suggestions", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.fallback();
+      return;
+    }
+
+    requestLocale = JSON.parse(route.request().postData() ?? "{}").locale;
+    await route.fulfill({
+      contentType: "application/json",
+      status: 200,
+      body: JSON.stringify({
+        data: {
+          reasonCodes: ["NORMAL_SUMMARY_CONTENT"],
+          status: "generated",
+          suggestion: {
+            description:
+              "You could consider a low-pressure study and rest draft.",
+            endDate: "2026-06-24",
+            generatedAt: "2026-06-24T12:00:00.000Z",
+            id: "suggestion-en-e2e",
+            linkedTags: ["study"],
+            rationale:
+              "The aggregate summary may show study as a common recent theme.",
+            safetyLabel: "low_risk",
+            schemaVersion: 1,
+            startDate: "2026-06-18",
+            status: "draft",
+            suggestedActions: [
+              {
+                description:
+                  "If you want, you could organize one small study task before resting.",
+                linkedTags: ["study"],
+                suggestedDueInDays: 2,
+                title: "Consider one small study wrap-up",
+              },
+            ],
+            summaryWindow: 7,
+            title: "Consider a study rest draft",
+          },
+        },
+      }),
+    });
+  });
+
+  await page.goto("/en/plans");
+  await page
+    .getByRole("button", { name: en.plans.suggestions.generate })
+    .click();
+
+  expect(requestLocale).toBe("en");
+  await expect(
+    page.getByRole("heading", { name: "Consider a study rest draft" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Consider one small study wrap-up"),
+  ).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/[\u3400-\u9fff]/);
 });
 
 test("user handles AI plan suggestion consent, save, and dismiss flow", async ({

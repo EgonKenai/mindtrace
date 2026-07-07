@@ -30,6 +30,7 @@ import {
 } from "@/server/ai/plan-suggestion-provider";
 import { JOURNAL_EVENT_TAG_IDS } from "@/features/journal/model";
 import { LONG_TERM_INSIGHT_ACTION_TYPES } from "@/features/long-term/model";
+import type { AppLocale } from "@/i18n/config";
 import { getServerEnv } from "@/server/env";
 
 const GEMINI_SYSTEM_INSTRUCTION = [
@@ -108,10 +109,24 @@ const GEMINI_PLAN_SUGGESTION_SYSTEM_INSTRUCTION = [
   "Do not create a final plan; the user must explicitly confirm before saving anything.",
   "Use only the aggregate summary data provided. Do not infer identity, clinical status, or hidden causes.",
   "Use exact field names from the schema. Use controlled event tag IDs only, never translated tag labels.",
+  "Use cautious and optional language in the requested locale.",
+  "For English, use phrases such as consider, could, may, might, if you want, or it may help to.",
   "Use cautious and optional language. For zh-CN include phrases such as 可以考虑, 也许可以, 如果你愿意, 看起来, or 可能.",
   "Do not use commands, guarantees, absolute language, or treatment promises.",
   "Return only strict JSON matching the supplied response schema. Do not wrap it in markdown or a code fence.",
 ].join("\n");
+
+function getPlanSuggestionLanguageInstruction(locale: AppLocale): string {
+  if (locale === "en") {
+    return [
+      "Locale is en.",
+      "Write all user-facing fields in English only.",
+      "Do not use Chinese characters in title, description, rationale, or suggested action title/description.",
+    ].join(" ");
+  }
+
+  return "Locale is zh-CN. 所有用户可见字段使用简体中文。";
+}
 
 const GEMINI_PLAN_SUGGESTION_RESPONSE_JSON_SCHEMA = {
   type: "object",
@@ -489,7 +504,10 @@ function createPlanSuggestionRequest(
       responseJsonSchema: GEMINI_PLAN_SUGGESTION_RESPONSE_JSON_SCHEMA,
       responseMimeType: "application/json",
       safetySettings: [...GEMINI_SAFETY_SETTINGS],
-      systemInstruction: GEMINI_PLAN_SUGGESTION_SYSTEM_INSTRUCTION,
+      systemInstruction: [
+        GEMINI_PLAN_SUGGESTION_SYSTEM_INSTRUCTION,
+        getPlanSuggestionLanguageInstruction(input.locale),
+      ].join("\n"),
       temperature: 0.2,
       topP: 0.8,
     },

@@ -224,7 +224,10 @@ export async function generatePlanSuggestion(
     };
   }
 
-  const validation = validatePlanSuggestionProviderOutput(rawOutput);
+  const validation = validatePlanSuggestionProviderOutput(
+    rawOutput,
+    parsed.locale,
+  );
 
   if (!validation.success) {
     return {

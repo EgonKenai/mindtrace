@@ -2,11 +2,13 @@ import {
   providerPlanSuggestionOutputSchema,
   type ProviderPlanSuggestionOutput,
 } from "@/lib/validation/plan-suggestions";
+import type { AppLocale } from "@/i18n/config";
 
 export type PlanSuggestionOutputValidationReasonCode =
   | "forbidden_diagnosis_language"
   | "forbidden_medication_advice"
   | "forbidden_treatment_promise"
+  | "language_mismatch"
   | "schema_validation_failed"
   | "unsafe_absolute_language"
   | "unsafe_crisis_promise"
@@ -67,6 +69,19 @@ function getCombinedText(output: ProviderPlanSuggestionOutput): string {
   ].join("\n");
 }
 
+const obviousChineseCharacterPattern = /[\u3400-\u9fff]/u;
+
+function hasLanguageMismatch(
+  output: ProviderPlanSuggestionOutput,
+  locale: AppLocale,
+): boolean {
+  if (locale !== "en") {
+    return false;
+  }
+
+  return obviousChineseCharacterPattern.test(getCombinedText(output));
+}
+
 export type PlanSuggestionOutputValidationResult =
   | { output: ProviderPlanSuggestionOutput; success: true }
   | {
@@ -77,6 +92,7 @@ export type PlanSuggestionOutputValidationResult =
 
 export function validatePlanSuggestionProviderOutput(
   rawOutput: unknown,
+  locale: AppLocale,
 ): PlanSuggestionOutputValidationResult {
   const parsed = providerPlanSuggestionOutputSchema.safeParse(rawOutput);
 
@@ -95,6 +111,10 @@ export function validatePlanSuggestionProviderOutput(
 
   if (!lowRiskLanguagePattern.test(combinedText)) {
     reasonCodes.push("unsafe_missing_low_risk_language");
+  }
+
+  if (hasLanguageMismatch(parsed.data, locale)) {
+    reasonCodes.push("language_mismatch");
   }
 
   if (reasonCodes.length > 0) {

@@ -6,19 +6,40 @@ import {
 } from "@/lib/validation/plan-suggestions";
 import { validatePlanSuggestionProviderOutput } from "@/server/ai/plan-suggestion-output-validation";
 
-const validOutput = {
-  description: "可以考虑从一个较小的学习和睡眠节奏开始观察。",
+const englishOutput = {
+  description:
+    "You could consider starting with a small study and rest rhythm draft.",
   linkedTags: ["study", "sleep"],
-  rationale: "看起来学习和睡眠是最近摘要里的常见主题。",
+  rationale:
+    "The aggregate summary may show study and sleep as common recent themes.",
   suggestedActions: [
     {
-      description: "如果你愿意，可以在睡前留出十分钟整理明天任务。",
+      description:
+        "If you want, you could set aside ten minutes before bed to organize one small task for tomorrow.",
       linkedTags: ["study"],
       suggestedDueInDays: 2,
-      title: "安排温和的学习收尾",
+      title: "Consider a gentle study wrap-up",
     },
   ],
-  title: "可以考虑的学习休息草稿",
+  title: "Consider a study and rest draft",
+};
+
+const chineseOutput = {
+  description:
+    "\u53ef\u4ee5\u8003\u8651\u4ece\u4e00\u4e2a\u8f83\u5c0f\u7684\u5b66\u4e60\u548c\u7761\u7720\u8282\u594f\u5f00\u59cb\u89c2\u5bdf\u3002",
+  linkedTags: ["study", "sleep"],
+  rationale:
+    "\u770b\u8d77\u6765\u5b66\u4e60\u548c\u7761\u7720\u662f\u6700\u8fd1\u6458\u8981\u91cc\u7684\u5e38\u89c1\u4e3b\u9898\u3002",
+  suggestedActions: [
+    {
+      description:
+        "\u5982\u679c\u4f60\u613f\u610f\uff0c\u53ef\u4ee5\u5728\u7761\u524d\u7559\u51fa\u5341\u5206\u949f\u6574\u7406\u660e\u5929\u4efb\u52a1\u3002",
+      linkedTags: ["study"],
+      suggestedDueInDays: 2,
+      title: "\u5b89\u6392\u6e29\u548c\u7684\u5b66\u4e60\u6536\u5c3e",
+    },
+  ],
+  title: "\u53ef\u4ee5\u8003\u8651\u7684\u5b66\u4e60\u4f11\u606f\u8349\u7a3f",
 };
 
 describe("AI plan suggestion schemas and output safety", () => {
@@ -44,18 +65,18 @@ describe("AI plan suggestion schemas and output safety", () => {
   });
 
   it("validates suggested actions and linked tags", () => {
-    expect(providerPlanSuggestionOutputSchema.parse(validOutput)).toMatchObject(
-      {
-        title: validOutput.title,
-      },
-    );
+    expect(
+      providerPlanSuggestionOutputSchema.parse(englishOutput),
+    ).toMatchObject({
+      title: englishOutput.title,
+    });
 
     expect(() =>
       providerPlanSuggestionOutputSchema.parse({
-        ...validOutput,
+        ...englishOutput,
         suggestedActions: [
           {
-            ...validOutput.suggestedActions[0],
+            ...englishOutput.suggestedActions[0],
             linkedTags: ["study", "study"],
           },
         ],
@@ -63,35 +84,63 @@ describe("AI plan suggestion schemas and output safety", () => {
     ).toThrow();
   });
 
-  it("accepts low-risk draft language", () => {
-    const result = validatePlanSuggestionProviderOutput(validOutput);
+  it("accepts low-risk draft language for English and Chinese locales", () => {
+    expect(validatePlanSuggestionProviderOutput(englishOutput, "en")).toEqual({
+      output: englishOutput,
+      success: true,
+    });
+    expect(
+      validatePlanSuggestionProviderOutput(chineseOutput, "zh-CN"),
+    ).toEqual({
+      output: chineseOutput,
+      success: true,
+    });
+  });
 
-    expect(result.success).toBe(true);
+  it("rejects obvious Chinese user-facing fields for English plan suggestions", () => {
+    const result = validatePlanSuggestionProviderOutput(chineseOutput, "en");
+
+    expect(result).toMatchObject({
+      success: false,
+      reason: "unsafe",
+      reasonCodes: expect.arrayContaining(["language_mismatch"]),
+    });
   });
 
   it.each([
     [
-      { ...validOutput, rationale: "你一定患有抑郁症。" },
+      {
+        ...chineseOutput,
+        rationale: "\u4f60\u4e00\u5b9a\u60a3\u6709\u6291\u90c1\u75c7\u3002",
+      },
       "forbidden_diagnosis_language",
     ],
     [
-      { ...validOutput, description: "你必须停止服用药物。" },
+      {
+        ...chineseOutput,
+        description:
+          "\u4f60\u5fc5\u987b\u505c\u6b62\u670d\u7528\u836f\u7269\u3002",
+      },
       "forbidden_medication_advice",
     ],
     [
-      { ...validOutput, title: "保证有效的计划" },
+      { ...chineseOutput, title: "\u4fdd\u8bc1\u6709\u6548\u7684\u8ba1\u5212" },
       "forbidden_treatment_promise",
     ],
     [
-      { ...validOutput, description: "唯一办法是每天完成全部任务。" },
+      {
+        ...chineseOutput,
+        description:
+          "\u552f\u4e00\u529e\u6cd5\u662f\u6bcf\u5929\u5b8c\u6210\u5168\u90e8\u4efb\u52a1\u3002",
+      },
       "unsafe_absolute_language",
     ],
     [
-      { ...validOutput, rationale: "<script>alert('x')</script>" },
+      { ...chineseOutput, rationale: "<script>alert('x')</script>" },
       "unsafe_executable_content",
     ],
   ])("rejects unsafe provider output %#", (output, reasonCode) => {
-    const result = validatePlanSuggestionProviderOutput(output);
+    const result = validatePlanSuggestionProviderOutput(output, "zh-CN");
 
     expect(result).toMatchObject({
       success: false,
@@ -101,25 +150,30 @@ describe("AI plan suggestion schemas and output safety", () => {
   });
 
   it("rejects missing fields and output without low-risk language", () => {
-    expect(validatePlanSuggestionProviderOutput("not-json")).toMatchObject({
+    expect(
+      validatePlanSuggestionProviderOutput("not-json", "en"),
+    ).toMatchObject({
       success: false,
       reasonCodes: ["schema_validation_failed"],
     });
     expect(
-      validatePlanSuggestionProviderOutput({
-        ...validOutput,
-        description: "每天完成固定任务。",
-        rationale: "摘要显示学习很多。",
-        suggestedActions: [
-          {
-            description: "每天整理任务。",
-            linkedTags: ["study"],
-            suggestedDueInDays: 2,
-            title: "整理任务",
-          },
-        ],
-        title: "学习计划",
-      }),
+      validatePlanSuggestionProviderOutput(
+        {
+          ...englishOutput,
+          description: "Finish the same task every day.",
+          rationale: "The summary shows many study entries.",
+          suggestedActions: [
+            {
+              description: "Organize tasks every day.",
+              linkedTags: ["study"],
+              suggestedDueInDays: 2,
+              title: "Organize tasks",
+            },
+          ],
+          title: "Study plan",
+        },
+        "en",
+      ),
     ).toMatchObject({
       success: false,
       reasonCodes: ["unsafe_missing_low_risk_language"],
