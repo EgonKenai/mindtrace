@@ -63,7 +63,11 @@ describe("POST entry feedback route", () => {
     expect(generateEntryFeedbackMock).toHaveBeenCalledWith(
       "verified-session-user",
       "entry-1",
-      {},
+      {
+        timingLogger: {
+          record: expect.any(Function),
+        },
+      },
       "en",
     );
     expect(body).toEqual({
