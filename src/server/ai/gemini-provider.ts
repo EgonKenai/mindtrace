@@ -436,25 +436,68 @@ export class GeminiAiFeedbackProvider implements AiFeedbackProvider {
     const request = createRequest(this.options.model, input, options.signal);
 
     for (let attempt = 0; attempt < 2; attempt += 1) {
+      const attemptNumber = attempt + 1;
+      const apiStartedAt = performance.now();
+      options.timingLogger?.record({
+        attempt: attemptNumber,
+        stage: "gemini_generate_content_started",
+      });
+
       try {
         const response = await this.client.generateContent(request);
+        options.timingLogger?.record({
+          attempt: attemptNumber,
+          stage: "gemini_generate_content_returned",
+          stepMs: performance.now() - apiStartedAt,
+        });
+
+        const parseStartedAt = performance.now();
         const text = extractResponseText(response);
 
         if (!text) {
+          options.timingLogger?.record({
+            attempt: attemptNumber,
+            stage: "gemini_response_empty",
+            stepMs: performance.now() - parseStartedAt,
+          });
           return null;
         }
 
-        return parseResponseText(text);
+        const parsed = parseResponseText(text);
+        options.timingLogger?.record({
+          attempt: attemptNumber,
+          stage: "gemini_response_parsed",
+          stepMs: performance.now() - parseStartedAt,
+        });
+        return parsed;
       } catch (error) {
         if (error instanceof AiFeedbackProviderError) {
+          options.timingLogger?.record({
+            attempt: attemptNumber,
+            providerErrorCode: error.code,
+            stage: "gemini_generate_content_failed",
+            stepMs: performance.now() - apiStartedAt,
+          });
           throw error;
         }
 
         const code = transientErrorCode(getHttpStatus(error));
         if (code && attempt === 0 && !options.signal.aborted) {
+          options.timingLogger?.record({
+            attempt: attemptNumber,
+            providerErrorCode: code,
+            stage: "gemini_generate_content_retry_scheduled",
+            stepMs: performance.now() - apiStartedAt,
+          });
           continue;
         }
 
+        options.timingLogger?.record({
+          attempt: attemptNumber,
+          providerErrorCode: code ?? "unavailable",
+          stage: "gemini_generate_content_failed",
+          stepMs: performance.now() - apiStartedAt,
+        });
         throw new AiFeedbackProviderError(code ?? "unavailable");
       }
     }

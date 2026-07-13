@@ -23,6 +23,18 @@ export interface AiFeedbackProviderInput {
 
 export interface AiFeedbackProviderOptions {
   signal: AbortSignal;
+  timingLogger?: AiFeedbackTimingLogger;
+}
+
+export interface AiFeedbackTimingEvent {
+  attempt?: number;
+  providerErrorCode?: AiFeedbackProviderErrorCode;
+  stage: string;
+  stepMs?: number;
+}
+
+export interface AiFeedbackTimingLogger {
+  record(event: AiFeedbackTimingEvent): void;
 }
 
 export interface AiFeedbackProvider {
