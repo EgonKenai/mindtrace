@@ -93,6 +93,68 @@ export const en = {
       saveFailed: "Could not save your confirmation. Please try again.",
     },
   },
+  landing: {
+    eyebrow: "Private state journal and reflection tool",
+    title:
+      "Track mood, stress, and sleep, then notice change with more clarity",
+    intro:
+      "MindTrace helps adults save daily state records, review trends and long-term summaries, and optionally ask AI for low-risk reflection or plan suggestion drafts. It is not a medical diagnosis, treatment, medication, or emergency-response tool.",
+    actionsLabel: "Start using MindTrace",
+    startFree: "Start Free",
+    login: "Login",
+    howTitle: "How it works",
+    howIntro:
+      "Start with one simple record, then build your own history, trends, and action plans over time.",
+    howSteps: [
+      {
+        title: "Record today",
+        body: "Log mood, stress, energy, sleep, life-event tags, and an optional short note.",
+      },
+      {
+        title: "Review patterns",
+        body: "History, trends, and summaries are organized by the local date saved with each record.",
+      },
+      {
+        title: "Choose a next step",
+        body: "Create manual plans, or ask AI for reflection and plan suggestion drafts that require your confirmation.",
+      },
+    ],
+    aiDemoTitle: "AI drafts stay low-risk",
+    aiDemoIntro:
+      "AI features require separate consent. They do not save plans automatically or make decisions for you.",
+    aiDemoCards: [
+      {
+        title: "AI feedback",
+        body: "Generate a brief supportive reflection from minimized record content after local safety and schema validation.",
+      },
+      {
+        title: "Long-term insights",
+        body: "Draft cautious reflections from structured summaries without copying full journal text.",
+      },
+      {
+        title: "Plan suggestions",
+        body: "AI can draft plan ideas, but only your confirmation saves them as formal plans.",
+      },
+    ],
+    benefitsTitle: "Core value for the demo",
+    benefits: [
+      {
+        title: "See your own history",
+        body: "Turn scattered mood, stress, sleep, and life-event records into a private timeline you can revisit.",
+      },
+      {
+        title: "Privacy-first boundary",
+        body: "Personal data is accessed through server-side sessions. The browser never receives Gemini API keys or Firebase Admin credentials.",
+      },
+      {
+        title: "Clear safety limits",
+        body: "AI-generated content is for reflection only and does not provide diagnosis, treatment, medication, or emergency-response advice.",
+      },
+    ],
+    ctaTitle: "Ready to start recording?",
+    ctaBody:
+      "Create an account, finish the basic consent flow, and save your first entry. AI features remain optional.",
+  },
   home: {
     eyebrow: "MVP demo path",
     title: "Record once, see patterns, then choose the next step",

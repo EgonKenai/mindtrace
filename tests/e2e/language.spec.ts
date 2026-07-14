@@ -106,14 +106,18 @@ async function expectMainHasNoChineseText(
 test.describe("language switcher", () => {
   test("root path defaults to English", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveURL(/\/en(?:\/login)?$/);
+    await expect(page).toHaveURL(/\/en$/);
 
-    await page.goto("/en");
     await expect(
-      page.getByRole("heading", {
-        name: /Record once, see patterns|Log in/,
-      }),
+      page.getByRole("heading", { name: en.landing.title }),
     ).toBeVisible();
+    const primaryActions = page.getByLabel(en.landing.actionsLabel);
+    await expect(
+      primaryActions.getByRole("link", { name: en.landing.startFree }),
+    ).toHaveAttribute("href", "/en/register");
+    await expect(
+      primaryActions.getByRole("link", { name: en.landing.login }),
+    ).toHaveAttribute("href", "/en/login");
   });
 
   test("preserves the semantic path between Chinese and English", async ({

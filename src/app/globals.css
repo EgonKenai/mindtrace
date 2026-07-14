@@ -152,6 +152,52 @@ textarea {
   gap: 32px;
 }
 
+.landing-page {
+  display: grid;
+  gap: 40px;
+}
+
+.landing-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: clamp(28px, 5vw, 48px);
+}
+
+.landing-hero > div:first-child {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  max-width: 780px;
+}
+
+.landing-hero h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.landing-hero p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+.landing-how-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.landing-ai-demo .home-info-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
 .home-hero {
   display: grid;
   gap: 18px;
@@ -1572,6 +1618,11 @@ button:disabled {
   .demo-flow-grid,
   .home-info-grid {
     grid-template-columns: 1fr;
+  }
+
+  .landing-hero {
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 
   .home-safety-strip {
