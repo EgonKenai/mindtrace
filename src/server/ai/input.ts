@@ -21,6 +21,24 @@ export function buildAiFeedbackProviderInput(
   entry: JournalEntryRecord,
   locale: AppLocale = defaultLocale,
 ): AiFeedbackProviderInput {
+  return buildAiFeedbackProviderInputFromFields(
+    {
+      mood: entry.mood,
+      stress: entry.stress,
+      energy: entry.energy,
+      sleepHours: entry.sleepHours,
+      sleepQuality: entry.sleepQuality,
+      eventTags: entry.eventTags,
+      note: entry.note,
+    },
+    locale,
+  );
+}
+
+export function buildAiFeedbackProviderInputFromFields(
+  entry: AiFeedbackProviderInput["journal"],
+  locale: AppLocale = defaultLocale,
+): AiFeedbackProviderInput {
   return {
     system: {
       contractVersion: "1",

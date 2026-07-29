@@ -144,6 +144,43 @@ export const zhCN = {
     ctaBody:
       "创建账号后先完成基础同意，再保存第一条记录。AI 功能始终是可选的。",
   },
+  demo: {
+    navLabel: "Demo 页面导航",
+    eyebrow: "Beta demo",
+    title: "Try MindTrace with one free AI reflection",
+    intro:
+      "无需创建账号，先体验一次低风险 AI 反思。Demo 不会保存你的输入，也不会创建 Firebase 用户数据。",
+    formAriaLabel: "Demo AI reflection form",
+    languageLabel: "反馈语言",
+    inputLabel: "写下你的想法",
+    placeholder: "例如：今天工作压力很大，回家后还是有点放不下来。",
+    characterCount: "{current}/{maximum} 字符",
+    privacyNotice:
+      "请不要输入真实身份信息、账号、联系方式或紧急求助内容。Demo 文本只用于本次 AI 反思请求，不保存到 MindTrace 数据库。",
+    generate: "生成 AI 反思",
+    generating: "正在生成",
+    resultEyebrow: "Demo result",
+    resultTitle: "AI 反思结果",
+    reflectionTitle: "情绪分析",
+    suggestionsTitle: "简单建议",
+    createAccount: "Create a free account to save your reflections",
+    login: "登录",
+    startFree: "免费开始",
+    remaining: "本次浏览器会话还可体验 {count} 次。",
+    limitsTitle: "Demo 限制",
+    limits: [
+      "Demo 只提供有限次数体验，避免滥用。",
+      "Demo 不保存输入，也不会影响正式用户数据。",
+      "AI 内容仅供反思参考，不提供诊断、治疗、用药或紧急响应建议。",
+      "创建免费账号后，可以保存记录、查看历史和追踪趋势。",
+    ],
+    errors: {
+      required: "请先写下一点想法。",
+      invalid: "输入内容不符合要求，请缩短后再试。",
+      limitReached: "Demo 次数已用完。你可以创建免费账号继续使用 MindTrace。",
+      generic: "暂时无法生成 Demo 反思，请稍后再试。",
+    },
+  },
   home: {
     eyebrow: "MVP 演示路径",
     title: "从一次记录开始，看见趋势，再选择下一步",

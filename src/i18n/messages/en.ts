@@ -155,6 +155,47 @@ export const en = {
     ctaBody:
       "Create an account, finish the basic consent flow, and save your first entry. AI features remain optional.",
   },
+  demo: {
+    navLabel: "Demo page navigation",
+    eyebrow: "Beta demo",
+    title: "Try MindTrace with one free AI reflection",
+    intro:
+      "Experience one low-risk AI reflection without creating an account. Demo input is not saved and does not create Firebase user data.",
+    formAriaLabel: "Demo AI reflection form",
+    languageLabel: "Reflection language",
+    inputLabel: "Write your thoughts",
+    placeholder:
+      "For example: Work felt stressful today, and it was hard to let go after I got home.",
+    characterCount: "{current}/{maximum} characters",
+    privacyNotice:
+      "Please do not enter identifying details, account data, contact information, or emergency requests. Demo text is used only for this AI reflection request and is not saved to the MindTrace database.",
+    generate: "Generate AI reflection",
+    generating: "Generating",
+    resultEyebrow: "Demo result",
+    resultTitle: "AI reflection result",
+    reflectionTitle: "Emotional reflection",
+    suggestionsTitle: "Simple suggestion",
+    createAccount: "Create a free account to save your reflections",
+    login: "Login",
+    startFree: "Start Free",
+    remaining: "{count} demo reflections remaining in this browser session.",
+    limitsTitle: "Demo limits",
+    limits: [
+      "The demo allows a small number of reflections to reduce abuse.",
+      "Demo input is not saved and does not affect registered user data.",
+      "AI-generated content is for reflection only and does not provide diagnosis, treatment, medication, or emergency-response advice.",
+      "Create a free account to save records, review history, and track trends.",
+    ],
+    errors: {
+      required: "Please write a short thought first.",
+      invalid:
+        "The input does not meet the requirements. Please shorten it and try again.",
+      limitReached:
+        "The demo limit has been reached. Create a free account to continue using MindTrace.",
+      generic:
+        "Demo reflection is temporarily unavailable. Please try again later.",
+    },
+  },
   home: {
     eyebrow: "MVP demo path",
     title: "Record once, see patterns, then choose the next step",
