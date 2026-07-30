@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -105,6 +106,34 @@ function LandingPage({
               <span aria-hidden="true">{index + 1}</span>
               <strong>{step.title}</strong>
               <p>{step.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className="product-preview-section"
+        aria-labelledby="product-preview-title"
+      >
+        <div className="section-heading">
+          <h2 id="product-preview-title">{landing.productPreviewTitle}</h2>
+          <p>{landing.productPreviewIntro}</p>
+        </div>
+        <div className="product-preview-list">
+          {landing.productPreviewItems.map((item) => (
+            <article className="product-preview-card" key={item.imageSrc}>
+              <div className="product-preview-image">
+                <Image
+                  alt={item.imageAlt}
+                  fill
+                  sizes="(max-width: 720px) 100vw, 46vw"
+                  src={item.imageSrc}
+                />
+              </div>
+              <div className="product-preview-copy">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </div>
             </article>
           ))}
         </div>

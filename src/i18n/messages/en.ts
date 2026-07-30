@@ -128,6 +128,29 @@ export const en = {
         body: "Create manual plans, or ask AI for reflection and plan suggestion drafts that require your confirmation.",
       },
     ],
+    productPreviewTitle: "Product Preview",
+    productPreviewIntro:
+      "Follow the core MindTrace workflow from daily record to reflection and personal history.",
+    productPreviewItems: [
+      {
+        imageSrc: "/images/today-preview.png",
+        imageAlt: "MindTrace daily journaling form preview",
+        title: "Record your daily state",
+        body: "Track mood, stress, energy, sleep, and meaningful life events in one place.",
+      },
+      {
+        imageSrc: "/images/ai-feedback-preview.png",
+        imageAlt: "MindTrace AI reflection result preview",
+        title: "Reflect with AI support",
+        body: "Use AI to generate supportive reflections from your journal entries. AI helps you notice patterns but does not replace professional support or make decisions for you.",
+      },
+      {
+        imageSrc: "/images/history-preview.png",
+        imageAlt: "MindTrace personal history preview",
+        title: "Build your personal history",
+        body: "Review previous entries and understand how your experiences change over time.",
+      },
+    ],
     aiDemoTitle: "Optional AI reflection, safely bounded",
     aiDemoIntro:
       "AI features require separate consent. They do not save plans automatically or make decisions for you.",

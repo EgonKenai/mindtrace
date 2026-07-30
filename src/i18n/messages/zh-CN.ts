@@ -119,6 +119,29 @@ export const zhCN = {
         body: "创建手动计划，或让 AI 生成需要你确认的反思和计划建议草稿。",
       },
     ],
+    productPreviewTitle: "产品预览",
+    productPreviewIntro:
+      "从每日记录到 AI 反思和个人历史，快速了解 MindTrace 的核心流程。",
+    productPreviewItems: [
+      {
+        imageSrc: "/images/today-preview.png",
+        imageAlt: "MindTrace 每日记录表单预览",
+        title: "记录你的每日状态",
+        body: "在一个地方记录情绪、压力、精力、睡眠和有意义的生活事件。",
+      },
+      {
+        imageSrc: "/images/ai-feedback-preview.png",
+        imageAlt: "MindTrace AI 反思结果预览",
+        title: "用 AI 支持反思",
+        body: "基于日记记录生成支持性反思。AI 可以帮助你留意模式，但不会替代专业支持，也不会替你做决定。",
+      },
+      {
+        imageSrc: "/images/history-preview.png",
+        imageAlt: "MindTrace 个人历史预览",
+        title: "建立你的个人历史",
+        body: "回看过往记录，理解自己的体验如何随着时间变化。",
+      },
+    ],
     aiDemoTitle: "可选 AI 反思，边界清晰",
     aiDemoIntro: "AI 功能需要独立同意；不会自动保存计划，也不会替你做决定。",
     aiDemoCards: [
