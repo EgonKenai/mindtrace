@@ -23,17 +23,24 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
               <Link href={prefix}>{zhCN.navigation.overview}</Link>
               <Link href={`${prefix}/today`}>{zhCN.navigation.today}</Link>
               <Link href={`${prefix}/history`}>{zhCN.navigation.history}</Link>
-              <Link href={`${prefix}/trends`}>{zhCN.navigation.trends}</Link>
-              <Link href={`${prefix}/long-term`}>
-                {zhCN.navigation.longTerm}
-              </Link>
+              <details className="site-nav-dropdown">
+                <summary>{zhCN.navigation.insights}</summary>
+                <div>
+                  <Link href={`${prefix}/trends`}>
+                    {zhCN.navigation.trends}
+                  </Link>
+                  <Link href={`${prefix}/long-term`}>
+                    {zhCN.navigation.longTerm}
+                  </Link>
+                </div>
+              </details>
               <Link href={`${prefix}/plans`}>{zhCN.navigation.plans}</Link>
               <Link href={`${prefix}/settings`}>
                 {zhCN.navigation.settings}
               </Link>
             </>
           )}
-          <Link href="/demo">{zhCN.navigation.demo}</Link>
+          {!user && <Link href="/demo">{zhCN.navigation.demo}</Link>}
           <Link href={`${prefix}/product-boundary`}>
             {zhCN.navigation.productBoundary}
           </Link>

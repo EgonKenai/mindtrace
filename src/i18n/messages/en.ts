@@ -14,6 +14,7 @@ export const en = {
     ariaLabel: "Main navigation",
     demo: "Demo",
     history: "History",
+    insights: "Insights",
     login: "Login",
     longTerm: "Long-term",
     overview: "Overview",

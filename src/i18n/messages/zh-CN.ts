@@ -11,6 +11,7 @@ export const zhCN = {
     ariaLabel: "主导航",
     demo: "Demo",
     history: "历史",
+    insights: "洞察",
     login: "登录",
     longTerm: "长期摘要",
     overview: "总览",
