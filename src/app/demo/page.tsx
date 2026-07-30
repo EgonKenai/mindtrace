@@ -20,6 +20,9 @@ export default function DemoPage() {
           <small>{en.brand.shortDescription}</small>
         </Link>
         <div className="home-actions">
+          <Link className="secondary-button" href="/en">
+            {copy.productOverview}
+          </Link>
           <Link className="secondary-button" href="/en/login">
             {copy.login}
           </Link>
