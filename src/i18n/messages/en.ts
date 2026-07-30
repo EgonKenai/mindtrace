@@ -215,6 +215,7 @@ export const en = {
       "Demo AI reflection is unavailable right now. Your demo input was temporary and was not saved to MindTrace.",
     createAccount: "Start Free",
     login: "Login",
+    productOverview: "Explore how MindTrace works",
     startFree: "Start Free",
     remaining: "{count} demo reflections remaining in this browser session.",
     limitsTitle: "Demo limits",

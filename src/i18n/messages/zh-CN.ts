@@ -205,6 +205,7 @@ export const zhCN = {
       "Demo AI 反思暂时不可用。你的 Demo 输入只是临时用于本次请求，没有保存到 MindTrace。",
     createAccount: "免费开始",
     login: "登录",
+    productOverview: "了解 MindTrace 如何运作",
     startFree: "免费开始",
     remaining: "本次浏览器会话还可体验 {count} 次。",
     limitsTitle: "Demo 限制",

@@ -169,6 +169,9 @@ export function DemoReflectionForm({ copy, locale }: DemoReflectionFormProps) {
             <Link className="secondary-button" href={`/${locale}/login`}>
               {copy.login}
             </Link>
+            <Link className="secondary-button" href={`/${locale}`}>
+              {copy.productOverview}
+            </Link>
           </div>
         </section>
       )}
