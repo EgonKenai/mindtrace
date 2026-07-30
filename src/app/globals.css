@@ -1872,16 +1872,61 @@ button:disabled {
     flex-wrap: wrap;
   }
 
+  .brand-link small {
+    display: none;
+  }
+
   .site-nav {
     width: 100%;
+    overflow-x: auto;
     justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 10px 18px;
+    flex-wrap: nowrap;
+    gap: 12px;
+    padding: 2px 0 6px;
+    font-size: 0.88rem;
+    scrollbar-width: thin;
+    white-space: nowrap;
+  }
+
+  .site-nav a,
+  .site-nav summary,
+  .language-switcher {
+    flex: 0 0 auto;
+  }
+
+  .site-nav-dropdown {
+    flex: 0 0 auto;
   }
 
   .site-nav-dropdown div {
-    left: 0;
-    right: auto;
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+
+  .landing-hero {
+    padding: 30px 22px;
+  }
+
+  .landing-hero h1 {
+    font-size: clamp(2.05rem, 9.2vw, 3rem);
+    line-height: 1.08;
+  }
+
+  .landing-hero p {
+    font-size: 1rem;
+    line-height: 1.62;
+  }
+
+  .landing-hero .home-actions {
+    width: auto;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
+
+  .landing-hero .home-actions > * {
+    flex: 0 0 auto;
   }
 
   .page-shell {
