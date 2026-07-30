@@ -182,6 +182,17 @@ function LandingPage({
           </Link>
         </div>
       </section>
+
+      <footer className="landing-footer" aria-labelledby="landing-footer-title">
+        <div>
+          <h2 id="landing-footer-title">{landing.footerTitle}</h2>
+          <p>{landing.footerBody}</p>
+        </div>
+        <address>
+          <span>{landing.footerEmailLabel}</span>
+          <a href={`mailto:${landing.footerEmail}`}>{landing.footerEmail}</a>
+        </address>
+      </footer>
     </main>
   );
 }

@@ -186,6 +186,11 @@ export const en = {
     ctaTitle: "Ready to start recording?",
     ctaBody:
       "Start free to save reflections, review your history, and track personal patterns over time. AI features remain optional.",
+    footerTitle: "Feedback & Contact",
+    footerBody:
+      "Have suggestions, questions, or feedback about MindTrace? I would love to hear from early users and improve the product.",
+    footerEmailLabel: "Email:",
+    footerEmail: "yigang2790@gmail.com",
   },
   demo: {
     navLabel: "Demo page navigation",

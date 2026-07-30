@@ -439,7 +439,8 @@ textarea {
 
 .demo-flow-card,
 .home-info-card,
-.home-safety-strip {
+.home-safety-strip,
+.landing-footer {
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -489,17 +490,48 @@ textarea {
   gap: 8px;
 }
 
-.home-safety-strip {
+.home-safety-strip,
+.landing-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
 }
 
-.home-safety-strip > div:first-child {
+.home-safety-strip > div:first-child,
+.landing-footer > div:first-child {
   display: grid;
   gap: 8px;
   min-width: 0;
+}
+
+.landing-footer {
+  background: var(--surface-muted);
+}
+
+.landing-footer h2,
+.landing-footer p {
+  margin: 0;
+}
+
+.landing-footer h2 {
+  font-size: 1.05rem;
+}
+
+.landing-footer p {
+  color: var(--text-muted);
+}
+
+.landing-footer address {
+  display: grid;
+  gap: 4px;
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+.landing-footer address a {
+  font-weight: 700;
 }
 
 .demo-topbar {
@@ -1973,7 +2005,8 @@ button:disabled {
     flex-direction: column;
   }
 
-  .home-safety-strip {
+  .home-safety-strip,
+  .landing-footer {
     align-items: stretch;
     flex-direction: column;
   }

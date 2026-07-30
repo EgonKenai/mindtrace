@@ -176,6 +176,11 @@ export const zhCN = {
     ctaTitle: "准备开始记录了吗？",
     ctaBody:
       "免费开始，保存你的反思、回看历史，并长期追踪属于自己的模式。AI 功能始终是可选的。",
+    footerTitle: "Feedback & Contact",
+    footerBody:
+      "如果你对 MindTrace 有建议、问题或反馈，我很希望听到早期用户的想法，并继续改进这个产品。",
+    footerEmailLabel: "Email:",
+    footerEmail: "yigang2790@gmail.com",
   },
   demo: {
     navLabel: "Demo 页面导航",
