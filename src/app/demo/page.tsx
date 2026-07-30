@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { DemoReflectionForm } from "@/features/demo/components/demo-reflection-form";
+import { DemoReflectionShowcase } from "@/features/demo/components/demo-reflection-showcase";
 import { en } from "@/i18n/messages/en";
 
 export const metadata: Metadata = {
@@ -37,18 +37,7 @@ export default function DemoPage() {
         </div>
       </section>
 
-      <section className="demo-experience-grid" aria-label={copy.formAriaLabel}>
-        <DemoReflectionForm copy={copy} />
-
-        <aside className="demo-side-note">
-          <h2>{copy.limitsTitle}</h2>
-          <ul>
-            {copy.limits.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </aside>
-      </section>
+      <DemoReflectionShowcase copy={copy} locale="en" />
     </main>
   );
 }

@@ -9,7 +9,9 @@ export const zhCN = {
   },
   navigation: {
     ariaLabel: "主导航",
+    demo: "Demo",
     history: "历史",
+    login: "登录",
     longTerm: "长期摘要",
     overview: "总览",
     plans: "计划",
@@ -86,13 +88,20 @@ export const zhCN = {
     },
   },
   landing: {
-    eyebrow: "私人状态记录与反思工具",
-    title: "记录情绪、压力和睡眠，用更温和的方式看见自己的变化",
+    eyebrow: "面向日常成长的私人反思工具",
+    title: "理解自己的情绪，把每天的片刻变成更清晰的洞察",
     intro:
-      "MindTrace 帮助成年人保存日常状态记录，回看趋势与长期摘要，并在你主动选择时生成低风险 AI 反思或计划建议草稿。它不是医疗诊断、治疗、用药或紧急响应工具。",
+      "MindTrace 帮助你记录当下感受，用更温和的方式回看变化，并逐渐发现属于自己的生活模式。可选 AI 草稿仅供自我反思参考，不提供诊断、治疗、用药或紧急响应建议。",
     actionsLabel: "开始使用 MindTrace",
     startFree: "免费开始",
     login: "登录",
+    visualTitle: "今日 MindTrace",
+    visualMood: "情绪",
+    visualStress: "压力",
+    visualReflection: "AI 反思",
+    visualReflectionBody:
+      "也许可以先看见今天哪里比较沉，再选择一个很小的下一步。",
+    visualPrivacy: "隐私优先",
     howTitle: "如何使用",
     howIntro: "从一条简单记录开始，逐步建立只属于你的历史、趋势和行动计划。",
     howSteps: [
@@ -109,7 +118,7 @@ export const zhCN = {
         body: "创建手动计划，或让 AI 生成需要你确认的反思和计划建议草稿。",
       },
     ],
-    aiDemoTitle: "AI 只做低风险草稿",
+    aiDemoTitle: "可选 AI 反思，边界清晰",
     aiDemoIntro: "AI 功能需要独立同意；不会自动保存计划，也不会替你做决定。",
     aiDemoCards: [
       {
@@ -125,24 +134,24 @@ export const zhCN = {
         body: "AI 可以起草计划建议，但只有你确认后才会保存为正式计划。",
       },
     ],
-    benefitsTitle: "适合演示的核心价值",
+    benefitsTitle: "为什么使用 MindTrace",
     benefits: [
       {
-        title: "更清楚地回看自己",
-        body: "把分散的情绪、压力、睡眠和生活事件整理成可回顾的个人历史。",
-      },
-      {
         title: "隐私优先",
-        body: "个人数据通过服务端会话授权访问；浏览器不会接触 Gemini API Key 或 Firebase Admin 凭据。",
+        body: "你的反思会被视为个人数据处理，账号访问和 AI 功能都有清晰的同意边界。",
       },
       {
-        title: "安全边界明确",
-        body: "AI 内容仅供反思参考，不提供诊断、治疗、用药或紧急响应建议。",
+        title: "理解自己的模式",
+        body: "日常记录会逐渐形成历史、趋势和摘要，帮助你看见一段时间里的变化。",
+      },
+      {
+        title: "AI 作为陪伴",
+        body: "可选 AI 可以起草温和的反思和计划想法，但是否保存或采取行动始终由你决定。",
       },
     ],
     ctaTitle: "准备开始记录了吗？",
     ctaBody:
-      "创建账号后先完成基础同意，再保存第一条记录。AI 功能始终是可选的。",
+      "免费开始，保存你的反思、回看历史，并长期追踪属于自己的模式。AI 功能始终是可选的。",
   },
   demo: {
     navLabel: "Demo 页面导航",
@@ -150,10 +159,15 @@ export const zhCN = {
     title: "Try MindTrace with one free AI reflection",
     intro:
       "无需创建账号，先体验一次低风险 AI 反思。Demo 不会保存你的输入，也不会创建 Firebase 用户数据。",
+    showcaseEyebrow: "AI 反思预览",
+    showcaseTitle: "从一个真实的日记片刻开始",
+    showcaseIntro:
+      "写下几句此刻在意的事情，MindTrace 会生成一段简短、低风险的反思，让你先感受它如何支持私人的自我理解。",
     formAriaLabel: "Demo AI reflection form",
     languageLabel: "反馈语言",
-    inputLabel: "写下你的想法",
-    placeholder: "例如：今天工作压力很大，回家后还是有点放不下来。",
+    inputLabel: "今天你想反思什么？",
+    placeholder:
+      "例如：今天下班后还是有些紧绷，我想弄清楚为什么这么难放松下来。",
     characterCount: "{current}/{maximum} 字符",
     privacyNotice:
       "请不要输入真实身份信息、账号、联系方式或紧急求助内容。Demo 文本只用于本次 AI 反思请求，不保存到 MindTrace 数据库。",
@@ -163,7 +177,9 @@ export const zhCN = {
     resultTitle: "AI 反思结果",
     reflectionTitle: "情绪分析",
     suggestionsTitle: "简单建议",
-    createAccount: "Create a free account to save your reflections",
+    fallbackReflection:
+      "Demo AI 反思暂时不可用。你的 Demo 输入只是临时用于本次请求，没有保存到 MindTrace。",
+    createAccount: "免费开始",
     login: "登录",
     startFree: "免费开始",
     remaining: "本次浏览器会话还可体验 {count} 次。",
@@ -172,12 +188,13 @@ export const zhCN = {
       "Demo 只提供有限次数体验，避免滥用。",
       "Demo 不保存输入，也不会影响正式用户数据。",
       "AI 内容仅供反思参考，不提供诊断、治疗、用药或紧急响应建议。",
-      "创建免费账号后，可以保存记录、查看历史和追踪趋势。",
+      "创建免费账号后，可以保存反思、查看历史，并长期追踪自己的模式。",
     ],
     errors: {
       required: "请先写下一点想法。",
       invalid: "输入内容不符合要求，请缩短后再试。",
-      limitReached: "Demo 次数已用完。你可以创建免费账号继续使用 MindTrace。",
+      limitReached:
+        "Demo 次数已用完。你可以免费开始，在 MindTrace 中保存反思并追踪模式。",
       generic: "暂时无法生成 Demo 反思，请稍后再试。",
     },
   },

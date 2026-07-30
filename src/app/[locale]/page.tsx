@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { DemoReflectionShowcase } from "@/features/demo/components/demo-reflection-showcase";
 import {
   defaultLocale,
   isSupportedLocale,
@@ -54,13 +55,39 @@ function LandingPage({
           <h1 id="landing-title">{landing.title}</h1>
           <p>{landing.intro}</p>
         </div>
-        <div className="home-actions" aria-label={landing.actionsLabel}>
-          <Link className="primary-button" href={`/${locale}/register`}>
-            {landing.startFree}
-          </Link>
-          <Link className="secondary-button" href={`/${locale}/login`}>
-            {landing.login}
-          </Link>
+        <div className="landing-hero-side">
+          <div className="landing-hero-visual" aria-hidden="true">
+            <div className="hero-visual-header">
+              <span>{landing.visualTitle}</span>
+              <strong>{landing.visualPrivacy}</strong>
+            </div>
+            <div className="hero-visual-score-row">
+              <span>{landing.visualMood}</span>
+              <div className="hero-visual-meter">
+                <span style={{ width: "72%" }} />
+              </div>
+              <strong>7.2</strong>
+            </div>
+            <div className="hero-visual-score-row">
+              <span>{landing.visualStress}</span>
+              <div className="hero-visual-meter hero-visual-meter-accent">
+                <span style={{ width: "46%" }} />
+              </div>
+              <strong>4.6</strong>
+            </div>
+            <div className="hero-visual-reflection">
+              <span>{landing.visualReflection}</span>
+              <p>{landing.visualReflectionBody}</p>
+            </div>
+          </div>
+          <div className="home-actions" aria-label={landing.actionsLabel}>
+            <Link className="primary-button" href={`/${locale}/register`}>
+              {landing.startFree}
+            </Link>
+            <Link className="secondary-button" href={`/${locale}/login`}>
+              {landing.login}
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -83,6 +110,17 @@ function LandingPage({
         </div>
       </section>
 
+      <DemoReflectionShowcase copy={messages.demo} locale={locale} />
+
+      <section className="home-info-grid" aria-label={landing.benefitsTitle}>
+        {landing.benefits.map((benefit) => (
+          <article className="home-info-card" key={benefit.title}>
+            <h2>{benefit.title}</h2>
+            <p>{benefit.body}</p>
+          </article>
+        ))}
+      </section>
+
       <section className="landing-ai-demo" aria-labelledby="landing-ai-title">
         <div className="section-heading">
           <h2 id="landing-ai-title">{landing.aiDemoTitle}</h2>
@@ -96,15 +134,6 @@ function LandingPage({
             </article>
           ))}
         </div>
-      </section>
-
-      <section className="home-info-grid" aria-label={landing.benefitsTitle}>
-        {landing.benefits.map((benefit) => (
-          <article className="home-info-card" key={benefit.title}>
-            <h2>{benefit.title}</h2>
-            <p>{benefit.body}</p>
-          </article>
-        ))}
       </section>
 
       <section

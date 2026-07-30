@@ -10,6 +10,7 @@ import { MAX_DEMO_REFLECTION_NOTE_CHARACTERS } from "@/lib/validation/demo-feedb
 
 interface DemoReflectionFormProps {
   copy: Messages["demo"];
+  locale: AppLocale;
 }
 
 interface DemoReflectionResponse {
@@ -45,9 +46,8 @@ function formatTemplate(
   );
 }
 
-export function DemoReflectionForm({ copy }: DemoReflectionFormProps) {
+export function DemoReflectionForm({ copy, locale }: DemoReflectionFormProps) {
   const [note, setNote] = useState("");
-  const [locale, setLocale] = useState<AppLocale>("en");
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [result, setResult] = useState<FeedbackResult | null>(null);
@@ -98,17 +98,6 @@ export function DemoReflectionForm({ copy }: DemoReflectionFormProps) {
     <div className="demo-reflection-panel">
       <form className="stack-form" onSubmit={handleSubmit}>
         <label className="field">
-          <span>{copy.languageLabel}</span>
-          <select
-            value={locale}
-            onChange={(event) => setLocale(event.target.value as AppLocale)}
-          >
-            <option value="en">English</option>
-            <option value="zh-CN">中文</option>
-          </select>
-        </label>
-
-        <label className="field">
           <span>{copy.inputLabel}</span>
           <textarea
             maxLength={MAX_DEMO_REFLECTION_NOTE_CHARACTERS}
@@ -149,7 +138,11 @@ export function DemoReflectionForm({ copy }: DemoReflectionFormProps) {
 
           <div className="home-info-card">
             <h3>{copy.reflectionTitle}</h3>
-            <p>{result.reflection}</p>
+            <p>
+              {result.status === "safe_fallback"
+                ? copy.fallbackReflection
+                : result.reflection}
+            </p>
           </div>
 
           {result.suggestions.length > 0 && (
@@ -170,10 +163,10 @@ export function DemoReflectionForm({ copy }: DemoReflectionFormProps) {
           )}
 
           <div className="home-actions">
-            <Link className="primary-button" href="/en/register">
+            <Link className="primary-button" href={`/${locale}/register`}>
               {copy.createAccount}
             </Link>
-            <Link className="secondary-button" href="/en/login">
+            <Link className="secondary-button" href={`/${locale}/login`}>
               {copy.login}
             </Link>
           </div>

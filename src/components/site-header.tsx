@@ -33,10 +33,14 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
               </Link>
             </>
           )}
+          <Link href="/demo">{zhCN.navigation.demo}</Link>
           <Link href={`${prefix}/product-boundary`}>
             {zhCN.navigation.productBoundary}
           </Link>
           <Link href={`${prefix}/safety`}>{zhCN.navigation.safety}</Link>
+          {!user && (
+            <Link href={`${prefix}/login`}>{zhCN.navigation.login}</Link>
+          )}
           <LanguageSwitcher />
         </nav>
       </div>

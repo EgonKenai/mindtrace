@@ -12,7 +12,9 @@ export const en = {
   },
   navigation: {
     ariaLabel: "Main navigation",
+    demo: "Demo",
     history: "History",
+    login: "Login",
     longTerm: "Long-term",
     overview: "Overview",
     plans: "Plans",
@@ -94,14 +96,20 @@ export const en = {
     },
   },
   landing: {
-    eyebrow: "Private state journal and reflection tool",
-    title:
-      "Track mood, stress, and sleep, then notice change with more clarity",
+    eyebrow: "Private reflection for everyday growth",
+    title: "Understand your emotions and turn daily moments into insight",
     intro:
-      "MindTrace helps adults save daily state records, review trends and long-term summaries, and optionally ask AI for low-risk reflection or plan suggestion drafts. It is not a medical diagnosis, treatment, medication, or emergency-response tool.",
+      "MindTrace helps you record how life feels, reflect with more clarity, and notice gentle patterns over time. Optional AI drafts support self-reflection only; they are not diagnosis, treatment, medication, or emergency-response advice.",
     actionsLabel: "Start using MindTrace",
     startFree: "Start Free",
     login: "Login",
+    visualTitle: "Today in MindTrace",
+    visualMood: "Mood",
+    visualStress: "Stress",
+    visualReflection: "AI reflection",
+    visualReflectionBody:
+      "It may help to notice what felt heavy today, then choose one small next step.",
+    visualPrivacy: "Private by design",
     howTitle: "How it works",
     howIntro:
       "Start with one simple record, then build your own history, trends, and action plans over time.",
@@ -119,7 +127,7 @@ export const en = {
         body: "Create manual plans, or ask AI for reflection and plan suggestion drafts that require your confirmation.",
       },
     ],
-    aiDemoTitle: "AI drafts stay low-risk",
+    aiDemoTitle: "Optional AI reflection, safely bounded",
     aiDemoIntro:
       "AI features require separate consent. They do not save plans automatically or make decisions for you.",
     aiDemoCards: [
@@ -136,24 +144,24 @@ export const en = {
         body: "AI can draft plan ideas, but only your confirmation saves them as formal plans.",
       },
     ],
-    benefitsTitle: "Core value for the demo",
+    benefitsTitle: "Why MindTrace",
     benefits: [
       {
-        title: "See your own history",
-        body: "Turn scattered mood, stress, sleep, and life-event records into a private timeline you can revisit.",
+        title: "Private by design",
+        body: "Your reflections are treated as personal data, with account access and AI features kept behind clear consent boundaries.",
       },
       {
-        title: "Privacy-first boundary",
-        body: "Personal data is accessed through server-side sessions. The browser never receives Gemini API keys or Firebase Admin credentials.",
+        title: "Understand your patterns",
+        body: "Daily records become history, trends, and summaries that help you notice what changes over time.",
       },
       {
-        title: "Clear safety limits",
-        body: "AI-generated content is for reflection only and does not provide diagnosis, treatment, medication, or emergency-response advice.",
+        title: "AI as a companion",
+        body: "Optional AI can draft gentle reflections and plan ideas, while you stay in control of what to save or act on.",
       },
     ],
     ctaTitle: "Ready to start recording?",
     ctaBody:
-      "Create an account, finish the basic consent flow, and save your first entry. AI features remain optional.",
+      "Start free to save reflections, review your history, and track personal patterns over time. AI features remain optional.",
   },
   demo: {
     navLabel: "Demo page navigation",
@@ -161,11 +169,15 @@ export const en = {
     title: "Try MindTrace with one free AI reflection",
     intro:
       "Experience one low-risk AI reflection without creating an account. Demo input is not saved and does not create Firebase user data.",
+    showcaseEyebrow: "AI reflection preview",
+    showcaseTitle: "Start with one honest journal moment",
+    showcaseIntro:
+      "Write a few lines about what is on your mind. MindTrace will return a brief, low-risk reflection so you can feel how the product supports private self-understanding.",
     formAriaLabel: "Demo AI reflection form",
     languageLabel: "Reflection language",
-    inputLabel: "Write your thoughts",
+    inputLabel: "What would you like to reflect on today?",
     placeholder:
-      "For example: Work felt stressful today, and it was hard to let go after I got home.",
+      "For example: I felt tense after work today, and I am trying to understand what made it hard to unwind.",
     characterCount: "{current}/{maximum} characters",
     privacyNotice:
       "Please do not enter identifying details, account data, contact information, or emergency requests. Demo text is used only for this AI reflection request and is not saved to the MindTrace database.",
@@ -175,7 +187,9 @@ export const en = {
     resultTitle: "AI reflection result",
     reflectionTitle: "Emotional reflection",
     suggestionsTitle: "Simple suggestion",
-    createAccount: "Create a free account to save your reflections",
+    fallbackReflection:
+      "Demo AI reflection is unavailable right now. Your demo input was temporary and was not saved to MindTrace.",
+    createAccount: "Start Free",
     login: "Login",
     startFree: "Start Free",
     remaining: "{count} demo reflections remaining in this browser session.",
@@ -184,14 +198,14 @@ export const en = {
       "The demo allows a small number of reflections to reduce abuse.",
       "Demo input is not saved and does not affect registered user data.",
       "AI-generated content is for reflection only and does not provide diagnosis, treatment, medication, or emergency-response advice.",
-      "Create a free account to save records, review history, and track trends.",
+      "Create a free account to save reflections, review your history, and track patterns over time.",
     ],
     errors: {
       required: "Please write a short thought first.",
       invalid:
         "The input does not meet the requirements. Please shorten it and try again.",
       limitReached:
-        "The demo limit has been reached. Create a free account to continue using MindTrace.",
+        "The demo limit has been reached. Start free to save reflections and track patterns in MindTrace.",
       generic:
         "Demo reflection is temporarily unavailable. Please try again later.",
     },
