@@ -40,7 +40,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
               </Link>
             </>
           )}
-          {!user && <Link href="/demo">{zhCN.navigation.demo}</Link>}
+          {!user && <Link href={`${prefix}/demo`}>{zhCN.navigation.demo}</Link>}
           <Link href={`${prefix}/product-boundary`}>
             {zhCN.navigation.productBoundary}
           </Link>

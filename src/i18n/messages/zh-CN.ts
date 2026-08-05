@@ -184,15 +184,15 @@ export const zhCN = {
   },
   demo: {
     navLabel: "Demo 页面导航",
-    eyebrow: "Beta demo",
-    title: "Try MindTrace with one free AI reflection",
+    eyebrow: "Beta 体验",
+    title: "免费体验一次 MindTrace AI 反思",
     intro:
       "无需创建账号，先体验一次低风险 AI 反思。Demo 不会保存你的输入，也不会创建 Firebase 用户数据。",
     showcaseEyebrow: "AI 反思预览",
     showcaseTitle: "从一个真实的日记片刻开始",
     showcaseIntro:
       "写下几句此刻在意的事情，MindTrace 会生成一段简短、低风险的反思，让你先感受它如何支持私人的自我理解。",
-    formAriaLabel: "Demo AI reflection form",
+    formAriaLabel: "Demo AI 反思表单",
     languageLabel: "反馈语言",
     inputLabel: "今天你想反思什么？",
     placeholder:
@@ -202,7 +202,7 @@ export const zhCN = {
       "请不要输入真实身份信息、账号、联系方式或紧急求助内容。Demo 文本只用于本次 AI 反思请求，不保存到 MindTrace 数据库。",
     generate: "生成 AI 反思",
     generating: "正在生成",
-    resultEyebrow: "Demo result",
+    resultEyebrow: "Demo 结果",
     resultTitle: "AI 反思结果",
     reflectionTitle: "情绪分析",
     suggestionsTitle: "简单建议",
