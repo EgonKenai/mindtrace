@@ -4,7 +4,7 @@ export const en = {
   ...zhCN,
   metadata: {
     title: "MindTrace",
-    description: "A private mood, stress, sleep, and life-event journal",
+    description: "A private mood, stress, and sleep journal powered by Gemini.",
   },
   brand: {
     name: "MindTrace",

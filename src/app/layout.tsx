@@ -1,21 +1,33 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { zhCN } from "@/i18n/messages/zh-CN";
-
 import "./globals.css";
+
+const defaultTitle = "MindTrace";
+const defaultDescription =
+  "A private mood, stress, and sleep journal powered by Gemini.";
 
 export const metadata: Metadata = {
   title: {
-    default: zhCN.metadata.title,
-    template: `%s | ${zhCN.metadata.title}`,
+    default: defaultTitle,
+    template: `%s | ${defaultTitle}`,
   },
-  description: zhCN.metadata.description,
+  description: defaultDescription,
+  openGraph: {
+    title: defaultTitle,
+    description: defaultDescription,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: defaultTitle,
+    description: defaultDescription,
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );
